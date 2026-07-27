@@ -47,22 +47,22 @@ function Test-ExcludedReleasePath {
 function Assert-SafeArchiveEntryName {
     param([Parameter(Mandatory = $true)][string]$EntryName)
 
-    if ([string]::IsNullOrWhiteSpace($EntryName)
-        -or $EntryName.StartsWith('/')
-        -or $EntryName.StartsWith('\')
-        -or $EntryName.Contains('\')
-        -or $EntryName.Contains(':')
+    if ([string]::IsNullOrWhiteSpace($EntryName) -or
+        $EntryName.StartsWith('/') -or
+        $EntryName.StartsWith('\') -or
+        $EntryName.Contains('\') -or
+        $EntryName.Contains(':')
     ) {
         throw "Nome non sicuro nel pacchetto: $EntryName"
     }
 
     $reservedNames = '^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$'
     foreach ($segment in $EntryName.Split('/')) {
-        if ([string]::IsNullOrWhiteSpace($segment)
-            -or $segment -eq '.'
-            -or $segment -eq '..'
-            -or $segment.EndsWith('.')
-            -or $segment.EndsWith(' ')
+        if ([string]::IsNullOrWhiteSpace($segment) -or
+            $segment -eq '.' -or
+            $segment -eq '..' -or
+            $segment.EndsWith('.') -or
+            $segment.EndsWith(' ')
         ) {
             throw "Segmento non sicuro nel pacchetto: $EntryName"
         }
