@@ -2,9 +2,11 @@
 
 Gestionale interno per uno studio tecnico, sviluppato con PHP 8.4, Symfony 8.1, Doctrine ORM 3, SQLite, Twig e Tabler 1.4.0.
 
-**Candidate corrente:** `0.9.1-M9.1-HF2`  
-**Ultima baseline validata:** M8  
-**Gate atteso:** `M9.1 HOTFIX 2 VALIDATION PASSED`
+**Candidate corrente:** `0.9.2-M9.2-A-HF1`  
+**Correzione:** parser PowerShell del comando di packaging.  
+**Ultima baseline validata:** M9.1 Hotfix 3 corretta  
+**Archivio baseline:** `StudioCommesse_M9.1_Hotfix3_Corretto.zip`  
+**Gate atteso:** `M9.2-A HOTFIX 1 VALIDATION PASSED`
 
 ## Funzioni disponibili
 
@@ -22,24 +24,23 @@ Gestionale interno per uno studio tecnico, sviluppato con PHP 8.4, Symfony 8.1, 
 - spese e incassi semplici, senza contabilità fiscale;
 - visibilità economica per ruolo: i collaboratori vedono e gestiscono soltanto le proprie spese;
 - riepilogo economico con costi, incassato, residuo e margine;
-- report soci degli importi dovuti per cliente, con preventivato, incassato e residuo;
+- importi dovuti per cliente, visibili esclusivamente ai soci;
 - area soci `Controllo` con chiusura operativa, economica e complessiva;
 - indicatori su commesse ferme, scostamenti e sovraccarico;
 - riepiloghi per persona, cliente e mese con filtri persistenti;
 - valutazione giornaliera di ogni collaboratore con attività svolte, descrizioni e ore totali;
 - form CRUD responsive con campi compatti affiancati sui soli schermi grandi, testi estesi a riga intera e salvataggi a piena larghezza;
 - pagine multi-colonna a una sola colonna sotto il breakpoint `lg`;
-- DataTables 2.3.8 e Responsive 3.0.8 locali su tutte le tabelle, con ordinamento e ricerca rapida;
+- DataTables 2.3.8 e Responsive 3.0.8 locali su tutte le tabelle;
 - navigazione coerente dalle colonne identificative e operazioni distruttive concentrate nelle schermate di modifica;
 - area `Documenti` con allegati protetti di commessa e attività, classificazione, impronta SHA-256 e download autorizzato;
 - report mensile soci con ore, movimenti per commessa, spese, incassi, documenti, azioni di audit e CSV;
 - backup e ripristino coordinati di SQLite e allegati, con manifest, hash, verifica e backup automatico pre-ripristino;
-- file salvati fuori da `public`, con limite 10 MiB e controlli su estensione, MIME e firma del contenuto;
 - fixtures dimostrative ricche, deterministiche e idempotenti.
 
 ## Aggiornamento e validazione
 
-Preservare `.env.local`, il database locale e `var/storage/attachments`, quindi eseguire:
+Durante un aggiornamento preservare sempre `.env.local`, il database locale, `var/storage/attachments` e gli archivi di backup, quindi eseguire:
 
 ```powershell
 .\scripts\setup.ps1 -SkipPartnerBootstrap
@@ -49,12 +50,30 @@ Preservare `.env.local`, il database locale e `var/storage/attachments`, quindi 
 Esito atteso:
 
 ```text
-M9.1 HOTFIX 2 VALIDATION PASSED
+M9.2-A HOTFIX 1 VALIDATION PASSED
 ```
+
+La baseline corretta M9.1 Hotfix 3 è stata validata con 171 test e 1.631 asserzioni.
+
+## Creazione del pacchetto di distribuzione
+
+Per produrre uno ZIP pulito e già verificato:
+
+```powershell
+.\scripts\package-release.ps1
+```
+
+Output predefinito:
+
+```text
+dist/StudioCommesse_M9.2-A_Hotfix1_PowerShell_Parser.zip
+```
+
+Il comando non modifica i dati locali. Dal pacchetto esclude automaticamente `.env.local`, database, allegati operativi, backup, log, cache, `vendor`, `node_modules`, asset generati e altri file locali. Il gate crea inoltre un pacchetto temporaneo e ne verifica l’inventario. Vedere `docs/PACKAGING.md`.
 
 ## Backup e ripristino
 
-Creazione e verifica automatica dello ZIP:
+Creazione e verifica automatica dello ZIP operativo:
 
 ```powershell
 .\scripts\backup.ps1
@@ -66,22 +85,13 @@ Verifica dell’ultimo archivio creato:
 .\scripts\verify-backup.ps1
 ```
 
-Verifica di un archivio specifico o del più recente che corrisponde a un pattern:
-
-```powershell
-.\scripts\verify-backup.ps1 -Archive ".\backups\StudioCommesse_Backup_20260727-230000.zip"
-.\scripts\verify-backup.ps1 -Archive ".\backups\StudioCommesse_Backup_*.zip"
-```
-
-Il nome con data e ora mostrato negli esempi è illustrativo: usare il percorso stampato da `backup.ps1`. Se il file indicato non esiste, lo script elenca gli archivi disponibili.
-
 Ripristino esplicito, con backup automatico dello stato corrente:
 
 ```powershell
 .\scripts\restore-backup.ps1 -Archive "<backup.zip>" -Confirm RESTORE
 ```
 
-Gli archivi non sono cifrati automaticamente e devono essere conservati in una posizione protetta. Se un ripristino fallisce, la manutenzione resta attiva e si rimuove soltanto dopo verifica con `.\scripts\clear-maintenance.ps1 -Confirm CLEAR`.
+Gli archivi operativi non sono cifrati automaticamente e devono essere conservati in una posizione protetta. Vedere `docs/BACKUP_RESTORE.md`.
 
 ## Fixtures
 
@@ -91,16 +101,14 @@ Le fixtures non vengono mai caricate dal setup ordinario. Per generare o aggiorn
 .\scripts\load-fixtures.ps1
 ```
 
-Lo script seleziona esplicitamente l’ambiente `dev`, non usa `--force` e ripristina le variabili ambientali iniziali al termine.
-
-Account principale:
+Account principale del dataset dimostrativo:
 
 ```text
 Username: demo.socio
 Password: Demo-accesso-2026!
 ```
 
-Il profilo standard genera 8 utenti, 10 clienti, 30 commesse, 200 attività, 600 registrazioni ore, 240 spese e 120 incassi. Le ore sono distribuite tra assegnatari, altri collaboratori e soci.
+Il profilo standard genera 8 utenti, 10 clienti, 30 commesse, 200 attività, 600 registrazioni ore, 240 spese e 120 incassi.
 
 ## Avvio locale
 
@@ -116,10 +124,8 @@ php -d opcache.enable_cli=1 -S 127.0.0.1:8000 -t public public/router.php
 
 ## Prestazioni e diagnosi
 
-Per un controllo ripetibile delle pagine principali, incluse le aree `/ore` e `/controllo`:
-
 ```powershell
 .\scripts\diagnose-performance.ps1
 ```
 
-La documentazione tecnica è nella cartella `docs`; vedere `docs/ATTACHMENTS.md`, `docs/ECONOMICS_VISIBILITY.md`, `docs/MONTHLY_REPORT.md` e `docs/BACKUP_RESTORE.md`.
+La documentazione tecnica è nella cartella `docs`.

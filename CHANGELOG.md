@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.9.2-M9.2-A-HF1 — Candidate
+
+- Corretto il parser PowerShell di `scripts/package-release.ps1`: il risultato di `Get-ChildItem` usato da `foreach` è ora racchiuso tra parentesi.
+- Aggiunti contratto CLI e test PHPUnit per impedire la regressione sintattica.
+- Nessuna modifica alle funzionalità applicative, allo schema Doctrine o alle dipendenze.
+- Gate atteso: `M9.2-A HOTFIX 1 VALIDATION PASSED`.
+
+## 0.9.2-M9.2-A — Candidate iniziale non validata
+
+- Basata esclusivamente sulla baseline validata `StudioCommesse_M9.1_Hotfix3_Corretto.zip`.
+- Riallineati versione, gate, README, roadmap, handoff, avvio nuova chat, testing e checklist.
+- Aggiunto `package-release.ps1` per creare e verificare uno ZIP di distribuzione pulito.
+- Esclusi dal pacchetto `.env.local`, database, allegati, backup, log, cache, dipendenze installate, asset generati e file temporanei.
+- Aggiunti contratto statico, test e smoke test del packaging nel gate.
+- Nessuna modifica funzionale, nessuna migrazione e nessuna nuova dipendenza.
+- Gate atteso: `M9.2-A VALIDATION PASSED`.
+
+## 0.9.1-M9.1-HF3 — Baseline validata corretta
+
+- Archivio autoritativo: `StudioCommesse_M9.1_Hotfix3_Corretto.zip`.
+- Validazione confermata con `M9.1 HOTFIX 2 VALIDATION PASSED`: 171 test e 1.631 asserzioni.
+- Corretto il test PHP che interpolava erroneamente `$safetyBackupDirectory`.
+- Nota del filtro in `/attivita` resa testo normale a larghezza piena.
+- Aggiunta in `/clienti` la colonna `Dovuto`, visibile esclusivamente ai soci.
+- Aggiunto il collegamento `Riepilogo dovuti` verso Economia.
+- Dovuto calcolato come `max(0, preventivo - incassi)` e sommato sulle sole commesse attive del cliente.
+- Dati economici confermati non visibili ai collaboratori.
+
 ## 0.9.1-M9.1-HF2 — Candidate
 
 - Basata esclusivamente sulla candidate M9.1 Hotfix 1 derivata dalla baseline validata M8.

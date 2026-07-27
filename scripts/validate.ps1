@@ -75,6 +75,8 @@ Invoke-Checked -Command "php" -Arguments @("scripts/monthly-report-contract.php"
 Invoke-Checked -Command "php" -Arguments @("scripts/backup-contract.php")
 Invoke-Checked -Command "php" -Arguments @("scripts/m91-hotfix1-contract.php")
 Invoke-Checked -Command "php" -Arguments @("scripts/m91-hotfix2-contract.php")
+Invoke-Checked -Command "php" -Arguments @("scripts/m92a-packaging-contract.php")
+Invoke-Checked -Command "php" -Arguments @("scripts/m92a-hotfix1-contract.php")
 Invoke-Checked -Command "php" -Arguments @("bin/console", "lint:yaml", "config")
 Invoke-Checked -Command "php" -Arguments @("bin/console", "lint:twig", "templates")
 Invoke-Checked -Command "php" -Arguments @("bin/console", "cache:clear", "--env=dev")
@@ -94,7 +96,21 @@ finally {
     Remove-Item $backupSmokeDirectory -Recurse -Force -ErrorAction SilentlyContinue
 }
 
+
+$packageSmokeDirectory = Join-Path (Get-Location) "var/package-smoke"
+$packageSmokeArchive = Join-Path $packageSmokeDirectory "StudioCommesse_M9.2-A_Hotfix1_Smoke.zip"
+Remove-Item $packageSmokeDirectory -Recurse -Force -ErrorAction SilentlyContinue
+try {
+    & .\scripts\package-release.ps1 -OutputPath $packageSmokeArchive -Force
+    if (-not (Test-Path $packageSmokeArchive -PathType Leaf)) {
+        throw "Il pacchetto smoke M9.2-A Hotfix 1 non è stato creato."
+    }
+}
+finally {
+    Remove-Item $packageSmokeDirectory -Recurse -Force -ErrorAction SilentlyContinue
+}
+
 Invoke-Checked -Command "php" -Arguments @("vendor/bin/phpstan", "analyse", "--memory-limit=1G")
 Invoke-Checked -Command "php" -Arguments @("vendor/bin/phpunit")
 
-Write-Host "M9.1 HOTFIX 2 VALIDATION PASSED" -ForegroundColor Green
+Write-Host "M9.2-A HOTFIX 1 VALIDATION PASSED" -ForegroundColor Green

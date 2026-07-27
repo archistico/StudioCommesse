@@ -30,13 +30,4 @@ if (!str_contains($manager, 'readMigrationVersions($databasePath)')) {
     exit(1);
 }
 
-$services = (string) file_get_contents($root.'/config/services.yaml');
-$validation = (string) file_get_contents($root.'/scripts/validate.ps1');
-if (!str_contains($services, "app.version: '0.9.1-M9.1-HF2'")
-    || !str_contains($validation, 'M9.1 HOTFIX 2 VALIDATION PASSED')
-) {
-    fwrite(STDERR, 'Versione o gate M9.1 Hotfix 2 non allineati.'.PHP_EOL);
-    exit(1);
-}
-
 echo 'Contratto M9.1 Hotfix 2 superato.'.PHP_EOL;

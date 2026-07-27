@@ -198,8 +198,8 @@ final class DependencyContractTest extends TestCase
         self::assertIsString($services);
         self::assertIsString($m2Migration);
         self::assertIsString($m3Migration);
-        self::assertStringContainsString("app.version: '0.9.1-M9.1-HF2'", $services);
-        self::assertSame('0.9.1-m9.1-hf2', $package['version'] ?? null);
+        self::assertStringContainsString("app.version: '0.9.2-M9.2-A-HF1'", $services);
+        self::assertSame('0.9.2-m9.2-a-hf1', $package['version'] ?? null);
         self::assertStringContainsString("createTable('client')", $m2Migration);
         self::assertStringContainsString("createTable('project')", $m2Migration);
         self::assertStringContainsString("createTable('project_code_sequence')", $m2Migration);
@@ -234,7 +234,7 @@ final class DependencyContractTest extends TestCase
         $validation = file_get_contents(dirname(__DIR__, 2).'/scripts/validate.ps1');
 
         self::assertIsString($validation);
-        self::assertStringContainsString('M9.1 HOTFIX 2 VALIDATION PASSED', $validation);
+        self::assertStringContainsString('M9.2-A HOTFIX 1 VALIDATION PASSED', $validation);
         self::assertStringNotContainsString('M2 HOTFIX 1 VALIDATION PASSED', $validation);
         self::assertStringNotContainsString('M1 HOTFIX 7 VALIDATION PASSED', $validation);
     }
@@ -274,10 +274,10 @@ final class DependencyContractTest extends TestCase
         $migration = file_get_contents(dirname(__DIR__, 2).'/migrations/Version20260727200000.php');
         $validation = file_get_contents(dirname(__DIR__, 2).'/scripts/validate.ps1');
         self::assertIsString($services); self::assertIsString($migration); self::assertIsString($validation);
-        self::assertStringContainsString("app.version: '0.9.1-M9.1-HF2'", $services);
-        self::assertSame('0.9.1-m9.1-hf2', $package['version'] ?? null);
+        self::assertStringContainsString("app.version: '0.9.2-M9.2-A-HF1'", $services);
+        self::assertSame('0.9.2-m9.2-a-hf1', $package['version'] ?? null);
         self::assertStringContainsString("createTable('time_entry')", $migration);
-        self::assertStringContainsString('M9.1 HOTFIX 2 VALIDATION PASSED', $validation);
+        self::assertStringContainsString('M9.2-A HOTFIX 1 VALIDATION PASSED', $validation);
         self::assertStringNotContainsString('M3 HOTFIX 1 VALIDATION PASSED', $validation);
     }
 
@@ -440,11 +440,11 @@ final class DependencyContractTest extends TestCase
         self::assertIsString($services);
         self::assertIsString($migration);
         self::assertIsString($validation);
-        self::assertStringContainsString("app.version: '0.9.1-M9.1-HF2'", $services);
-        self::assertSame('0.9.1-m9.1-hf2', $package['version'] ?? null);
+        self::assertStringContainsString("app.version: '0.9.2-M9.2-A-HF1'", $services);
+        self::assertSame('0.9.2-m9.2-a-hf1', $package['version'] ?? null);
         self::assertStringContainsString('ALTER TABLE payment ADD COLUMN description', $migration);
         self::assertStringContainsString('hourly_rate_snapshot_cents', $migration);
-        self::assertStringContainsString('M9.1 HOTFIX 2 VALIDATION PASSED', $validation);
+        self::assertStringContainsString('M9.2-A HOTFIX 1 VALIDATION PASSED', $validation);
         self::assertStringNotContainsString('M4 HOTFIX 1 VALIDATION PASSED', $validation);
     }
 
@@ -643,7 +643,7 @@ final class DependencyContractTest extends TestCase
         $layout = (string) file_get_contents($root.'/templates/layout/app.html.twig');
         $validation = (string) file_get_contents($root.'/scripts/validate.ps1');
 
-        self::assertStringContainsString("app.version: '0.9.1-M9.1-HF2'", $services);
+        self::assertStringContainsString("app.version: '0.9.2-M9.2-A-HF1'", $services);
         self::assertStringContainsString("app.attachment_storage_dir: '%kernel.project_dir%/var/storage/attachments'", $services);
         self::assertStringContainsString("#[ORM\Table(name: 'attachment')]", $entity);
         self::assertStringContainsString('private string $storageKey', $entity);
@@ -656,7 +656,7 @@ final class DependencyContractTest extends TestCase
         self::assertStringContainsString("createTable('attachment')", $migration);
         self::assertStringContainsString('nav-link-title">Documenti', $layout);
         self::assertStringContainsString('@("scripts/attachment-storage-contract.php")', $validation);
-        self::assertStringContainsString('M9.1 HOTFIX 2 VALIDATION PASSED', $validation);
+        self::assertStringContainsString('M9.2-A HOTFIX 1 VALIDATION PASSED', $validation);
     }
 
 
@@ -668,8 +668,8 @@ final class DependencyContractTest extends TestCase
         self::assertStringContainsString("\$path = \$directory.'/'.\$name;", $test);
         self::assertStringContainsString("\$csrfToken = (string) \$uploadForm['attachment_upload[_token]']->getValue();", $test);
         self::assertStringNotContainsString('CsrfTokenManagerInterface', $test);
-        self::assertStringContainsString("app.version: '0.9.1-M9.1-HF2'", (string) file_get_contents(dirname(__DIR__, 2).'/config/services.yaml'));
-        self::assertStringContainsString('M9.1 HOTFIX 2 VALIDATION PASSED', (string) file_get_contents(dirname(__DIR__, 2).'/scripts/validate.ps1'));
+        self::assertStringContainsString("app.version: '0.9.2-M9.2-A-HF1'", (string) file_get_contents(dirname(__DIR__, 2).'/config/services.yaml'));
+        self::assertStringContainsString('M9.2-A HOTFIX 1 VALIDATION PASSED', (string) file_get_contents(dirname(__DIR__, 2).'/scripts/validate.ps1'));
     }
 
 
@@ -697,7 +697,7 @@ final class DependencyContractTest extends TestCase
         $layout = (string) file_get_contents($root.'/templates/layout/app.html.twig');
         $validation = (string) file_get_contents($root.'/scripts/validate.ps1');
 
-        self::assertStringContainsString("app.version: '0.9.1-M9.1-HF2'", (string) file_get_contents($root.'/config/services.yaml'));
+        self::assertStringContainsString("app.version: '0.9.2-M9.2-A-HF1'", (string) file_get_contents($root.'/config/services.yaml'));
         self::assertStringContainsString("#[Route('/report/mensile')]", $controller);
         self::assertStringContainsString("#[IsGranted('ROLE_PARTNER')]", $controller);
         self::assertStringContainsString("name: 'app_monthly_report_csv'", $controller);
@@ -711,7 +711,7 @@ final class DependencyContractTest extends TestCase
         self::assertStringContainsString('Totali per azione', $template);
         self::assertStringContainsString('nav-link-title">Report mensile', $layout);
         self::assertStringContainsString('@("scripts/monthly-report-contract.php")', $validation);
-        self::assertStringContainsString('M9.1 HOTFIX 2 VALIDATION PASSED', $validation);
+        self::assertStringContainsString('M9.2-A HOTFIX 1 VALIDATION PASSED', $validation);
     }
 
 }

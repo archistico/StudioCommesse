@@ -2,30 +2,32 @@
 
 ## Stato autoritativo
 
-- ultima baseline validata: **M8**;
-- esito: `M8 VALIDATION PASSED`;
-- archivio baseline: `StudioCommesse_M8_Report_Mensile_Economia_Ruoli.zip`;
-- candidate corrente: **M9.1 Hotfix 2 `0.9.1-M9.1-HF2`**;
-- archivio candidate atteso: `StudioCommesse_M9.1_Hotfix2_Backup_Contract.zip`;
-- gate richiesto: `M9.1 HOTFIX 2 VALIDATION PASSED`.
+- ultima baseline validata: **M9.1 Hotfix 3 corretta**;
+- archivio baseline: `StudioCommesse_M9.1_Hotfix3_Corretto.zip`;
+- validazione confermata: `M9.1 HOTFIX 2 VALIDATION PASSED`;
+- risultato baseline: **171 test e 1.631 asserzioni**;
+- candidate corrente: **M9.2-A `0.9.2-M9.2-A-HF1`**;
+- archivio candidate atteso: `StudioCommesse_M9.2-A_Hotfix1_PowerShell_Parser.zip`;
+- gate richiesto: `M9.2-A HOTFIX 1 VALIDATION PASSED`.
 
-## M9.1 Hotfix 2 candidate
+## Correzioni autoritative già presenti nella baseline
 
-- backup coordinato di SQLite e `var/storage/attachments`;
-- formato `studio-commesse-backup-v1` con manifest JSON;
-- snapshot SQLite con `VACUUM INTO`;
-- allegati copiati esclusivamente in base ai record presenti nello snapshot;
-- verifica di hash, dimensioni, inventario migrazioni, `integrity_check`, `foreign_key_check` e inventario file;
-- lock condiviso sulle mutazioni documentali e lock esclusivo durante il backup;
-- modalità manutenzione e lock richieste durante ripristino, migrazioni e verifica;
-- manutenzione mantenuta attiva in caso di fallimento e sblocco esplicito `CLEAR`;
-- backup automatico pre-ripristino;
-- rollback di database e storage in caso di sostituzione fallita;
-- wrapper `backup.ps1`, `verify-backup.ps1` e `restore-backup.ps1`, con rifiuto di path traversal, symlink, flussi NTFS alternativi e nomi speciali Windows;
-- report soci degli importi dovuti per cliente;
-- correzione filtri Ore vuoti e dei narrowing PHPStan;
-- verifica automatica dell’ultimo backup o diagnostica dei file disponibili;
-- corretto il contratto PHPUnit sulle versioni di migrazione senza modificare la logica di backup;
+- contratto PHP delle versioni di migrazione senza interpolazione accidentale di `$databasePath`;
+- contratto del backup di sicurezza senza interpolazione accidentale di `$safetyBackupDirectory`;
+- nota del filtro Attività come testo normale a larghezza piena;
+- colonna `Dovuto` nell’elenco Clienti visibile esclusivamente ai soci;
+- pulsante `Riepilogo dovuti` verso Economia;
+- dovuto calcolato come `max(0, preventivo - incassi)` sulle commesse attive del cliente;
+- dati economici non esposti ai collaboratori.
+
+## M9.2-A candidate
+
+- nessuna nuova funzionalità di dominio;
+- versione e documentazione riallineate alla baseline reale;
+- `.env.local` escluso dai pacchetti di distribuzione;
+- aggiunto `scripts/package-release.ps1` per creare e verificare uno ZIP pulito;
+- esclusi dati runtime, backup, database, allegati, log, cache, dipendenze installate e asset generati;
+- aggiunti contratto statico, test e smoke test di packaging nel gate;
 - nessuna migrazione e nessuna nuova dipendenza.
 
 ## Comandi ordinari
@@ -36,14 +38,16 @@
 .\scripts\load-fixtures.ps1
 ```
 
-## Comandi backup
+## Creazione pacchetto
 
 ```powershell
-.\scripts\backup.ps1
-.\scripts\verify-backup.ps1
-.\scripts\restore-backup.ps1 -Archive "<backup.zip>" -Confirm RESTORE
+.\scripts\package-release.ps1
 ```
 
 ## Passo successivo dopo la validazione
 
-M9.2: hardening finale, test end-to-end, installazione/ripristino controllati e manuale utente completo.
+M9.2-B: audit completo di autorizzazioni e riservatezza.
+
+## M9.2-A Hotfix 1
+
+Corregge esclusivamente la sintassi PowerShell del ciclo ricorsivo in `package-release.ps1`; nessuna funzione applicativa è stata modificata. Gate: `M9.2-A HOTFIX 1 VALIDATION PASSED`.

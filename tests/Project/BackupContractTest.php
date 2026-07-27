@@ -14,7 +14,7 @@ final class BackupContractTest extends TestCase
         $root = dirname(__DIR__, 2);
         $services = Yaml::parseFile($root.'/config/services.yaml');
         self::assertIsArray($services);
-        self::assertSame('0.9.1-M9.1-HF2', $services['parameters']['app.version'] ?? null);
+        self::assertSame('0.9.2-M9.2-A-HF1', $services['parameters']['app.version'] ?? null);
 
         $manager = file_get_contents($root.'/src/Service/BackupManager.php');
         self::assertIsString($manager);

@@ -52,7 +52,7 @@ $contracts = [
     [$commonScript, 'Nome di file non sicuro nell\'archivio', 'nomi ZIP compatibili e sicuri su Windows'],
     [$commonScript, 'Nome di dispositivo Windows non consentito', 'rifiuto dispositivi speciali Windows'],
     [$restoreScript, '$Confirm -ne "RESTORE"', 'conferma esplicita ripristino'],
-    [$services, "app.version: '0.9.1-M9.1-HF2'", 'versione applicativa M9.1'],
+    [$services, "app.version: '0.9.2-M9.2-A-HF1'", 'versione applicativa corrente'],
 ];
 
 foreach ($contracts as [$content, $needle, $description]) {

@@ -31,7 +31,6 @@ Preventivi, tariffe, costi storici, spese, incassi, margini, dashboard economica
 ## M7 – Allegati e documenti — VALIDATA CON HOTFIX 1
 
 - allegati protetti su commessa e attività;
-- archivio trasversale e archivio della singola commessa;
 - file fuori da `public`, impronta SHA-256 e download autorizzato;
 - allowlist, controllo MIME/firma e permessi tramite voter;
 - audit documentale.
@@ -39,34 +38,58 @@ Preventivi, tariffe, costi storici, spese, incassi, margini, dashboard economica
 ## M8 – Report mensile e visibilità economica — VALIDATA
 
 - visibilità economica differenziata per ruolo;
-- collaboratori limitati alle proprie spese;
-- report mensile soci con ore, commesse, spese, incassi, documenti e audit;
-- esportazione CSV;
-- gate `M8 VALIDATION PASSED`.
+- report mensile soci e CSV;
+- importi dovuti per cliente riservati ai soci.
 
-## M9.1 – Backup e ripristino coordinato — CANDIDATE CON HOTFIX 2
+## M9.1 – Backup e ripristino coordinato — VALIDATA CON HOTFIX 3 CORRETTA
 
 - snapshot SQLite coerente tramite `VACUUM INTO`;
-- database e allegati salvati nello stesso backup versionato;
+- database e allegati nello stesso backup versionato;
 - manifest con hash SHA-256, dimensioni e migrazioni;
 - verifica SQLite, chiavi esterne e inventario documentale;
-- ZIP PowerShell con estrazione protetta da path traversal, symlink e nomi speciali Windows;
-- modalità manutenzione durante il ripristino;
-- sostituzione coordinata e rollback in caso di errore;
-- backup automatico dello stato precedente al ripristino;
-- nessuna nuova migrazione o dipendenza.
-- Hotfix 1: PHPStan, filtri Ore vuoti, verifica backup più usabile e importi dovuti per cliente.
-- Hotfix 2: corretto il contratto PHPUnit sulle versioni di migrazione, che interpolava accidentalmente `$databasePath`.
+- estrazione ZIP protetta;
+- modalità manutenzione e backup automatico pre-ripristino;
+- filtri Ore vuoti corretti e riepilogo dovuti per cliente;
+- nota Attività a larghezza piena e colonna `Dovuto` riservata ai soci;
+- baseline autoritativa: `StudioCommesse_M9.1_Hotfix3_Corretto.zip`;
+- gate confermato: `M9.1 HOTFIX 2 VALIDATION PASSED`, 171 test e 1.631 asserzioni.
 
-## M9.2 – Hardening e collaudo di rilascio — PROSSIMA
+## M9.2 – Hardening e collaudo di rilascio
 
-- revisione finale autorizzazioni, error handling e logging;
-- test end-to-end dei percorsi principali;
-- verifica installazione pulita, aggiornamento e ripristino;
-- manuale utente completo.
+### M9.2-A Hotfix 1 – Normalizzazione baseline e packaging — CANDIDATE CORRENTE
 
-## M9.3 – Release 1.0 — SUCCESSIVA
+- riallineamento di versione, gate, changelog, roadmap, handoff e checklist;
+- rimozione delle configurazioni locali dal pacchetto;
+- comando ripetibile per generare lo ZIP di distribuzione;
+- verifica automatica dell’inventario del pacchetto;
+- nessuna modifica funzionale, migrazione o dipendenza.
+- correzione del parser PowerShell di `package-release.ps1`;
 
-- chiusura difetti emersi nel collaudo;
-- documentazione e checklist di esercizio;
-- pacchetto stabile 1.0.
+### M9.2-B – Autorizzazioni e riservatezza — PROSSIMA
+
+- matrice completa delle rotte per ruolo e proprietà del dato;
+- verifica accessi diretti, POST costruiti manualmente e assenza di dati economici per i collaboratori.
+
+### M9.2-C – Robustezza ed error handling
+
+- transazioni, concorrenza SQLite, errori 403/404/500/503 e messaggi uniformi.
+
+### M9.2-D/E – Audit operativo e flussi end-to-end
+
+- logging, audit e scenari completi di commessa, collaboratore, chiusura e ripristino.
+
+### M9.2-F/G/H – Installazione, prestazioni, accessibilità e manuali
+
+- installazione/aggiornamento puliti, benchmark, audit responsive e documentazione utente/amministrativa.
+
+## M9.3 – Release Candidate 1.0
+
+Blocco funzionale, chiusura dei difetti e collaudo completo della RC.
+
+## M9.4 – Release stabile 1.0.0
+
+Pacchetto definitivo, documentazione finale e gate di esercizio.
+
+## M9.2-A Hotfix 1
+
+Corregge esclusivamente la sintassi PowerShell del ciclo ricorsivo in `package-release.ps1`; nessuna funzione applicativa è stata modificata. Gate: `M9.2-A HOTFIX 1 VALIDATION PASSED`.
