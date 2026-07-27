@@ -1,0 +1,62 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ title }} · {{ app_name }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block page_actions %}
+    <a class="btn btn-outline-secondary" href="{{ path('app_economics_project', {id: project.id}) }}">Torna al riepilogo</a>
+{% endblock %}
+
+{% block page_body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">{{ project.code }} · {{ project.name }}</h3></div>
+            {{ form_start(form, {attr: {autocomplete: 'off'}}) }}
+            <div class="card-body">
+                {{ form_errors(form) }}
+                <div class="row">
+                    {% if form.spentOn is defined %}
+                        <div class="col-12 col-lg-6">{{ form_row(form.spentOn) }}</div>
+                        <div class="col-12 col-lg-6">{{ form_row(form.category) }}</div>
+                        <div class="col-12 col-lg-6">{{ form_row(form.activity) }}</div>
+                        <div class="col-12 col-lg-6">{{ form_row(form.amountCents) }}</div>
+                        <div class="col-12">{{ form_row(form.description) }}</div>
+                        <div class="col-12">{{ form_row(form.reimbursable) }}</div>
+                    {% else %}
+                        <div class="col-12 col-lg-6">{{ form_row(form.paidOn) }}</div>
+                        <div class="col-12 col-lg-6">{{ form_row(form.amountCents) }}</div>
+                        <div class="col-12 col-lg-6">{{ form_row(form.method) }}</div>
+                        <div class="col-12 col-lg-6">{{ form_row(form.reference) }}</div>
+                        <div class="col-12">{{ form_row(form.description) }}</div>
+                        <div class="col-12">{{ form_row(form.notes) }}</div>
+                    {% endif %}
+                </div>
+                {{ form_rest(form) }}
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary w-100" type="submit">Salva</button>
+            </div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+        {% if not is_new %}
+            <div class="card mt-3 border-danger">
+                <div class="card-body">
+                    <h3 class="card-title text-danger">Operazione irreversibile</h3>
+                    <p class="text-secondary">L’eliminazione è disponibile soltanto nella schermata di modifica, non nelle tabelle.</p>
+                    {% if expense is defined %}
+                        <form action="{{ path('app_expense_delete', {id: expense.id}) }}" method="post" data-confirm="Eliminare definitivamente questa spesa?">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_expense_' ~ expense.id) }}">
+                            <button class="btn btn-outline-danger w-100" type="submit">Elimina spesa</button>
+                        </form>
+                    {% elseif payment is defined %}
+                        <form action="{{ path('app_payment_delete', {id: payment.id}) }}" method="post" data-confirm="Eliminare definitivamente questo incasso?">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete_payment_' ~ payment.id) }}">
+                            <button class="btn btn-outline-danger w-100" type="submit">Elimina incasso</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

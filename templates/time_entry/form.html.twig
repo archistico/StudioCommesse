@@ -1,0 +1,32 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ page_title }} · {{ app_name }}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block page_actions %}
+    <a class="btn btn-outline-secondary" href="{{ path('app_activity_time', {id: activity.id}) }}">Torna alle ore</a>
+{% endblock %}
+
+{% block page_body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">{{ activity.title }}</h3></div>
+            {{ form_start(form, {attr: {autocomplete: 'off'}}) }}
+            <div class="card-body">
+                {{ form_errors(form) }}
+                <div class="row">
+                    <div class="col-12 col-lg-6">{{ form_row(form.startedAt) }}</div>
+                    <div class="col-12 col-lg-6">{{ form_row(form.endedAt) }}</div>
+                    <div class="col-12">{{ form_row(form.description) }}</div>
+                    <div class="col-12">{{ form_row(form.billable) }}</div>
+                </div>
+                {{ form_rest(form) }}
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary w-100" type="submit">{{ submit_label }}</button>
+            </div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

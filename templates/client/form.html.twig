@@ -1,0 +1,47 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ page_title }} · {{ app_name }}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block page_actions %}
+    <a href="{{ client is defined ? path('app_client_show', {id: client.id}) : path('app_client_index') }}" class="btn btn-outline-secondary">Annulla</a>
+{% endblock %}
+
+{% block page_body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-9">
+        <div class="card">
+            {{ form_start(form, {attr: {autocomplete: 'off'}}) }}
+            <div class="card-body">
+                {{ form_errors(form) }}
+                <div class="row">
+                    <div class="col-12 col-lg-6">{{ form_row(form.name) }}</div>
+                    <div class="col-12 col-lg-6">{{ form_row(form.contactPerson) }}</div>
+                    <div class="col-12 col-lg-6">{{ form_row(form.email) }}</div>
+                    <div class="col-12 col-lg-6">{{ form_row(form.phone) }}</div>
+                    <div class="col-12">{{ form_row(form.address) }}</div>
+                    <div class="col-12 col-lg-6">{{ form_row(form.taxCode) }}</div>
+                    <div class="col-12 col-lg-6">{{ form_row(form.vatNumber) }}</div>
+                    <div class="col-12">{{ form_row(form.notes) }}</div>
+                </div>
+                {{ form_rest(form) }}
+            </div>
+            <div class="card-footer">
+                <button class="btn btn-primary w-100" type="submit">{{ submit_label }}</button>
+            </div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+        {% if client is defined %}
+            <div class="card mt-3 border-danger">
+                <div class="card-body">
+                    <h3 class="card-title text-danger">Archiviazione</h3>
+                    <p class="text-secondary">L’archiviazione è disponibile nella schermata di modifica e non nelle tabelle.</p>
+                    <form method="post" action="{{ path('app_client_archive', {id: client.id}) }}" data-confirm="Archiviare questo cliente? È possibile solo se tutte le commesse sono archiviate.">
+                        <input type="hidden" name="_token" value="{{ csrf_token('archive_client_' ~ client.id) }}">
+                        <button class="btn btn-outline-danger w-100" type="submit">Archivia cliente</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

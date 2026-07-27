@@ -1,0 +1,49 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Economia · {{ app_name }}{% endblock %}
+{% block page_title %}Economia delle commesse{% endblock %}
+
+{% block page_body %}
+<div class="row row-deck row-cards mb-3">
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Preventivi</div><div class="h2 mb-0">{{ totals.estimated|money_eur }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Costi consuntivati</div><div class="h2 mb-0">{{ totals.cost|money_eur }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Incassato</div><div class="h2 text-success mb-0">{{ totals.payments|money_eur }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Da incassare</div><div class="h2 mb-0">{{ totals.remaining|money_eur }}</div><div class="small text-secondary">{{ totals.over_budget }} commesse oltre budget</div></div></div></div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h3 class="card-title">Riepilogo per commessa</h3></div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+            <thead>
+                <tr>
+                    <th>Commessa</th>
+                    <th>Preventivo</th>
+                    <th>Costo ore</th>
+                    <th>Spese</th>
+                    <th>Costo totale</th>
+                    <th>Incassato</th>
+                    <th>Da incassare</th>
+                    <th>Margine</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for summary in summaries %}
+                <tr class="{{ summary.overBudget ? 'table-danger' : '' }}">
+                    <td><a class="fw-semibold" href="{{ path('app_economics_project', {id: summary.project.id}) }}">{{ summary.project.code }} · {{ summary.project.name }}</a><div class="small text-secondary">{{ summary.project.client.name }}</div></td>
+                    <td data-order="{{ summary.estimatedAmountCents }}">{{ summary.estimatedAmountCents|money_eur }}</td>
+                    <td data-order="{{ summary.labourCostCents }}">{{ summary.labourCostCents|money_eur }}</td>
+                    <td data-order="{{ summary.expenseCostCents }}">{{ summary.expenseCostCents|money_eur }}</td>
+                    <td class="fw-semibold" data-order="{{ summary.totalCostCents }}">{{ summary.totalCostCents|money_eur }}</td>
+                    <td class="text-success" data-order="{{ summary.paymentsCents }}">{{ summary.paymentsCents|money_eur }}</td>
+                    <td data-order="{{ summary.remainingToCollectCents }}">{{ summary.remainingToCollectCents|money_eur }}</td>
+                    <td data-order="{{ summary.marginCents }}" class="fw-semibold {{ summary.marginCents < 0 ? 'text-danger' : 'text-success' }}">{{ summary.marginCents|money_eur }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="8" class="text-secondary text-center py-4">Nessuna commessa.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

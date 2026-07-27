@@ -1,0 +1,57 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Ore · {{ activity.title }} · {{ app_name }}{% endblock %}
+{% block page_title %}Ore · {{ activity.title }}{% endblock %}
+{% block page_actions %}
+<div class="btn-list">
+    <a class="btn btn-outline-secondary" href="{{ path('app_project_show', {id: activity.project.id}) }}">Torna alla commessa</a>
+    <a class="btn btn-outline-success" href="{{ path('app_time_entry_index', {activity: activity.id}) }}">Apri nel report Ore</a>
+    {% if not activity.project.archived %}<a class="btn btn-primary" href="{{ path('app_time_entry_new', {id: activity.id}) }}">Registra ore</a>{% endif %}
+</div>
+{% endblock %}
+
+{% block page_body %}
+<div class="row row-cards mb-3">
+    <div class="col-12 col-lg-4"><div class="card"><div class="card-body"><div class="text-secondary">Consuntivato</div><div class="h2">{{ total_minutes|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-8"><div class="card"><div class="card-body">
+        {% if running %}
+            <div class="d-flex justify-content-between align-items-center gap-3">
+                <div><div class="fw-semibold">Timer attivo</div><div class="text-secondary">{{ running.activity.title }} · dalle {{ running.startedAt|date('d/m/Y H:i') }}</div></div>
+                <form action="{{ path('app_timer_stop') }}" method="post"><input type="hidden" name="_token" value="{{ csrf_token('timer_stop') }}"><button class="btn btn-danger">Ferma timer</button></form>
+            </div>
+        {% elseif not activity.project.archived %}
+            <div class="d-flex justify-content-between align-items-center gap-3">
+                <div><div class="fw-semibold">Nessun timer attivo</div><div class="text-secondary">Avvia il conteggio su questa attività.</div></div>
+                <form action="{{ path('app_timer_start', {id: activity.id}) }}" method="post"><input type="hidden" name="_token" value="{{ csrf_token('timer_start_' ~ activity.id) }}"><button class="btn btn-success">Avvia timer</button></form>
+            </div>
+        {% else %}
+            <span class="text-secondary">La commessa è archiviata: non è possibile registrare nuove ore.</span>
+        {% endif %}
+    </div></div></div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+            <thead><tr><th>Collaboratore</th><th>Inizio</th><th>Fine</th><th>Durata</th>{% if is_granted('PROJECT_VIEW_FINANCIAL', activity.project) %}<th>Tariffa</th><th>Costo</th>{% endif %}<th>Lavoro svolto</th></tr></thead>
+            <tbody>
+            {% for entry in entries %}
+                <tr>
+                    <td>{{ entry.user.displayName }}</td>
+                    <td data-order="{{ entry.startedAt|date('Y-m-d H:i:s') }}">{{ entry.startedAt|date('d/m/Y H:i') }}</td>
+                    <td data-order="{{ entry.endedAt ? entry.endedAt|date('Y-m-d H:i:s') : '9999-12-31 23:59:59' }}">{{ entry.endedAt ? entry.endedAt|date('d/m/Y H:i') : 'IN CORSO' }}</td>
+                    <td data-order="{{ entry.durationMinutes }}" class="fw-semibold">{{ entry.durationMinutes|duration_hm }}</td>
+                    {% if is_granted('PROJECT_VIEW_FINANCIAL', activity.project) %}
+                        <td data-order="{{ entry.hourlyRateSnapshotCents }}">{{ entry.hourlyRateSnapshotCents|money_eur }}/h</td>
+                        <td data-order="{{ entry.costSnapshotCents }}">{{ entry.costSnapshotCents|money_eur }}</td>
+                    {% endif %}
+                    <td>{% if (is_granted('ROLE_PARTNER') or entry.user.id == app.user.id) and not entry.running %}<a href="{{ path('app_time_entry_edit', {id: entry.id}) }}">{{ entry.description ?: 'Modifica registrazione' }}</a>{% else %}{{ entry.description ?: '—' }}{% endif %}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="{{ is_granted('PROJECT_VIEW_FINANCIAL', activity.project) ? 7 : 5 }}" class="text-center text-secondary py-4">Nessuna registrazione.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+parameters:
+  app.name: 'Studio Commesse'
+  app.version: '0.7.0-M7'
+  app.default_hourly_rate_cents: 0
+  app.attachment_storage_dir: '%kernel.project_dir%/var/storage/attachments'
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  App\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Entity/'
+      - '../src/Kernel.php'
+
+  App\Controller\:
+    resource: '../src/Controller/'
+    tags: ['controller.service_arguments']
+
+  App\Command\LoadDemoFixturesCommand:
+    arguments:
+      $kernelEnvironment: '%kernel.environment%'
+
+  App\Service\HourlyRateResolver:
+    arguments:
+      $defaultHourlyRateCents: '%app.default_hourly_rate_cents%'

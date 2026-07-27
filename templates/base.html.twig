@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="it">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex,nofollow">
+    <title>{% block title %}{{ app_name }}{% endblock %}</title>
+    <link rel="stylesheet" href="{{ asset('vendor/tabler/css/tabler.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/datatables/css/dataTables.bootstrap5.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('vendor/datatables/css/responsive.bootstrap5.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/app.css') }}">
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{% block body %}{% endblock %}
+<script src="{{ asset('vendor/jquery/jquery.min.js') }}" defer></script>
+<script src="{{ asset('vendor/tabler/js/tabler.min.js') }}" defer></script>
+<script src="{{ asset('vendor/datatables/js/dataTables.min.js') }}" defer></script>
+<script src="{{ asset('vendor/datatables/js/dataTables.bootstrap5.min.js') }}" defer></script>
+<script src="{{ asset('vendor/datatables/js/dataTables.responsive.min.js') }}" defer></script>
+<script src="{{ asset('vendor/datatables/js/responsive.bootstrap5.min.js') }}" defer></script>
+<script src="{{ asset('assets/js/app.js') }}" defer></script>
+{% block javascripts %}{% endblock %}
+</body>
+</html>

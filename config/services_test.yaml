@@ -1,0 +1,2 @@
+parameters:
+  app.attachment_storage_dir: '%kernel.project_dir%/var/test-attachments'

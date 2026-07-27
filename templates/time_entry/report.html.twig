@@ -1,0 +1,132 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Ore · {{ app_name }}{% endblock %}
+{% block page_title %}Ore{% endblock %}
+
+{% block page_body %}
+{% if date_error %}<div class="alert alert-warning">{{ date_error }}</div>{% endif %}
+
+<div class="card mb-3">
+    <div class="card-header"><h3 class="card-title">Filtri</h3></div>
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-12 col-lg-4 col-xl-3">
+                <label for="project" class="form-label">Commessa</label>
+                <select id="project" name="project" class="form-select">
+                    <option value="">Tutte le commesse</option>
+                    {% for project in projects %}
+                        <option value="{{ project.id }}" {{ selected_project and selected_project.id == project.id ? 'selected' : '' }}>{{ project.code }} · {{ project.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-4 col-xl-3">
+                <label for="activity" class="form-label">Attività</label>
+                <select id="activity" name="activity" class="form-select">
+                    <option value="">Tutte le attività</option>
+                    {% for activity in activities %}
+                        <option value="{{ activity.id }}" {{ selected_activity and selected_activity.id == activity.id ? 'selected' : '' }}>{{ activity.project.code }} · {{ activity.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-4 col-xl-3">
+                <label for="user" class="form-label">Persona che ha lavorato</label>
+                <select id="user" name="user" class="form-select">
+                    <option value="">Tutte le persone</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}" {{ selected_user and selected_user.id == user.id ? 'selected' : '' }}>{{ user.displayName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-4 col-xl-3">
+                <label for="billable" class="form-label">Fatturabilità</label>
+                <select id="billable" name="billable" class="form-select">
+                    <option value="" {{ billable_value == '' ? 'selected' : '' }}>Tutte</option>
+                    <option value="1" {{ billable_value == '1' ? 'selected' : '' }}>Fatturabili</option>
+                    <option value="0" {{ billable_value == '0' ? 'selected' : '' }}>Non fatturabili</option>
+                </select>
+            </div>
+            <div class="col-12 col-lg-3 col-xl-2">
+                <label for="from" class="form-label">Dal</label>
+                <input id="from" name="from" type="date" class="form-control" value="{{ date_from }}">
+            </div>
+            <div class="col-12 col-lg-3 col-xl-2">
+                <label for="to" class="form-label">Al</label>
+                <input id="to" name="to" type="date" class="form-control" value="{{ date_to }}">
+            </div>
+            <div class="col-12"><div class="form-hint">Il periodo filtra la data di inizio della registrazione.</div></div>
+            <div class="col-12 col-lg-auto"><button class="btn btn-primary w-100" type="submit">Applica filtri</button></div>
+            <div class="col-12 col-lg-auto"><a href="{{ path('app_time_entry_index') }}" class="btn btn-outline-secondary w-100">Azzera</a></div>
+        </form>
+    </div>
+</div>
+
+<div class="row row-cards mb-3">
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Ore consuntivate</div><div class="h2 mb-0">{{ summary.totalMinutes|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Registrazioni</div><div class="h2 mb-0">{{ summary.entryCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Persone coinvolte</div><div class="h2 mb-0">{{ summary.userCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Commesse coinvolte</div><div class="h2 mb-0">{{ summary.projectCount }}</div></div></div></div>
+</div>
+
+<div class="alert alert-info py-2">I timer attivi sono visibili nel dettaglio, ma entrano nelle ore consuntivate soltanto dopo la chiusura.</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Dettaglio registrazioni</h3>
+        <div class="ms-auto text-secondary">{{ page.firstItemNumber }}–{{ page.lastItemNumber }} di {{ page.totalItems }}</div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-mode="server-page">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Commessa</th>
+                    <th>Attività</th>
+                    <th>Persona</th>
+                    <th>Intervallo</th>
+                    <th>Durata</th>
+                    <th>Fatturabile</th>
+                    <th>Lavoro svolto</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+            {% for entry in page.items %}
+                <tr>
+                    <td data-order="{{ entry.startedAt|date('Y-m-d H:i:s') }}">{{ entry.startedAt|date('d/m/Y') }}</td>
+                    <td>
+                        <a href="{{ path('app_project_show', {id: entry.activity.project.id}) }}">{{ entry.activity.project.code }}</a>
+                        <div class="small text-secondary">{{ entry.activity.project.name }}</div>
+                    </td>
+                    <td>
+                        <a href="{{ path('app_activity_time', {id: entry.activity.id}) }}" class="fw-semibold">{{ entry.activity.title }}</a>
+                        <div class="small text-secondary">Assegnatario: {{ entry.activity.assignee.displayName }}</div>
+                    </td>
+                    <td>{{ entry.user.displayName }}</td>
+                    <td data-order="{{ entry.startedAt|date('H:i:s') }}">
+                        {{ entry.startedAt|date('H:i') }}–{{ entry.endedAt ? entry.endedAt|date('H:i') : 'IN CORSO' }}
+                        {% if entry.running %}<div><span class="badge bg-green-lt mt-1">Timer attivo</span></div>{% endif %}
+                    </td>
+                    <td data-order="{{ entry.durationMinutes }}" class="fw-semibold">{{ entry.durationMinutes|duration_hm }}</td>
+                    <td data-order="{{ entry.billable ? 1 : 0 }}"><span class="badge {{ entry.billable ? 'bg-green-lt' : 'bg-secondary-lt' }}">{{ entry.billable ? 'Sì' : 'No' }}</span></td>
+                    <td>{% if (is_granted('ROLE_PARTNER') or entry.user.id == app.user.id) and not entry.running %}<a href="{{ path('app_time_entry_edit', {id: entry.id}) }}">{{ entry.description ?: 'Modifica registrazione' }}</a>{% else %}{{ entry.description ?: '—' }}{% endif %}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="8" class="text-center text-secondary py-4">Nessuna registrazione corrisponde ai filtri.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if page.totalPages > 1 %}
+        <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-secondary">Pagina {{ page.page }} di {{ page.totalPages }}</p>
+            <ul class="pagination m-0 ms-auto">
+                <li class="page-item {{ page.hasPrevious ? '' : 'disabled' }}"><a class="page-link" href="{{ page.hasPrevious ? path('app_time_entry_index', filter_query|merge({page: page.page - 1})) : '#' }}">Precedente</a></li>
+                {% for number in pagination_pages %}
+                    <li class="page-item {{ number == page.page ? 'active' : '' }}"><a class="page-link" href="{{ path('app_time_entry_index', filter_query|merge({page: number})) }}">{{ number }}</a></li>
+                {% endfor %}
+                <li class="page-item {{ page.hasNext ? '' : 'disabled' }}"><a class="page-link" href="{{ page.hasNext ? path('app_time_entry_index', filter_query|merge({page: page.page + 1})) : '#' }}">Successiva</a></li>
+            </ul>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

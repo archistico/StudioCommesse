@@ -1,0 +1,129 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ project.code }} · {{ app_name }}{% endblock %}
+{% block page_title %}{{ project.code }} · {{ project.name }}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-list">
+    <a href="{{ path('app_project_index') }}" class="btn btn-outline-secondary">Torna alle commesse</a>
+    <a href="{{ path('app_time_entry_index', {project: project.id}) }}" class="btn btn-outline-success">Ore della commessa</a>
+    <a href="{{ path('app_attachment_project', {id: project.id}) }}" class="btn btn-outline-primary">Documenti{% if attachment_count > 0 %} ({{ attachment_count }}){% endif %}</a>
+    {% if is_granted('PROJECT_VIEW_FINANCIAL', project) %}
+        <a href="{{ path('app_economics_project', {id: project.id}) }}" class="btn btn-outline-success">Economia</a>
+    {% endif %}
+    {% if is_granted('PROJECT_EDIT', project) %}
+        <a href="{{ path('app_project_edit', {id: project.id}) }}" class="btn btn-primary">Modifica</a>
+    {% endif %}
+    {% if is_granted('ROLE_PARTNER') %}
+        {% if project.archived %}
+            <form method="post" action="{{ path('app_project_restore', {id: project.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('restore_project_' ~ project.id) }}">
+                <button class="btn btn-success" type="submit">Ripristina</button>
+            </form>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block page_body %}
+{% if project.archived %}
+    <div class="alert alert-secondary">Commessa archiviata il {{ project.archivedAt|date('d/m/Y H:i') }}.</div>
+{% endif %}
+
+<div class="row row-cards align-items-stretch">
+    <div class="col-12 col-lg-6 d-flex flex-column gap-3">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Stato della commessa</h3></div>
+            <div class="card-body">
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-lg-6"><div class="text-secondary">Stato</div><span class="badge {{ project.status.badgeClass }} mt-1">{{ project.status.label }}</span></div>
+                    <div class="col-12 col-lg-6"><div class="text-secondary">Priorità</div><span class="badge {{ project.priority.badgeClass }} mt-1">{{ project.priority.label }}</span></div>
+                    <div class="col-12 col-lg-6"><div class="text-secondary">Inizio</div><div class="fw-semibold mt-1">{{ project.startDate ? project.startDate|date('d/m/Y') : '—' }}</div></div>
+                    <div class="col-12 col-lg-6"><div class="text-secondary">Fine prevista</div><div class="fw-semibold mt-1 {{ project.overdue ? 'text-danger' : '' }}">{{ project.dueDate ? project.dueDate|date('d/m/Y') : '—' }}</div></div>
+                </div>
+                {% if project.description %}<h4>Descrizione</h4><div class="text-secondary">{{ project.description|nl2br }}</div>{% endif %}
+            </div>
+        </div>
+
+        {% if closure_control %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Controllo chiusura</h3>
+                    <a href="{{ path('app_control_index', {client: project.client.id, responsible: project.responsible.id}) }}" class="btn btn-sm btn-outline-primary ms-auto">Apri controllo</a>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12 col-lg-4"><div class="text-secondary">Operativa</div><span class="badge {{ closure_control.operationalStatus.badgeClass }} mt-1">{{ closure_control.operationalStatus.label }}</span></div>
+                        <div class="col-12 col-lg-4"><div class="text-secondary">Economica</div><span class="badge {{ closure_control.economicStatus.badgeClass }} mt-1">{{ closure_control.economicStatus.label }}</span></div>
+                        <div class="col-12 col-lg-4"><div class="text-secondary">Complessiva</div><span class="badge {{ closure_control.overallStatus.badgeClass }} mt-1">{{ closure_control.overallStatus.label }}</span></div>
+                        <div class="col-12 col-lg-6"><div class="text-secondary">Ore stimate / effettive</div><div class="fw-semibold mt-1">{{ closure_control.estimatedMinutes|duration_hm }} / {{ closure_control.actualMinutes|duration_hm }}</div></div>
+                        <div class="col-12 col-lg-6"><div class="text-secondary">Margine corrente</div><div class="fw-semibold mt-1 {{ closure_control.marginCents < 0 ? 'text-danger' : 'text-success' }}">{{ closure_control.marginCents|money_eur }}</div></div>
+                        <div class="col-12 col-lg-6"><div class="text-secondary">Ultimo avanzamento</div><div class="fw-semibold mt-1">{{ closure_control.lastOperationalAt|date('d/m/Y H:i') }}</div></div>
+                        <div class="col-12 col-lg-6"><div class="text-secondary">Da incassare</div><div class="fw-semibold mt-1">{{ closure_control.remainingToCollectCents|money_eur }}</div></div>
+                    </div>
+                    {% if closure_control.alerts is not empty %}
+                        <div class="alert alert-warning mt-3 mb-0"><ul class="mb-0">{% for alert in closure_control.alerts %}<li>{{ alert }}</li>{% endfor %}</ul></div>
+                    {% else %}
+                        <div class="text-success mt-3">Nessuna criticità rilevata.</div>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Riferimenti</h3></div>
+            <div class="card-body">
+                <dl class="row mb-0 detail-list">
+                    <dt class="col-12 col-lg-5">Cliente</dt><dd class="col-12 col-lg-7"><a href="{{ path('app_client_show', {id: project.client.id}) }}">{{ project.client.name }}</a></dd>
+                    <dt class="col-12 col-lg-5">Responsabile</dt><dd class="col-12 col-lg-7">{{ project.responsible.displayName }}</dd>
+                    <dt class="col-12 col-lg-5">Creata</dt><dd class="col-12 col-lg-7">{{ project.createdAt|date('d/m/Y H:i') }}</dd>
+                    <dt class="col-12 col-lg-5">Aggiornata</dt><dd class="col-12 col-lg-7">{{ project.updatedAt|date('d/m/Y H:i') }}</dd>
+                </dl>
+            </div>
+        </div>
+
+        {% if is_granted('PROJECT_VIEW_PRIVATE', project) %}
+            <div class="card">
+                <div class="card-header"><h3 class="card-title">Nota riservata</h3><span class="badge bg-purple-lt ms-auto">Soci e responsabile</span></div>
+                <div class="card-body {{ project.privateNote ? '' : 'text-secondary' }}">{{ project.privateNote ? project.privateNote|nl2br : 'Nessuna nota riservata.' }}</div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="col-12 col-lg-6 d-flex">
+        <div class="card flex-fill">
+            <div class="card-header">
+                <h3 class="card-title">Attività</h3>
+                {% if not project.archived %}<a href="{{ path('app_activity_new', {id: project.id}) }}" class="btn btn-sm btn-primary ms-auto">Nuova</a>{% endif %}
+            </div>
+            <div class="list-group list-group-flush">
+                {% for activity in activities %}
+                    {% set time_summary = activity_time[activity.id]|default(null) %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start gap-3 responsive-entity-row">
+                            <div class="flex-fill">
+                                <a class="fw-bold" href="{{ path('app_activity_edit', {id: activity.id}) }}">{{ activity.title }}</a>
+                                <div class="small text-secondary">{{ activity.assignee.displayName }} · {{ activity.status.label }}{% if activity.dueAt %} · {{ activity.dueAt|date('d/m/Y') }}{% endif %}</div>
+                                <div class="small mt-2"><span class="text-secondary">Consuntivato totale:</span> <strong>{{ time_summary.total_minutes|default(0)|duration_hm }}</strong></div>
+                                {% if time_summary and time_summary.contributors is not empty %}
+                                    <ul class="list-unstyled small text-secondary mb-0 mt-1 time-contributors">
+                                        {% for contributor in time_summary.contributors %}
+                                            <li><span>{{ contributor.display_name }}</span><strong class="text-body">{{ contributor.total_minutes|duration_hm }}</strong></li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </div>
+                            <div class="btn-list">
+                                <span class="badge bg-blue-lt">{{ activity.progressPercent }}%</span>
+                                <a href="{{ path('app_activity_time', {id: activity.id}) }}" class="btn btn-sm btn-outline-success">Ore</a>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="list-group-item text-secondary">Nessuna attività.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

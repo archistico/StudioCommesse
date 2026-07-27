@@ -1,0 +1,11 @@
+/.env.local
+/.env.*.local
+/.phpunit.cache
+/.phpunit.result.cache
+/.phpunit.cache/
+/.phpstan.cache/
+/vendor/
+/node_modules/
+/public/vendor/tabler/
+/var/*
+!/var/.gitkeep

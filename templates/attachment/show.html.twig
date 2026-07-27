@@ -1,0 +1,63 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ attachment.originalName }} · {{ app_name }}{% endblock %}
+{% block page_title %}{{ attachment.originalName }}{% endblock %}
+{% block page_actions %}
+<div class="btn-list">
+    <a href="{{ path('app_attachment_project', {id: attachment.project.id}) }}" class="btn btn-outline-secondary">Torna ai documenti</a>
+    <a href="{{ path('app_attachment_download', {id: attachment.id}) }}" class="btn btn-primary">Scarica</a>
+</div>
+{% endblock %}
+
+{% block page_body %}
+<div class="row row-cards">
+    <div class="col-12 col-lg-5">
+        <div class="card h-100">
+            <div class="card-header"><h3 class="card-title">Informazioni file</h3></div>
+            <div class="card-body">
+                <dl class="row mb-0 detail-list">
+                    <dt class="col-12 col-lg-5">Commessa</dt><dd class="col-12 col-lg-7"><a href="{{ path('app_project_show', {id: attachment.project.id}) }}">{{ attachment.project.code }} · {{ attachment.project.name }}</a></dd>
+                    <dt class="col-12 col-lg-5">Attività</dt><dd class="col-12 col-lg-7">{{ attachment.activity ? attachment.activity.title : 'Documento generale' }}</dd>
+                    <dt class="col-12 col-lg-5">Classificazione</dt><dd class="col-12 col-lg-7"><span class="badge {{ attachment.classification.badgeClass }}">{{ attachment.classification.label }}</span></dd>
+                    <dt class="col-12 col-lg-5">Tipo MIME</dt><dd class="col-12 col-lg-7 text-break">{{ attachment.mimeType }}</dd>
+                    <dt class="col-12 col-lg-5">Dimensione</dt><dd class="col-12 col-lg-7">{{ attachment.sizeBytes|file_size }}</dd>
+                    <dt class="col-12 col-lg-5">Caricato da</dt><dd class="col-12 col-lg-7">{{ attachment.uploadedBy.displayName }}</dd>
+                    <dt class="col-12 col-lg-5">Caricato il</dt><dd class="col-12 col-lg-7">{{ attachment.createdAt|date('d/m/Y H:i') }}</dd>
+                    <dt class="col-12 col-lg-5">SHA-256</dt><dd class="col-12 col-lg-7"><code class="text-break small">{{ attachment.sha256 }}</code></dd>
+                </dl>
+                {% if not can_manage %}<div class="alert alert-info mt-3 mb-0">Puoi consultare e scaricare il documento, ma soltanto chi lo ha caricato, il responsabile, l’assegnatario dell’attività o un socio può modificarne i dati.</div>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-7">
+        {% if can_manage and form %}
+        <div class="card">
+            {{ form_start(form, {attr: {autocomplete: 'off'}}) }}
+            <div class="card-header"><h3 class="card-title">Classificazione e collegamento</h3></div>
+            <div class="card-body">
+                {{ form_errors(form) }}
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">{{ form_row(form.classification) }}</div>
+                    <div class="col-12 col-lg-6">{{ form_row(form.activity) }}</div>
+                    <div class="col-12">{{ form_row(form.description) }}</div>
+                </div>
+                {{ form_rest(form) }}
+            </div>
+            <div class="card-footer"><button class="btn btn-primary w-100" type="submit">Salva modifiche</button></div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+        <div class="card mt-3 border-danger">
+            <div class="card-body"><h3 class="card-title text-danger">Elimina documento</h3><p class="text-secondary">L’eliminazione rimuove sia i metadati sia il file memorizzato e non è annullabile.</p>
+                <form method="post" action="{{ path('app_attachment_delete', {id: attachment.id}) }}" onsubmit="return confirm('Eliminare definitivamente questo documento?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_attachment_' ~ attachment.id) }}">
+                    <button class="btn btn-danger w-100" type="submit">Elimina documento</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="card h-100"><div class="card-header"><h3 class="card-title">Descrizione</h3></div><div class="card-body {{ attachment.description ? '' : 'text-secondary' }}">{{ attachment.description ? attachment.description|nl2br : 'Nessuna descrizione.' }}</div></div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

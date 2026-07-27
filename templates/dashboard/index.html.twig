@@ -1,0 +1,75 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Dashboard · {{ app_name }}{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_actions %}
+    {% if is_granted('ROLE_PARTNER') %}
+        <a href="{{ path('app_project_new') }}" class="btn btn-primary">Nuova commessa</a>
+    {% endif %}
+{% endblock %}
+
+{% block page_body %}
+<div class="row row-deck row-cards">
+    <div class="col-12 col-lg-6 col-xl-3">
+        <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
+            <div class="col-auto"><span class="bg-blue text-white avatar">{{ project_statistics.open }}</span></div>
+            <div class="col"><div class="font-weight-medium">Commesse aperte</div><div class="text-secondary">Da iniziare o in lavorazione</div></div>
+        </div></div></div>
+    </div>
+    <div class="col-12 col-lg-6 col-xl-3">
+        <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
+            <div class="col-auto"><span class="bg-yellow text-white avatar">{{ project_statistics.waiting }}</span></div>
+            <div class="col"><div class="font-weight-medium">In attesa</div><div class="text-secondary">Richiedono attenzione</div></div>
+        </div></div></div>
+    </div>
+    <div class="col-12 col-lg-6 col-xl-3">
+        <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
+            <div class="col-auto"><span class="bg-red text-white avatar">{{ project_statistics.overdue }}</span></div>
+            <div class="col"><div class="font-weight-medium">In ritardo</div><div class="text-secondary">Fine prevista superata</div></div>
+        </div></div></div>
+    </div>
+    <div class="col-12 col-lg-6 col-xl-3">
+        <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
+            <div class="col-auto"><span class="bg-teal text-white avatar">{{ user_statistics.activeUsers }}</span></div>
+            <div class="col"><div class="font-weight-medium">Utenti attivi</div><div class="text-secondary">{{ user_statistics.activePartners }} soci · {{ user_statistics.activeCollaborators }} collaboratori</div></div>
+        </div></div></div>
+    </div>
+
+    <div class="col-12 col-lg-9">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title">Commesse aggiornate di recente</h3>
+                <a href="{{ path('app_project_index') }}" class="btn btn-sm btn-outline-primary ms-auto">Vedi tutte</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+                    <thead><tr><th>Codice</th><th>Commessa</th><th>Responsabile</th><th>Stato</th><th>Fine prevista</th></tr></thead>
+                    <tbody>
+                    {% for project in recent_projects %}
+                        <tr>
+                            <td><a href="{{ path('app_project_show', {id: project.id}) }}">{{ project.code }}</a></td>
+                            <td><div class="fw-semibold">{{ project.name }}</div><div class="text-secondary small">{{ project.client.name }}</div></td>
+                            <td>{{ project.responsible.displayName }}</td>
+                            <td><span class="badge {{ project.status.badgeClass }}">{{ project.status.label }}</span></td>
+                            <td data-order="{{ project.dueDate ? project.dueDate|date('Y-m-d') : '9999-12-31' }}" class="{{ project.overdue ? 'text-danger fw-semibold' : '' }}">{{ project.dueDate ? project.dueDate|date('d/m/Y') : '—' }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="5" class="text-center text-secondary py-5">Nessuna commessa presente.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-3">
+        <div class="card h-100">
+            <div class="card-header"><h3 class="card-title">Quadro operativo</h3></div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between"><span>Clienti attivi</span><strong>{{ project_statistics.clients }}</strong></div>
+                <div class="d-flex justify-content-between mt-3"><span>Attività aperte</span><strong>{{ project_statistics.openActivities }}</strong></div>
+                <div class="d-flex justify-content-between mt-3"><span>Attività in ritardo</span><strong class="{{ project_statistics.overdueActivities > 0 ? 'text-danger' : '' }}">{{ project_statistics.overdueActivities }}</strong></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

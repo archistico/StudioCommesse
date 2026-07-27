@@ -1,0 +1,72 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ client.name }} · {{ app_name }}{% endblock %}
+{% block page_title %}{{ client.name }}{% endblock %}
+{% block page_actions %}
+<div class="btn-list">
+    <a href="{{ path('app_client_index') }}" class="btn btn-outline-secondary">Torna ai clienti</a>
+    {% if is_granted('ROLE_PARTNER') %}
+        {% if not client.archived %}<a href="{{ path('app_client_edit', {id: client.id}) }}" class="btn btn-primary">Modifica</a>{% endif %}
+        {% if client.archived %}
+            <form method="post" action="{{ path('app_client_restore', {id: client.id}) }}">
+                <input type="hidden" name="_token" value="{{ csrf_token('restore_client_' ~ client.id) }}">
+                <button class="btn btn-success" type="submit">Ripristina</button>
+            </form>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block page_body %}
+<div class="row row-cards">
+    <div class="col-12 col-lg-5">
+        <div class="card">
+            <div class="card-header"><h3 class="card-title">Anagrafica</h3></div>
+            <div class="card-body">
+                <dl class="row mb-0 detail-list">
+                    <dt class="col-12 col-lg-4">Stato</dt><dd class="col-12 col-lg-8">{{ client.archived ? 'Archiviato' : 'Attivo' }}</dd>
+                    <dt class="col-12 col-lg-4">Referente</dt><dd class="col-12 col-lg-8">{{ client.contactPerson ?? '—' }}</dd>
+                    <dt class="col-12 col-lg-4">E-mail</dt><dd class="col-12 col-lg-8">{{ client.email ?? '—' }}</dd>
+                    <dt class="col-12 col-lg-4">Telefono</dt><dd class="col-12 col-lg-8">{{ client.phone ?? '—' }}</dd>
+                    <dt class="col-12 col-lg-4">Indirizzo</dt><dd class="col-12 col-lg-8">{{ client.address ? client.address|nl2br : '—' }}</dd>
+                    <dt class="col-12 col-lg-4">Codice fiscale</dt><dd class="col-12 col-lg-8">{{ client.taxCode ?? '—' }}</dd>
+                    <dt class="col-12 col-lg-4">Partita IVA</dt><dd class="col-12 col-lg-8">{{ client.vatNumber ?? '—' }}</dd>
+                </dl>
+            </div>
+        </div>
+        {% if client.notes %}
+            <div class="card mt-3">
+                <div class="card-header"><h3 class="card-title">Note operative</h3></div>
+                <div class="card-body text-secondary">{{ client.notes|nl2br }}</div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-12 col-lg-7">
+        <div class="card">
+            <div class="card-header d-flex align-items-center">
+                <h3 class="card-title">Commesse</h3>
+                {% if is_granted('ROLE_PARTNER') and not client.archived %}
+                    <a href="{{ path('app_project_new') }}" class="btn btn-sm btn-primary ms-auto">Nuova commessa</a>
+                {% endif %}
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+                    <thead><tr><th>Codice</th><th>Commessa</th><th>Responsabile</th><th>Stato</th></tr></thead>
+                    <tbody>
+                    {% for project in projects %}
+                        <tr class="{{ project.archived ? 'text-secondary' : '' }}">
+                            <td><a href="{{ path('app_project_show', {id: project.id}) }}">{{ project.code }}</a></td>
+                            <td>{{ project.name }}</td>
+                            <td>{{ project.responsible.displayName }}</td>
+                            <td><span class="badge {{ project.status.badgeClass }}">{{ project.status.label }}</span></td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="4" class="text-center text-secondary py-5">Nessuna commessa associata.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

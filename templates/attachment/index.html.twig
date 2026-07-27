@@ -1,0 +1,62 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Documenti · {{ app_name }}{% endblock %}
+{% block page_title %}Documenti{% endblock %}
+
+{% block page_body %}
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-12 col-lg-3">
+                <label class="form-label" for="document-project">Commessa</label>
+                <select class="form-select" id="document-project" name="project">
+                    <option value="">Tutte le commesse</option>
+                    {% for project in projects %}<option value="{{ project.id }}" {{ selected_project and selected_project.id == project.id ? 'selected' : '' }}>{{ project.code }} · {{ project.name }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-3">
+                <label class="form-label" for="document-activity">Attività</label>
+                <select class="form-select" id="document-activity" name="activity">
+                    <option value="">Tutte le attività</option>
+                    {% for activity in activities %}<option value="{{ activity.id }}" {{ selected_activity and selected_activity.id == activity.id ? 'selected' : '' }}>{{ activity.project.code }} · {{ activity.title }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-3">
+                <label class="form-label" for="document-classification">Classificazione</label>
+                <select class="form-select" id="document-classification" name="classification">
+                    <option value="">Tutte</option>
+                    {% for classification in classifications %}<option value="{{ classification.value }}" {{ selected_classification == classification ? 'selected' : '' }}>{{ classification.label }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-3">
+                <label class="form-label" for="document-query">Ricerca</label>
+                <input class="form-control" id="document-query" name="q" value="{{ query }}" placeholder="Nome, descrizione, commessa">
+            </div>
+            <div class="col-12"><button class="btn btn-primary w-100" type="submit">Mostra</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+            <thead><tr><th>Documento</th><th>Commessa</th><th>Attività</th><th>Classificazione</th><th>Caricato da</th><th>Data</th><th>Dimensione</th></tr></thead>
+            <tbody>
+            {% for attachment in attachments %}
+                <tr>
+                    <td><a class="fw-semibold" href="{{ path('app_attachment_show', {id: attachment.id}) }}">{{ attachment.originalName }}</a>{% if attachment.description %}<div class="small text-secondary text-wrap">{{ attachment.description }}</div>{% endif %}</td>
+                    <td><a href="{{ path('app_attachment_project', {id: attachment.project.id}) }}">{{ attachment.project.code }}</a><div class="small text-secondary">{{ attachment.project.name }}</div></td>
+                    <td>{{ attachment.activity ? attachment.activity.title : '—' }}</td>
+                    <td><span class="badge {{ attachment.classification.badgeClass }}">{{ attachment.classification.label }}</span></td>
+                    <td>{{ attachment.uploadedBy.displayName }}</td>
+                    <td data-order="{{ attachment.createdAt|date('U') }}">{{ attachment.createdAt|date('d/m/Y H:i') }}</td>
+                    <td data-order="{{ attachment.sizeBytes }}">{{ attachment.sizeBytes|file_size }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-secondary">Nessun documento corrisponde ai filtri.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

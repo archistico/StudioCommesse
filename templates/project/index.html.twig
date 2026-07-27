@@ -1,0 +1,73 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Commesse · {{ app_name }}{% endblock %}
+{% block page_title %}Commesse{% endblock %}
+{% block page_actions %}
+    {% if is_granted('ROLE_PARTNER') %}<a href="{{ path('app_project_new') }}" class="btn btn-primary">Nuova commessa</a>{% endif %}
+{% endblock %}
+
+{% block page_body %}
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12 col-lg-4">
+                <label class="form-label" for="project-search">Ricerca</label>
+                <input id="project-search" type="search" name="q" value="{{ criteria.query ?? '' }}" class="form-control" placeholder="Codice, commessa o cliente">
+            </div>
+            <div class="col-12 col-lg-2">
+                <label class="form-label" for="project-status">Stato</label>
+                <select id="project-status" name="stato" class="form-select">
+                    <option value="">Tutti</option>
+                    {% for status in statuses %}<option value="{{ status.value }}" {{ criteria.status == status ? 'selected' : '' }}>{{ status.label }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-2">
+                <label class="form-label" for="project-priority">Priorità</label>
+                <select id="project-priority" name="priorita" class="form-select">
+                    <option value="">Tutte</option>
+                    {% for priority in priorities %}<option value="{{ priority.value }}" {{ criteria.priority == priority ? 'selected' : '' }}>{{ priority.label }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-2">
+                <label class="form-label" for="project-responsible">Responsabile</label>
+                <select id="project-responsible" name="responsabile" class="form-select">
+                    <option value="">Tutti</option>
+                    {% for responsible in responsibles %}<option value="{{ responsible.id }}" {{ criteria.responsibleId == responsible.id ? 'selected' : '' }}>{{ responsible.displayName }}{{ responsible.active ? '' : ' (disattivato)' }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-2">
+                <label class="form-check mb-2"><input class="form-check-input" type="checkbox" name="archiviate" value="1" {{ criteria.includeArchived ? 'checked' : '' }}><span class="form-check-label">Includi archiviate</span></label>
+                <div class="d-flex gap-2"><button class="btn btn-primary flex-fill" type="submit">Filtra</button><a class="btn btn-outline-secondary" href="{{ path('app_project_index') }}" aria-label="Azzera filtri">×</a></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+            <thead><tr><th>Codice</th><th>Commessa</th><th>Cliente</th><th>Responsabile</th><th>Stato</th><th>Priorità</th><th>Scadenza</th></tr></thead>
+            <tbody>
+            {% for project in projects %}
+                <tr class="{{ project.archived ? 'text-secondary' : '' }}">
+                    <td><a href="{{ path('app_project_show', {id: project.id}) }}" class="fw-semibold">{{ project.code }}</a>{% if project.archived %}<div class="small">Archiviata</div>{% endif %}</td>
+                    <td>{{ project.name }}</td>
+                    <td><a href="{{ path('app_client_show', {id: project.client.id}) }}">{{ project.client.name }}</a></td>
+                    <td>{{ project.responsible.displayName }}</td>
+                    <td><span class="badge {{ project.status.badgeClass }}">{{ project.status.label }}</span></td>
+                    <td><span class="badge {{ project.priority.badgeClass }}">{{ project.priority.label }}</span></td>
+                    <td data-order="{{ project.dueDate ? project.dueDate|date('Y-m-d') : '9999-12-31' }}">
+                        {% if project.dueDate %}
+                            <span class="{{ project.overdue ? 'text-danger fw-semibold' : '' }}">{{ project.dueDate|date('d/m/Y') }}</span>
+                            {% if project.overdue %}<div class="small text-danger">In ritardo</div>{% endif %}
+                        {% else %}—{% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-center text-secondary py-5">Nessuna commessa corrisponde ai filtri.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

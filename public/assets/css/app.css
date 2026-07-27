@@ -1,0 +1,125 @@
+:root {
+    --studio-brand: #206bc4;
+}
+
+.brand-mark {
+    align-items: center;
+    background: var(--studio-brand);
+    border-radius: .5rem;
+    color: #fff;
+    display: inline-flex;
+    font-size: .75rem;
+    font-weight: 700;
+    height: 2rem;
+    justify-content: center;
+    letter-spacing: .04em;
+    width: 2rem;
+}
+
+.brand-mark-lg {
+    border-radius: .75rem;
+    font-size: 1.2rem;
+    height: 3.5rem;
+    width: 3.5rem;
+}
+
+.table td,
+.table th {
+    vertical-align: middle;
+}
+
+.form-help {
+    margin-top: .35rem;
+}
+
+.detail-list dt,
+.detail-list dd {
+    margin-bottom: .75rem;
+}
+
+.btn-list form {
+    display: inline-flex;
+}
+
+.time-contributors {
+    max-width: 28rem;
+}
+
+.time-contributors li {
+    display: flex;
+    gap: .75rem;
+    justify-content: space-between;
+}
+
+
+.filter-explanation {
+    max-width: 52rem;
+    overflow-wrap: anywhere;
+}
+
+table.dataTable > tbody > tr.child ul.dtr-details {
+    width: 100%;
+}
+
+table.dataTable > tbody > tr.child span.dtr-title {
+    min-width: 10rem;
+}
+
+.dt-container .dt-search input,
+.dt-container .dt-length select {
+    margin-left: .5rem;
+}
+
+.dt-container .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+@media (max-width: 991.98px) {
+    .page-header .row > .col-auto,
+    .page-header .page-actions {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+
+    .page-header .btn-list,
+    .responsive-entity-row,
+    .responsive-entity-row > .btn-list {
+        width: 100%;
+    }
+
+    .page-header .btn-list,
+    .responsive-entity-row > .btn-list {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .responsive-entity-row {
+        align-items: stretch !important;
+        flex-direction: column;
+    }
+
+    .detail-list dt,
+    .detail-list dd {
+        width: 100%;
+    }
+
+    .detail-list dt {
+        margin-bottom: .2rem;
+    }
+
+    .dt-container .dt-layout-row {
+        align-items: stretch;
+        flex-direction: column;
+        gap: .75rem;
+    }
+
+    .dt-container .dt-layout-cell,
+    .dt-container .dt-search,
+    .dt-container .dt-length,
+    .dt-container .dt-search input,
+    .dt-container .dt-length select {
+        margin-left: 0 !important;
+        width: 100%;
+    }
+}

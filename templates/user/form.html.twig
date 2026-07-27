@@ -1,0 +1,34 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}{{ page_title }} · {{ app_name }}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('app_user_index') }}" class="btn btn-outline-secondary">Torna agli utenti</a>
+{% endblock %}
+
+{% block page_body %}
+<div class="row justify-content-center">
+    <div class="col-12 col-xl-8">
+        <div class="card">
+            {{ form_start(form, {attr: {autocomplete: 'off'}}) }}
+            <div class="card-body">
+                {{ form_errors(form) }}
+                <div class="row">
+                    <div class="col-12 col-lg-6">{{ form_row(form.displayName) }}</div>
+                    <div class="col-12 col-lg-6">{{ form_row(form.username) }}</div>
+                    <div class="col-12 col-lg-6">{{ form_row(form.role) }}</div>
+                    <div class="col-12 col-lg-6">{{ form_row(form.defaultHourlyRateCents) }}</div>
+                    <div class="col-12 col-lg-6">{{ form_row(form.plainPassword) }}</div>
+                    <div class="col-12 col-lg-6">{{ form_row(form.active) }}</div>
+                </div>
+                {{ form_rest(form) }}
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary w-100">{{ submit_label }}</button>
+            </div>
+            {{ form_end(form, {render_rest: false}) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Utenti · {{ app_name }}{% endblock %}
+{% block page_title %}Utenti{% endblock %}
+{% block page_actions %}
+<a href="{{ path('app_user_new') }}" class="btn btn-primary">Nuovo utente</a>
+{% endblock %}
+
+{% block page_body %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+            <thead>
+            <tr>
+                <th>Utente</th>
+                <th>Nome utente</th>
+                <th>Ruolo</th>
+                <th>Tariffa</th>
+                <th>Stato</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>
+                        <div class="d-flex py-1 align-items-center">
+                            <span class="avatar me-2">{{ user.displayName|slice(0, 2)|upper }}</span>
+                            <div class="flex-fill"><a class="font-weight-medium" href="{{ path('app_user_edit', {id: user.id}) }}">{{ user.displayName }}</a></div>
+                        </div>
+                    </td>
+                    <td class="text-secondary">{{ user.username }}</td>
+                    <td><span class="badge bg-blue-lt">{{ user.role.label }}</span></td>
+                    <td data-order="{{ user.defaultHourlyRateCents }}">{{ user.defaultHourlyRateCents|money_eur }}/h</td>
+                    <td>
+                        {% if user.active %}
+                            <span class="status status-green">Attivo</span>
+                        {% else %}
+                            <span class="status status-secondary">Disattivato</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5" class="text-center text-secondary py-5">Nessun utente presente.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

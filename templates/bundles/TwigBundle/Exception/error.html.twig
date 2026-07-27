@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Errore · {{ app_name }}{% endblock %}
+{% block body_class %}d-flex flex-column{% endblock %}
+
+{% block body %}
+<div class="page page-center">
+    <div class="container-tight py-4 text-center">
+        <div class="empty">
+            <div class="empty-header">{{ status_code }}</div>
+            <p class="empty-title">Operazione non disponibile</p>
+            <p class="empty-subtitle text-secondary">La richiesta non può essere completata. Nessun dettaglio tecnico è stato esposto.</p>
+            <div class="empty-action">
+                <a href="{{ path('app_dashboard') }}" class="btn btn-primary">Torna alla dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

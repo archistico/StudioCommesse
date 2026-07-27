@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accesso negato · {{ app_name }}{% endblock %}
+{% block body_class %}d-flex flex-column{% endblock %}
+
+{% block body %}
+<div class="page page-center">
+    <div class="container-tight py-4 text-center">
+        <div class="empty">
+            <div class="empty-header">403</div>
+            <p class="empty-title">Accesso non autorizzato</p>
+            <p class="empty-subtitle text-secondary">Il tuo account non dispone dei permessi necessari.</p>
+            <div class="empty-action"><a href="{{ path('app_dashboard') }}" class="btn btn-primary">Torna alla dashboard</a></div>
+        </div>
+    </div>
+</div>
+{% endblock %}

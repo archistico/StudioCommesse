@@ -1,0 +1,224 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Controllo · {{ app_name }}{% endblock %}
+{% block page_title %}Controllo{% endblock %}
+{% block page_actions %}
+    <a href="{{ path('app_economics_index') }}" class="btn btn-outline-success">Apri economia</a>
+{% endblock %}
+
+{% block page_body %}
+{% if date_error %}<div class="alert alert-warning">{{ date_error }}</div>{% endif %}
+
+<div class="alert alert-info">
+    <div class="fw-semibold mb-1">Indicatori derivati, non nuovi stati salvati</div>
+    Una commessa è ferma dopo {{ stalled_days }} giorni senza aggiornamenti operativi. Un carico è segnalato oltre {{ overload_activity_count }} attività aperte o {{ overload_remaining_minutes|duration_hm }} residue. I filtri e l’ordinamento restano memorizzati nella sessione fino ad “Azzera”.
+</div>
+
+<div class="card mb-3">
+    <div class="card-header"><h3 class="card-title">Filtri persistenti</h3></div>
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-12 col-lg-4 col-xl-3">
+                <label for="control-client" class="form-label">Cliente</label>
+                <select id="control-client" name="client" class="form-select">
+                    <option value="">Tutti i clienti</option>
+                    {% for client in clients_filter %}
+                        <option value="{{ client.id }}" {{ selected_client_id == client.id ? 'selected' : '' }}>{{ client.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-4 col-xl-3">
+                <label for="control-responsible" class="form-label">Responsabile</label>
+                <select id="control-responsible" name="responsible" class="form-select">
+                    <option value="">Tutti i responsabili</option>
+                    {% for responsible in responsibles_filter %}
+                        <option value="{{ responsible.id }}" {{ selected_responsible_id == responsible.id ? 'selected' : '' }}>{{ responsible.displayName }}{{ responsible.active ? '' : ' (disattivato)' }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-4 col-xl-3">
+                <label for="control-closure" class="form-label">Chiusura complessiva</label>
+                <select id="control-closure" name="closure" class="form-select">
+                    <option value="">Tutte</option>
+                    {% for closure in closure_statuses %}
+                        <option value="{{ closure.value }}" {{ criteria.overallStatus == closure ? 'selected' : '' }}>{{ closure.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-4 col-xl-3">
+                <label class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" name="critical" value="1" {{ criteria.onlyCritical ? 'checked' : '' }}>
+                    <span class="form-check-label">Solo commesse con criticità</span>
+                </label>
+            </div>
+            <div class="col-12 col-lg-3 col-xl-2">
+                <label for="control-from" class="form-label">Periodo dal</label>
+                <input id="control-from" name="from" type="date" class="form-control" value="{{ date_from }}">
+            </div>
+            <div class="col-12 col-lg-3 col-xl-2">
+                <label for="control-to" class="form-label">Periodo al</label>
+                <input id="control-to" name="to" type="date" class="form-control" value="{{ date_to }}">
+            </div>
+            <div class="col-12 col-lg-3 col-xl-3">
+                <label for="control-sort" class="form-label">Ordina commesse per</label>
+                <select id="control-sort" name="sort" class="form-select">
+                    {% for value, label in sort_options %}<option value="{{ value }}" {{ criteria.sort == value ? 'selected' : '' }}>{{ label }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-3 col-xl-2">
+                <label for="control-direction" class="form-label">Direzione</label>
+                <select id="control-direction" name="direction" class="form-select">
+                    <option value="desc" {{ criteria.direction == 'desc' ? 'selected' : '' }}>Decrescente</option>
+                    <option value="asc" {{ criteria.direction == 'asc' ? 'selected' : '' }}>Crescente</option>
+                </select>
+            </div>
+            <div class="col-12 col-lg-auto"><button class="btn btn-primary w-100" type="submit">Applica</button></div>
+            <div class="col-12 col-lg-auto"><a href="{{ path('app_control_index', {reset: 1}) }}" class="btn btn-outline-secondary w-100">Azzera</a></div>
+            <div class="col-12"><div class="form-hint">Il periodo influenza i riepiloghi per persona, cliente e mese. Gli stati di chiusura e gli scostamenti della commessa sono sempre calcolati sull’intera vita della commessa.</div></div>
+        </form>
+    </div>
+</div>
+
+<div class="row row-cards mb-3">
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Commesse filtrate</div><div class="h2 mb-0">{{ dashboard.projects|length }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Chiuse completamente</div><div class="h2 mb-0 text-success">{{ dashboard.overallClosedCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Lavoro chiuso, da incassare</div><div class="h2 mb-0 text-warning">{{ dashboard.toCollectCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Criticità / sovraccarichi</div><div class="h2 mb-0 text-danger">{{ dashboard.criticalProjectCount }} / {{ dashboard.overloadedCollaboratorCount }}</div></div></div></div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header"><h3 class="card-title">Chiusura e scostamenti per commessa</h3></div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+            <thead>
+                <tr>
+                    <th>Commessa</th>
+                    <th>Chiusura operativa</th>
+                    <th>Chiusura economica</th>
+                    <th>Complessiva</th>
+                    <th>Ore stimate / effettive</th>
+                    <th>Costi / preventivo</th>
+                    <th>Incassato / residuo</th>
+                    <th>Ultimo avanzamento</th>
+                    <th>Criticità</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for project in dashboard.projects %}
+                <tr class="{{ project.critical ? 'table-warning' : '' }}">
+                    <td>
+                        <a class="fw-semibold" href="{{ path('app_project_show', {id: project.projectId}) }}">{{ project.code }} · {{ project.name }}</a>
+                        <div class="small text-secondary">{{ project.clientName }} · {{ project.responsibleName }}</div>
+                        {% if project.dueDate %}<div class="small {{ project.overdue ? 'text-danger fw-semibold' : 'text-secondary' }}">Scadenza {{ project.dueDate|date('d/m/Y') }}</div>{% endif %}
+                    </td>
+                    <td>
+                        <span class="badge {{ project.operationalStatus.badgeClass }}">{{ project.operationalStatus.label }}</span>
+                        <div class="small text-secondary mt-1">{{ project.activityCount - project.openActivityCount }}/{{ project.activityCount }} attività chiuse{% if project.runningTimerCount > 0 %} · {{ project.runningTimerCount }} timer attivi{% endif %}</div>
+                    </td>
+                    <td><span class="badge {{ project.economicStatus.badgeClass }}">{{ project.economicStatus.label }}</span></td>
+                    <td><span class="badge {{ project.overallStatus.badgeClass }}">{{ project.overallStatus.label }}</span></td>
+                    <td data-order="{{ project.actualMinutes }}">
+                        <div>{{ project.estimatedMinutes|duration_hm }} / <strong>{{ project.actualMinutes|duration_hm }}</strong></div>
+                        {% if project.timeDeviationPercent is not null %}
+                            <div class="small {{ project.timeDeviationMinutes > 0 ? 'text-danger' : 'text-success' }}">{{ project.timeDeviationMinutes > 0 ? '+' : (project.timeDeviationMinutes < 0 ? '−' : '') }}{{ project.timeDeviationMinutes|abs|duration_hm }} · {{ project.timeDeviationPercent|number_format(1, ',', '.') }}%</div>
+                        {% else %}<div class="small text-secondary">Stima non disponibile</div>{% endif %}
+                    </td>
+                    <td data-order="{{ project.totalCostCents }}">
+                        <div>{{ project.totalCostCents|money_eur }} / {{ project.estimatedAmountCents|money_eur }}</div>
+                        <div class="small {{ project.marginCents < 0 ? 'text-danger' : 'text-success' }}">Margine {{ project.marginCents|money_eur }}</div>
+                    </td>
+                    <td data-order="{{ project.paymentsCents }}"><div>{{ project.paymentsCents|money_eur }}</div><div class="small text-secondary">Residuo {{ project.remainingToCollectCents|money_eur }}</div></td>
+                    <td data-order="{{ project.lastOperationalAt|date('Y-m-d H:i:s') }}">
+                        <div>{{ project.lastOperationalAt|date('d/m/Y H:i') }}</div>
+                        {% if project.stalled %}<span class="badge bg-orange-lt mt-1">Ferma</span>{% endif %}
+                    </td>
+                    <td data-order="{{ project.alerts|length }}">
+                        {% if project.alerts is not empty %}
+                            <ul class="list-unstyled small mb-0">{% for alert in project.alerts %}<li class="text-danger">• {{ alert }}</li>{% endfor %}</ul>
+                        {% else %}<span class="text-success">Nessuna</span>{% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="9" class="text-center text-secondary py-5">Nessuna commessa corrisponde ai filtri.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row row-cards mb-3">
+    <div class="col-12 col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><h3 class="card-title">Carico per persona</h3></div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+                    <thead><tr><th>Persona</th><th>Attività aperte</th><th>Residuo</th><th>Ore periodo</th><th>Fatturabili</th><th>Commesse</th></tr></thead>
+                    <tbody>
+                    {% for collaborator in dashboard.collaborators %}
+                        <tr class="{{ collaborator.overloaded ? 'table-danger' : '' }}">
+                            <td>
+                                <a class="fw-semibold" href="{{ path('app_control_collaborator_show', collaborator_detail_query|merge({id: collaborator.userId})) }}">{{ collaborator.displayName }}</a>
+                                <div class="small text-secondary">{{ collaborator.roleLabel }}{{ collaborator.active ? '' : ' · disattivato' }}</div>
+                                {% if collaborator.overloaded %}<span class="badge bg-red-lt mt-1">Sovraccarico</span>{% endif %}
+                                <div><a class="small" href="{{ path('app_control_collaborator_show', collaborator_detail_query|merge({id: collaborator.userId})) }}">Dettaglio giornaliero</a></div>
+                            </td>
+                            <td data-order="{{ collaborator.openActivities }}">{{ collaborator.openActivities }}{% if collaborator.overdueActivities > 0 %}<div class="small text-danger">{{ collaborator.overdueActivities }} scadute</div>{% endif %}</td>
+                            <td data-order="{{ collaborator.remainingMinutes }}">{{ collaborator.remainingMinutes|duration_hm }}</td>
+                            <td data-order="{{ collaborator.workedMinutes }}">{{ collaborator.workedMinutes|duration_hm }}</td>
+                            <td data-order="{{ collaborator.billableMinutes }}">{{ collaborator.billableMinutes|duration_hm }}</td>
+                            <td data-order="{{ collaborator.projectCount }}">{{ collaborator.projectCount }}</td>
+                        </tr>
+                    {% else %}<tr><td colspan="6" class="text-center text-secondary py-4">Nessuna persona.</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><h3 class="card-title">Riepilogo per cliente</h3></div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+                    <thead><tr><th>Cliente</th><th>Commesse</th><th>Ore periodo</th><th>Costi periodo</th><th>Incassi periodo</th><th>Saldo gestionale</th></tr></thead>
+                    <tbody>
+                    {% for client in dashboard.clients %}
+                        <tr>
+                            <td><a class="fw-semibold" href="{{ path('app_client_show', {id: client.clientId}) }}">{{ client.clientName }}</a>{% if client.criticalProjectCount > 0 %}<div class="small text-danger">{{ client.criticalProjectCount }} con criticità</div>{% endif %}</td>
+                            <td data-order="{{ client.projectCount }}">{{ client.projectCount }}<div class="small text-secondary">{{ client.openProjectCount }} aperte · {{ client.closedProjectCount }} chiuse</div></td>
+                            <td data-order="{{ client.workedMinutes }}">{{ client.workedMinutes|duration_hm }}<div class="small text-secondary">{{ client.billableMinutes|duration_hm }} fatturabili</div></td>
+                            <td data-order="{{ client.labourCostCents + client.expenseCents }}">{{ (client.labourCostCents + client.expenseCents)|money_eur }}</td>
+                            <td data-order="{{ client.paymentCents }}">{{ client.paymentCents|money_eur }}</td>
+                            <td data-order="{{ client.periodBalanceCents }}" class="fw-semibold {{ client.periodBalanceCents < 0 ? 'text-danger' : 'text-success' }}">{{ client.periodBalanceCents|money_eur }}</td>
+                        </tr>
+                    {% else %}<tr><td colspan="6" class="text-center text-secondary py-4">Nessun cliente nel risultato.</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h3 class="card-title">Andamento mensile del periodo</h3></div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+            <thead><tr><th>Mese</th><th>Ore lavorate</th><th>Ore fatturabili</th><th>Costo ore</th><th>Spese</th><th>Incassi</th><th>Saldo gestionale</th></tr></thead>
+            <tbody>
+            {% for period in dashboard.periods %}
+                <tr>
+                    <td data-order="{{ period.month|date('Y-m') }}" class="fw-semibold">{{ period.month|date('m/Y') }}</td>
+                    <td data-order="{{ period.workedMinutes }}">{{ period.workedMinutes|duration_hm }}</td>
+                    <td data-order="{{ period.billableMinutes }}">{{ period.billableMinutes|duration_hm }}</td>
+                    <td data-order="{{ period.labourCostCents }}">{{ period.labourCostCents|money_eur }}</td>
+                    <td data-order="{{ period.expenseCents }}">{{ period.expenseCents|money_eur }}</td>
+                    <td data-order="{{ period.paymentCents }}">{{ period.paymentCents|money_eur }}</td>
+                    <td data-order="{{ period.periodBalanceCents }}" class="fw-semibold {{ period.periodBalanceCents < 0 ? 'text-danger' : 'text-success' }}">{{ period.periodBalanceCents|money_eur }}</td>
+                </tr>
+            {% else %}<tr><td colspan="7" class="text-center text-secondary py-4">Nessun mese nel periodo selezionato.</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer text-secondary small">Il saldo gestionale del periodo è calcolato come incassi meno costo storico delle ore e spese. Non rappresenta un rendiconto fiscale o di cassa completo.</div>
+</div>
+{% endblock %}

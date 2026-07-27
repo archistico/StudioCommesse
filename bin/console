@@ -1,0 +1,25 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use App\Kernel;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+
+if (!is_dir(dirname(__DIR__).'/vendor')) {
+    throw new LogicException('Le dipendenze non sono installate. Eseguire "composer install".');
+}
+
+if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
+    throw new LogicException('Symfony Runtime non è installato. Eseguire "composer require symfony/runtime".');
+}
+
+require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
+
+return static function (array $context): Application {
+    date_default_timezone_set($context['APP_TIMEZONE'] ?? 'Europe/Rome');
+
+    $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
+
+    return new Application($kernel);
+};

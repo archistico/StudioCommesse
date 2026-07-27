@@ -1,0 +1,82 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Documenti {{ project.code }} · {{ app_name }}{% endblock %}
+{% block page_title %}Documenti · {{ project.code }}{% endblock %}
+{% block page_actions %}
+<div class="btn-list">
+    <a href="{{ path('app_project_show', {id: project.id}) }}" class="btn btn-outline-secondary">Torna alla commessa</a>
+    <a href="{{ path('app_attachment_index', {project: project.id}) }}" class="btn btn-outline-primary">Vista globale</a>
+</div>
+{% endblock %}
+
+{% block page_body %}
+{% if project.archived %}<div class="alert alert-secondary">La commessa è archiviata: i documenti restano consultabili ma non è possibile caricarne di nuovi.</div>{% endif %}
+
+{% if not project.archived %}
+<div class="card mb-3">
+    {{ form_start(form, {attr: {autocomplete: 'off'}}) }}
+    <div class="card-header"><h3 class="card-title">Carica documento</h3></div>
+    <div class="card-body">
+        {{ form_errors(form) }}
+        <div class="row g-3">
+            <div class="col-12">{{ form_row(form.file) }}</div>
+            <div class="col-12 col-lg-6">{{ form_row(form.classification) }}</div>
+            <div class="col-12 col-lg-6">{{ form_row(form.activity) }}</div>
+            <div class="col-12">{{ form_row(form.description) }}</div>
+        </div>
+        {{ form_rest(form) }}
+    </div>
+    <div class="card-footer"><button class="btn btn-primary w-100" type="submit">Carica documento</button></div>
+    {{ form_end(form, {render_rest: false}) }}
+</div>
+{% endif %}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-12 col-lg-4">
+                <label class="form-label" for="project-document-activity">Attività</label>
+                <select class="form-select" id="project-document-activity" name="activity">
+                    <option value="">Tutte le attività</option>
+                    {% for activity in activities %}<option value="{{ activity.id }}" {{ selected_activity and selected_activity.id == activity.id ? 'selected' : '' }}>{{ activity.title }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-4">
+                <label class="form-label" for="project-document-classification">Classificazione</label>
+                <select class="form-select" id="project-document-classification" name="classification">
+                    <option value="">Tutte</option>
+                    {% for classification in classifications %}<option value="{{ classification.value }}" {{ selected_classification == classification ? 'selected' : '' }}>{{ classification.label }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-4">
+                <label class="form-label" for="project-document-query">Ricerca</label>
+                <input class="form-control" id="project-document-query" name="q" value="{{ query }}" placeholder="Nome o descrizione">
+            </div>
+            <div class="col-12"><button class="btn btn-outline-primary w-100" type="submit">Filtra documenti</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h3 class="card-title">Archivio documentale</h3><span class="badge bg-blue-lt ms-auto">{{ attachments|length }}</span></div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+            <thead><tr><th>Documento</th><th>Attività</th><th>Classificazione</th><th>Caricato da</th><th>Data</th><th>Dimensione</th></tr></thead>
+            <tbody>
+            {% for attachment in attachments %}
+                <tr>
+                    <td><a class="fw-semibold" href="{{ path('app_attachment_show', {id: attachment.id}) }}">{{ attachment.originalName }}</a>{% if attachment.description %}<div class="small text-secondary text-wrap">{{ attachment.description }}</div>{% endif %}</td>
+                    <td>{{ attachment.activity ? attachment.activity.title : 'Documento generale' }}</td>
+                    <td><span class="badge {{ attachment.classification.badgeClass }}">{{ attachment.classification.label }}</span></td>
+                    <td>{{ attachment.uploadedBy.displayName }}</td>
+                    <td data-order="{{ attachment.createdAt|date('U') }}">{{ attachment.createdAt|date('d/m/Y H:i') }}</td>
+                    <td data-order="{{ attachment.sizeBytes }}">{{ attachment.sizeBytes|file_size }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6" class="text-secondary">Nessun documento presente.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

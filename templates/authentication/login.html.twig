@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accesso · {{ app_name }}{% endblock %}
+{% block body_class %}d-flex flex-column bg-body-tertiary{% endblock %}
+
+{% block body %}
+<div class="page page-center">
+    <div class="container container-tight py-4">
+        <div class="text-center mb-4">
+            <span class="brand-mark brand-mark-lg" aria-hidden="true">SC</span>
+            <h1 class="h2 mt-3 mb-1">{{ app_name }}</h1>
+            <p class="text-secondary mb-0">Gestione interna di commesse e collaboratori</p>
+        </div>
+
+        <form class="card card-md" method="post" autocomplete="off">
+            <div class="card-body">
+                <h2 class="h2 text-center mb-4">Accedi</h2>
+
+                {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                        Credenziali non valide oppure account non disponibile.
+                    </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label class="form-label" for="username">Nome utente</label>
+                    <input type="text" id="username" name="_username" value="{{ last_username }}" class="form-control" autocomplete="username" required autofocus>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" name="_password" class="form-control" autocomplete="current-password" required>
+                </div>
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary w-100">Accedi</button>
+                </div>
+            </div>
+        </form>
+        <div class="text-center text-secondary mt-3">
+            Applicazione riservata alla rete interna dello studio.
+        </div>
+    </div>
+</div>
+{% endblock %}

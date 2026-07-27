@@ -1,0 +1,67 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Attività · {{ app_name }}{% endblock %}
+{% block page_title %}Attività{% endblock %}
+
+{% block page_body %}
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-12 col-lg-6">
+                <label class="form-label" for="assignee">Assegnatario</label>
+                <select id="assignee" name="assignee" class="form-select">
+                    <option value="me" {{ selected_assignee_id is null ? 'selected' : '' }}>Le mie attività</option>
+                    {% for user in users %}
+                        <option value="{{ user.id }}" {{ selected_assignee_id == user.id ? 'selected' : '' }}>{{ user.displayName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-auto"><button class="btn btn-primary w-100">Mostra</button></div>
+            <div class="col-12"><div class="form-help filter-explanation">Il filtro riguarda la persona responsabile dell’attività, non chi ha registrato ore.</div></div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h3 class="card-title">Attività assegnate a {{ selected_user.displayName }}</h3></div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+            <thead>
+                <tr>
+                    <th>Commessa</th>
+                    <th>Attività</th>
+                    <th>Stato</th>
+                    <th>Stima</th>
+                    <th>Consuntivato</th>
+                    <th>Residuo</th>
+                    <th>Scadenza</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for activity in activities %}
+                <tr>
+                    <td>
+                        <a href="{{ path('app_project_show', {id: activity.project.id}) }}">{{ activity.project.code }}</a>
+                        <div class="small text-secondary">{{ activity.project.name }}</div>
+                    </td>
+                    <td>
+                        <a class="fw-semibold" href="{{ path('app_activity_edit', {id: activity.id}) }}">{{ activity.title }}</a>
+                        <span class="badge {{ activity.priority.badgeClass }}">{{ activity.priority.label }}</span>
+                    </td>
+                    <td>
+                        <span class="badge {{ activity.status.badgeClass }}">{{ activity.status.label }}</span>
+                        <div class="small text-secondary mt-1">{{ activity.progressPercent }}%</div>
+                    </td>
+                    <td data-order="{{ activity.initialEstimatedMinutes }}">{{ activity.initialEstimatedMinutes|duration_hm }}</td>
+                    <td class="fw-semibold" data-order="{{ consumed_minutes[activity.id]|default(0) }}">{{ consumed_minutes[activity.id]|default(0)|duration_hm }}</td>
+                    <td data-order="{{ activity.remainingEstimatedMinutes }}">{{ activity.remainingEstimatedMinutes|duration_hm }}</td>
+                    <td data-order="{{ activity.dueAt ? activity.dueAt|date('Y-m-d H:i:s') : '9999-12-31 23:59:59' }}" class="{{ activity.overdue ? 'text-danger fw-bold' : '' }}">{{ activity.dueAt ? activity.dueAt|date('d/m/Y H:i') : '—' }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-secondary text-center py-4">Nessuna attività assegnata.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
