@@ -16,44 +16,50 @@ final readonly class AttachmentManager
     public function __construct(
         private EntityManagerInterface $entityManager,
         private AttachmentStorage $storage,
+        private AttachmentMutationLock $mutationLock,
     ) {
     }
 
     public function create(Project $project, User $uploadedBy, AttachmentUpload $upload): Attachment
     {
-        if ($project->isArchived()) {
-            throw new AttachmentValidationException('Non è possibile aggiungere documenti a una commessa archiviata.');
-        }
-        if (null === $upload->file) {
-            throw new AttachmentValidationException('Selezionare un file.');
-        }
-        if (null !== $upload->activity && $upload->activity->getProject() !== $project) {
-            throw new AttachmentValidationException('L’attività selezionata non appartiene alla commessa.');
-        }
-
-        $stored = $this->storage->store($upload->file);
-        $attachment = new Attachment(
-            project: $project,
-            activity: $upload->activity,
-            uploadedBy: $uploadedBy,
-            classification: $upload->classification,
-            originalName: $stored->originalName,
-            storageKey: $stored->storageKey,
-            mimeType: $stored->mimeType,
-            sizeBytes: $stored->sizeBytes,
-            sha256: $stored->sha256,
-            description: $upload->description,
-        );
-
+        $lock = $this->mutationLock->acquireShared();
         try {
-            $this->entityManager->persist($attachment);
-            $this->entityManager->flush();
-        } catch (\Throwable $exception) {
-            $this->storage->delete($stored->storageKey);
-            throw $exception;
-        }
+            if ($project->isArchived()) {
+                throw new AttachmentValidationException('Non è possibile aggiungere documenti a una commessa archiviata.');
+            }
+            if (null === $upload->file) {
+                throw new AttachmentValidationException('Selezionare un file.');
+            }
+            if (null !== $upload->activity && $upload->activity->getProject() !== $project) {
+                throw new AttachmentValidationException('L’attività selezionata non appartiene alla commessa.');
+            }
 
-        return $attachment;
+            $stored = $this->storage->store($upload->file);
+            $attachment = new Attachment(
+                project: $project,
+                activity: $upload->activity,
+                uploadedBy: $uploadedBy,
+                classification: $upload->classification,
+                originalName: $stored->originalName,
+                storageKey: $stored->storageKey,
+                mimeType: $stored->mimeType,
+                sizeBytes: $stored->sizeBytes,
+                sha256: $stored->sha256,
+                description: $upload->description,
+            );
+
+            try {
+                $this->entityManager->persist($attachment);
+                $this->entityManager->flush();
+            } catch (\Throwable $exception) {
+                $this->storage->delete($stored->storageKey);
+                throw $exception;
+            }
+
+            return $attachment;
+        } finally {
+            $lock->release();
+        }
     }
 
     public function updateMetadata(Attachment $attachment): void
@@ -68,9 +74,14 @@ final readonly class AttachmentManager
 
     public function delete(Attachment $attachment): void
     {
-        $storageKey = $attachment->getStorageKey();
-        $this->entityManager->remove($attachment);
-        $this->entityManager->flush();
-        $this->storage->delete($storageKey);
+        $lock = $this->mutationLock->acquireShared();
+        try {
+            $storageKey = $attachment->getStorageKey();
+            $this->entityManager->remove($attachment);
+            $this->entityManager->flush();
+            $this->storage->delete($storageKey);
+        } finally {
+            $lock->release();
+        }
     }
 }

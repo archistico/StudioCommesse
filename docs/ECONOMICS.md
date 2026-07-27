@@ -40,3 +40,7 @@ La chiusura economica è un indicatore derivato:
 - `Non applicabile` per una commessa annullata.
 
 Il saldo gestionale mensile è `incassi − costo storico ore − spese`. È un indicatore interno e non un risultato fiscale o una prima nota.
+
+## Importi dovuti per cliente
+
+La pagina soci `/economia` raggruppa le commesse attive per cliente e mostra preventivato, incassato e importo ancora dovuto. Il residuo è calcolato per singola commessa come `max(0, preventivo - incassi)` e poi sommato, così eventuali incassi eccedenti su una commessa non compensano artificialmente il debito di un’altra. Sono evidenziate anche le commesse prive di preventivo.

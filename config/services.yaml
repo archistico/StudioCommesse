@@ -1,8 +1,11 @@
 parameters:
   app.name: 'Studio Commesse'
-  app.version: '0.7.0-M7'
+  app.version: '0.9.1-M9.1-HF2'
   app.default_hourly_rate_cents: 0
   app.attachment_storage_dir: '%kernel.project_dir%/var/storage/attachments'
+  app.attachment_mutation_lock_file: '%kernel.project_dir%/var/locks/attachments.lock'
+  app.request_runtime_lock_file: '%kernel.project_dir%/var/locks/requests.lock'
+  app.maintenance_marker_file: '%kernel.project_dir%/var/maintenance.lock'
 
 services:
   _defaults:
@@ -14,6 +17,10 @@ services:
     exclude:
       - '../src/DependencyInjection/'
       - '../src/Entity/'
+      - '../src/Service/FileLock.php'
+      - '../src/Service/FileLockManager.php'
+      - '../src/Service/BackupSummary.php'
+      - '../src/Service/RestoreResult.php'
       - '../src/Kernel.php'
 
   App\Controller\:
@@ -27,3 +34,20 @@ services:
   App\Service\HourlyRateResolver:
     arguments:
       $defaultHourlyRateCents: '%app.default_hourly_rate_cents%'
+
+  App\Service\AttachmentMutationLock:
+    arguments:
+      $lockFile: '%app.attachment_mutation_lock_file%'
+
+  App\Service\RequestRuntimeLock:
+    arguments:
+      $lockFile: '%app.request_runtime_lock_file%'
+
+  App\Service\MaintenanceMode:
+    arguments:
+      $markerFile: '%app.maintenance_marker_file%'
+
+  App\Service\BackupManager:
+    arguments:
+      $attachmentStorageDirectory: '%app.attachment_storage_dir%'
+      $appVersion: '%app.version%'

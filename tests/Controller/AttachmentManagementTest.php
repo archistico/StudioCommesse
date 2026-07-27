@@ -11,10 +11,12 @@ use App\Enum\UserRole;
 use App\Tests\DatabaseWebTestCase;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 final class AttachmentManagementTest extends DatabaseWebTestCase
 {
+    /** @var list<string> */
+    private array $temporaryDirectories = [];
+
     public function testCollaboratorUploadsReadsAndDownloadsProtectedProjectDocument(): void
     {
         $responsible = $this->createUser('responsabile-documenti');
@@ -103,22 +105,26 @@ final class AttachmentManagementTest extends DatabaseWebTestCase
     {
         $partner = $this->createUser('socio-documenti', UserRole::Partner);
         $project = $this->createProject($this->createCustomer('Cliente Archivio'), $partner, status: ProjectStatus::Completed);
+        $this->client->loginUser($partner);
+
+        $crawler = $this->client->request('GET', '/commesse/'.$project->getId().'/documenti');
+        self::assertResponseIsSuccessful();
+        $uploadForm = $crawler->selectButton('Carica documento')->form();
+        $csrfToken = (string) $uploadForm['attachment_upload[_token]']->getValue();
+
         $project->archive();
         $this->entityManager->flush();
-        $this->client->loginUser($partner);
 
         $crawler = $this->client->request('GET', '/commesse/'.$project->getId().'/documenti');
         self::assertResponseIsSuccessful();
         self::assertCount(0, $crawler->selectButton('Carica documento'));
 
-        /** @var CsrfTokenManagerInterface $csrf */
-        $csrf = self::getContainer()->get(CsrfTokenManagerInterface::class);
         $this->client->request('POST', '/commesse/'.$project->getId().'/documenti', [
             'attachment_upload' => [
                 'classification' => AttachmentClassification::Technical->value,
                 'activity' => '',
                 'description' => '',
-                '_token' => $csrf->getToken('attachment_upload')->getValue(),
+                '_token' => $csrfToken,
             ],
         ], ['attachment_upload' => ['file' => new UploadedFile($this->createPdf('forzato.pdf'), 'forzato.pdf', 'application/pdf', null, true)]]);
         self::assertResponseStatusCodeSame(422);
@@ -145,11 +151,14 @@ final class AttachmentManagementTest extends DatabaseWebTestCase
 
     private function createPdf(string $name): string
     {
-        $directory = sys_get_temp_dir().'/studio-commesse-tests';
-        if (!is_dir($directory)) {
-            mkdir($directory, 0700, true);
+        $root = sys_get_temp_dir().'/studio-commesse-tests';
+        if (!is_dir($root)) {
+            mkdir($root, 0700, true);
         }
-        $path = $directory.'/'.bin2hex(random_bytes(6)).'-'.$name;
+        $directory = $root.'/'.bin2hex(random_bytes(8));
+        mkdir($directory, 0700, true);
+        $this->temporaryDirectories[] = $directory;
+        $path = $directory.'/'.$name;
         file_put_contents($path, "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\n%%EOF\n");
 
         return $path;
@@ -161,6 +170,10 @@ final class AttachmentManagementTest extends DatabaseWebTestCase
         if (is_string($storageDirectory)) {
             $this->removeDirectory($storageDirectory);
         }
+        foreach ($this->temporaryDirectories as $directory) {
+            $this->removeDirectory($directory);
+        }
+        $this->temporaryDirectories = [];
         parent::tearDown();
     }
 

@@ -1,2 +1,5 @@
 parameters:
   app.attachment_storage_dir: '%kernel.project_dir%/var/test-attachments'
+  app.attachment_mutation_lock_file: '%kernel.project_dir%/var/test-locks/attachments.lock'
+  app.request_runtime_lock_file: '%kernel.project_dir%/var/test-locks/requests.lock'
+  app.maintenance_marker_file: '%kernel.project_dir%/var/test-maintenance.lock'

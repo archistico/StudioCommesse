@@ -46,7 +46,7 @@ final class TimeEntryReportingTest extends DatabaseWebTestCase
 
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('label[for="assignee"]', 'Assegnatario');
-        self::assertSelectorTextContains('.form-help', 'persona responsabile');
+        self::assertSelectorTextContains('.filter-explanation', 'persona responsabile');
         self::assertSelectorTextContains('table', $assignedToMaria->getTitle());
         self::assertStringNotContainsString($assignedToLuca->getTitle(), (string) $this->client->getResponse()->getContent());
     }
@@ -122,4 +122,16 @@ final class TimeEntryReportingTest extends DatabaseWebTestCase
         self::assertSelectorTextContains('h2.page-title', 'Ore');
         self::assertSelectorTextContains('a.nav-link[href="/ore"]', 'Ore');
     }
+
+    public function testGlobalHoursReportAcceptsEmptySelectFilters(): void
+    {
+        $collaborator = $this->createUser('ore-filtri-vuoti');
+        $this->client->loginUser($collaborator);
+
+        $this->client->request('GET', '/ore?project=&activity=&user=&billable=&from=2026-07-08&to=2026-07-27');
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('h2.page-title', 'Ore');
+    }
+
 }

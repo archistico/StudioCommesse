@@ -9,3 +9,5 @@
 /public/vendor/tabler/
 /var/*
 !/var/.gitkeep
+
+/backups/

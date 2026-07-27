@@ -5,74 +5,91 @@
 {% block page_actions %}
 <div class="btn-list">
     <a href="{{ path('app_project_show', {id: project.id}) }}" class="btn btn-outline-secondary">Torna alla commessa</a>
-    {% if is_granted('ROLE_PARTNER') %}
+    {% if not project.archived %}
         <a href="{{ path('app_expense_new', {id: project.id}) }}" class="btn btn-outline-danger">Nuova spesa</a>
+    {% endif %}
+    {% if is_partner_view and not project.archived %}
         <a href="{{ path('app_payment_new', {id: project.id}) }}" class="btn btn-success">Nuovo incasso</a>
     {% endif %}
 </div>
 {% endblock %}
 
 {% block page_body %}
-<div class="row row-deck row-cards mb-3">
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Preventivo</div><div class="h2">{{ summary.estimatedAmountCents|money_eur }}</div><div class="small text-secondary">Tariffa commessa: {{ project.defaultHourlyRateCents|money_eur }}/h</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Costo ore</div><div class="h2">{{ summary.labourCostCents|money_eur }}</div><div class="small text-secondary">Tariffe congelate sulle registrazioni</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Spese</div><div class="h2 text-danger">{{ summary.expenseCostCents|money_eur }}</div><div class="small text-secondary">Costo totale: {{ summary.totalCostCents|money_eur }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Incassato</div><div class="h2 text-success">{{ summary.paymentsCents|money_eur }}</div><div class="small text-secondary">Da incassare: {{ summary.remainingToCollectCents|money_eur }}</div></div></div></div>
-</div>
+{% if is_partner_view %}
+    <div class="row row-deck row-cards mb-3">
+        <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Preventivo</div><div class="h2">{{ summary.estimatedAmountCents|money_eur }}</div><div class="small text-secondary">Tariffa commessa: {{ project.defaultHourlyRateCents|money_eur }}/h</div></div></div></div>
+        <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Costo ore</div><div class="h2">{{ summary.labourCostCents|money_eur }}</div><div class="small text-secondary">Tariffe congelate sulle registrazioni</div></div></div></div>
+        <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Spese</div><div class="h2 text-danger">{{ summary.expenseCostCents|money_eur }}</div><div class="small text-secondary">Costo totale: {{ summary.totalCostCents|money_eur }}</div></div></div></div>
+        <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Incassato</div><div class="h2 text-success">{{ summary.paymentsCents|money_eur }}</div><div class="small text-secondary">Da incassare: {{ summary.remainingToCollectCents|money_eur }}</div></div></div></div>
+    </div>
 
-<div class="alert {{ summary.marginCents < 0 ? 'alert-danger' : 'alert-success' }}">
-    <strong>Margine gestionale:</strong> {{ summary.marginCents|money_eur }}
-    {% if summary.overBudget %} — i costi consuntivati hanno superato il preventivo.{% endif %}
-</div>
+    <div class="alert {{ summary.marginCents < 0 ? 'alert-danger' : 'alert-success' }}">
+        <strong>Margine gestionale:</strong> {{ summary.marginCents|money_eur }}
+        {% if summary.overBudget %} — i costi consuntivati hanno superato il preventivo.{% endif %}
+    </div>
+{% else %}
+    <div class="row row-cards mb-3">
+        <div class="col-12 col-lg-6">
+            <div class="card"><div class="card-body"><div class="text-secondary">Le mie spese sulla commessa</div><div class="h2 text-danger">{{ own_expense_total_cents|money_eur }}</div><div class="small text-secondary">Sono visibili soltanto le spese registrate dal tuo account.</div></div></div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="alert alert-info h-100 mb-0 d-flex align-items-center">Preventivo, costi complessivi e incassi sono riservati ai soci.</div>
+        </div>
+    </div>
+{% endif %}
 
 <div class="row row-cards">
-    <div class="col-12 col-lg-6">
+    <div class="col-12 {{ is_partner_view ? 'col-lg-6' : '' }}">
         <div class="card h-100">
-            <div class="card-header"><h3 class="card-title">Spese</h3></div>
+            <div class="card-header"><h3 class="card-title">{{ is_partner_view ? 'Spese' : 'Le mie spese' }}</h3></div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
-                    <thead><tr><th>Data</th><th>Descrizione</th><th>Importo</th></tr></thead>
+                    <thead><tr><th>Data</th><th>Descrizione</th><th>Registrata da</th><th>Importo</th></tr></thead>
                     <tbody>
                     {% for expense in expenses %}
                         <tr>
                             <td data-order="{{ expense.spentOn|date('Y-m-d') }}">{{ expense.spentOn|date('d/m/Y') }}</td>
                             <td>
-                                {% if is_granted('ROLE_PARTNER') %}<a class="fw-semibold" href="{{ path('app_expense_edit', {id: expense.id}) }}">{{ expense.category }} · {{ expense.description }}</a>{% else %}<div class="fw-semibold">{{ expense.category }} · {{ expense.description }}</div>{% endif %}
+                                {% if is_granted('EXPENSE_MANAGE', expense) %}<a class="fw-semibold" href="{{ path('app_expense_edit', {id: expense.id}) }}">{{ expense.category }} · {{ expense.description }}</a>{% else %}<div class="fw-semibold">{{ expense.category }} · {{ expense.description }}</div>{% endif %}
                                 <div class="small text-secondary">{{ expense.activity ? expense.activity.title : 'Commessa' }}{% if expense.reimbursable %} · rimborsabile{% endif %}</div>
                             </td>
+                            <td>{{ expense.recordedBy.displayName }}</td>
                             <td data-order="{{ expense.amountCents }}">{{ expense.amountCents|money_eur }}</td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="3" class="text-secondary text-center py-4">Nessuna spesa.</td></tr>
+                        <tr><td colspan="4" class="text-secondary text-center py-4">Nessuna spesa.</td></tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-    <div class="col-12 col-lg-6">
-        <div class="card h-100">
-            <div class="card-header"><h3 class="card-title">Incassi</h3></div>
-            <div class="table-responsive">
-                <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
-                    <thead><tr><th>Data</th><th>Descrizione</th><th>Importo</th></tr></thead>
-                    <tbody>
-                    {% for payment in payments %}
-                        <tr>
-                            <td data-order="{{ payment.paidOn|date('Y-m-d') }}">{{ payment.paidOn|date('d/m/Y') }}</td>
-                            <td>
-                                {% if is_granted('ROLE_PARTNER') %}<a class="fw-semibold" href="{{ path('app_payment_edit', {id: payment.id}) }}">{{ payment.description ?: payment.method }}</a>{% else %}<div class="fw-semibold">{{ payment.description ?: payment.method }}</div>{% endif %}
-                                <div class="small text-secondary">{{ payment.method }}{% if payment.reference %} · {{ payment.reference }}{% endif %}</div>
-                            </td>
-                            <td data-order="{{ payment.amountCents }}" class="text-success">{{ payment.amountCents|money_eur }}</td>
-                        </tr>
-                    {% else %}
-                        <tr><td colspan="3" class="text-secondary text-center py-4">Nessun incasso.</td></tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+    {% if is_partner_view %}
+        <div class="col-12 col-lg-6">
+            <div class="card h-100">
+                <div class="card-header"><h3 class="card-title">Incassi</h3></div>
+                <div class="table-responsive">
+                    <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+                        <thead><tr><th>Data</th><th>Descrizione</th><th>Registrato da</th><th>Importo</th></tr></thead>
+                        <tbody>
+                        {% for payment in payments %}
+                            <tr>
+                                <td data-order="{{ payment.paidOn|date('Y-m-d') }}">{{ payment.paidOn|date('d/m/Y') }}</td>
+                                <td>
+                                    <a class="fw-semibold" href="{{ path('app_payment_edit', {id: payment.id}) }}">{{ payment.description ?: payment.method }}</a>
+                                    <div class="small text-secondary">{{ payment.method }}{% if payment.reference %} · {{ payment.reference }}{% endif %}</div>
+                                </td>
+                                <td>{{ payment.recordedBy.displayName }}</td>
+                                <td data-order="{{ payment.amountCents }}" class="text-success">{{ payment.amountCents|money_eur }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="4" class="text-secondary text-center py-4">Nessun incasso.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
+    {% endif %}
 </div>
 {% endblock %}

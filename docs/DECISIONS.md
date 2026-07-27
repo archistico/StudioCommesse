@@ -84,7 +84,7 @@ Ogni milestone richiede ZIP completo, documentazione aggiornata, test, analisi s
 - tariffa risolta per specificità: attività, commessa, collaboratore, standard applicazione;
 - tariffa e costo congelati sulla registrazione ore conclusa;
 - spese e incassi non rappresentano documenti fiscali;
-- responsabile della commessa può consultare il riepilogo economico, ma soltanto i soci modificano i dati finanziari.
+- i soci consultano il riepilogo economico completo; i collaboratori consultano e gestiscono soltanto le proprie spese secondo D016.
 
 ## D011 – Responsabilità e lavoro effettivo sono distinti
 
@@ -146,3 +146,16 @@ Ogni milestone richiede ZIP completo, documentazione aggiornata, test, analisi s
 - Limite iniziale di 10 MiB e allowlist ristretta; archivi ZIP generici, eseguibili e formati con macro non sono ammessi.
 - I controlli integrati non vengono presentati come antivirus completo; la directory può essere sorvegliata da un antivirus di sistema.
 - Backup e ripristino devono includere insieme database SQLite e directory documentale.
+
+
+## D016 – Economia per ruolo e report mensile
+
+- la pagina economica della commessa è consultabile da tutti gli utenti autenticati, ma la risposta è costruita in base al ruolo;
+- i soci ricevono il quadro economico completo;
+- i collaboratori ricevono soltanto le spese registrate dal proprio account e non ricevono incassi, margini o preventivi;
+- ogni collaboratore può gestire esclusivamente le proprie spese tramite voter;
+- il report mensile completo è riservato ai soci perché combina costi, incassi e audit globale;
+- le registrazioni ore appartengono al mese della data di inizio; i timer aperti sono elencati ma non sommati;
+- gli indicatori mensili sono storici per i movimenti, mentre stato, avanzamento e residuo delle attività sono proiezioni correnti esplicitamente dichiarate;
+- il CSV esporta il dettaglio ore in UTF-8 con separatore `;`;
+- M8 non introduce nuovi campi o migrazioni.

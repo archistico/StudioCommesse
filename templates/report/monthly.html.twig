@@ -1,0 +1,119 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Report mensile {{ report.month|date('m/Y') }} · {{ app_name }}{% endblock %}
+{% block page_title %}Report mensile · {{ report.month|date('m/Y') }}{% endblock %}
+{% block page_actions %}
+<div class="btn-list">
+    <a class="btn btn-outline-secondary" href="{{ path('app_monthly_report', {month: previous_month, project: selected_project ? selected_project.id : null}) }}">Mese precedente</a>
+    <a class="btn btn-outline-secondary" href="{{ path('app_monthly_report', {month: next_month, project: selected_project ? selected_project.id : null}) }}">Mese successivo</a>
+    <a class="btn btn-success" href="{{ path('app_monthly_report_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">Esporta CSV</a>
+</div>
+{% endblock %}
+
+{% block page_body %}
+<div class="card mb-3 d-print-none">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-12 col-lg-6">
+                <label class="form-label" for="month">Mese</label>
+                <input class="form-control" id="month" name="month" type="month" value="{{ month_value }}">
+            </div>
+            <div class="col-12 col-lg-6">
+                <label class="form-label" for="project">Commessa</label>
+                <select class="form-select" id="project" name="project">
+                    <option value="">Tutte le commesse attive</option>
+                    {% for project in projects_filter %}
+                        <option value="{{ project.id }}" {{ selected_project and selected_project.id == project.id ? 'selected' : '' }}>{{ project.code }} · {{ project.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12"><button class="btn btn-primary w-100" type="submit">Mostra report</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="row row-deck row-cards mb-3">
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Ore registrate</div><div class="h2">{{ report.workedMinutes|duration_hm }}</div><div class="small text-secondary">{{ report.timeEntryCount }} registrazioni · {{ report.contributorCount }} persone</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Ore fatturabili</div><div class="h2">{{ report.billableMinutes|duration_hm }}</div><div class="small text-secondary">{{ report.workedMinutes > 0 ? ((report.billableMinutes * 100 / report.workedMinutes)|round) : 0 }}% del totale</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Commesse movimentate</div><div class="h2">{{ report.movedProjectCount }}</div><div class="small text-secondary">{{ report.inactiveProjectCount }} senza movimenti</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Azioni registrate</div><div class="h2">{{ report.actionCount }}</div><div class="small text-secondary">{{ report.attachmentCount }} documenti caricati</div></div></div></div>
+</div>
+
+<div class="row row-cards mb-3">
+    <div class="col-12 col-lg-6"><div class="card"><div class="card-body"><div class="text-secondary">Spese del mese</div><div class="h2 text-danger">{{ report.expenseCents|money_eur }}</div></div></div></div>
+    <div class="col-12 col-lg-6"><div class="card"><div class="card-body"><div class="text-secondary">Incassi del mese</div><div class="h2 text-success">{{ report.paymentCents|money_eur }}</div></div></div></div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header"><h3 class="card-title">Andamento per commessa</h3><div class="small text-secondary ms-auto">Lo stato e l’avanzamento sono quelli correnti; ore e movimenti appartengono al mese selezionato.</div></div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-page-length="25">
+            <thead><tr><th>Commessa</th><th>Stato corrente</th><th>Attività</th><th>Ore mese</th><th>Movimenti</th><th>Economia mese</th><th>Ultimo movimento</th></tr></thead>
+            <tbody>
+            {% for row in report.projects %}
+                <tr class="{{ row.hasMovement ? '' : 'text-secondary' }}">
+                    <td><a class="fw-semibold" href="{{ path('app_project_show', {id: row.projectId}) }}">{{ row.code }} · {{ row.name }}</a><div class="small text-secondary">{{ row.clientName }} · {{ row.responsibleName }}</div></td>
+                    <td><span class="badge {{ row.status.badgeClass }}">{{ row.status.label }}</span> <span class="badge {{ row.priority.badgeClass }}">{{ row.priority.label }}</span><div class="small mt-1 {{ row.overdue ? 'text-danger' : 'text-secondary' }}">Scadenza: {{ row.dueDate ? row.dueDate|date('d/m/Y') : '—' }}</div></td>
+                    <td data-order="{{ row.averageProgressPercent }}"><strong>{{ row.averageProgressPercent }}%</strong><div class="small text-secondary">{{ row.completedActivityCount }}/{{ row.activityCount }} concluse · {{ row.openActivityCount }} aperte{% if row.overdueActivityCount > 0 %} · <span class="text-danger">{{ row.overdueActivityCount }} scadute</span>{% endif %}</div><div class="small text-secondary">Residuo: {{ row.remainingMinutes|duration_hm }}</div></td>
+                    <td data-order="{{ row.workedMinutes }}"><strong>{{ row.workedMinutes|duration_hm }}</strong><div class="small text-secondary">{{ row.timeEntryCount }} registrazioni · {{ row.contributorCount }} persone · {{ row.billableMinutes|duration_hm }} fatturabili</div></td>
+                    <td data-order="{{ row.movementCount }}">{{ row.movementCount }}<div class="small text-secondary">{{ row.expenseCount }} spese · {{ row.paymentCount }} incassi · {{ row.attachmentCount }} documenti</div></td>
+                    <td data-order="{{ row.paymentCents - row.expenseCents - row.labourCostCents }}"><div class="text-danger">Costi {{ (row.labourCostCents + row.expenseCents)|money_eur }}</div><div class="text-success">Incassi {{ row.paymentCents|money_eur }}</div></td>
+                    <td data-order="{{ row.lastMovementAt ? row.lastMovementAt|date('Y-m-d H:i:s') : '' }}">{{ row.lastMovementAt ? row.lastMovementAt|date('d/m/Y H:i') : 'Nessun movimento' }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-center text-secondary py-4">Nessuna commessa disponibile.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header"><h3 class="card-title">Registrazioni ore del mese</h3></div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-page-length="50">
+            <thead><tr><th>Data</th><th>Commessa e attività</th><th>Persona</th><th>Lavoro svolto</th><th>Durata</th><th>Fatturabile</th><th>Costo storico</th></tr></thead>
+            <tbody>
+            {% for entry in report.timeEntries %}
+                <tr>
+                    <td data-order="{{ entry.startedAt|date('Y-m-d H:i:s') }}">{{ entry.startedAt|date('d/m/Y H:i') }}{% if entry.endedAt %}–{{ entry.endedAt|date('H:i') }}{% else %}<div class="badge bg-yellow-lt">in corso</div>{% endif %}</td>
+                    <td><a class="fw-semibold" href="{{ path('app_project_show', {id: entry.projectId}) }}">{{ entry.projectCode }} · {{ entry.projectName }}</a><div><a href="{{ path('app_activity_time', {id: entry.activityId}) }}">{{ entry.activityTitle }}</a></div></td>
+                    <td>{{ entry.userName }}</td>
+                    <td>{{ entry.description ?: '—' }}</td>
+                    <td data-order="{{ entry.durationMinutes }}">{{ entry.isRunning ? 'In corso' : entry.durationMinutes|duration_hm }}</td>
+                    <td data-order="{{ entry.billable ? 1 : 0 }}">{{ entry.billable ? 'Sì' : 'No' }}</td>
+                    <td data-order="{{ entry.costCents }}">{{ entry.costCents|money_eur }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-center text-secondary py-4">Nessuna registrazione ore nel mese.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-12 col-lg-5">
+        <div class="card h-100">
+            <div class="card-header"><h3 class="card-title">Totali per azione</h3></div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-compact="true">
+                    <thead><tr><th>Area</th><th>Azione</th><th>Totale</th></tr></thead>
+                    <tbody>{% for row in report.actions %}<tr><td>{{ row.action.groupLabel }}</td><td>{{ row.action.label }}</td><td data-order="{{ row.count }}">{{ row.count }}</td></tr>{% else %}<tr><td colspan="3" class="text-center text-secondary py-4">Nessuna azione.</td></tr>{% endfor %}</tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-7">
+        <div class="card h-100">
+            <div class="card-header"><h3 class="card-title">Cronologia delle azioni</h3></div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-page-length="25">
+                    <thead><tr><th>Data</th><th>Area</th><th>Azione</th><th>Utente</th><th>Dettaglio</th></tr></thead>
+                    <tbody>{% for event in report.events %}<tr><td data-order="{{ event.occurredAt|date('Y-m-d H:i:s') }}">{{ event.occurredAt|date('d/m/Y H:i') }}</td><td>{{ event.action.groupLabel }}</td><td>{{ event.action.label }}</td><td>{{ event.actor }}</td><td>{{ event.summary }}</td></tr>{% else %}<tr><td colspan="5" class="text-center text-secondary py-4">Nessuna azione registrata.</td></tr>{% endfor %}</tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

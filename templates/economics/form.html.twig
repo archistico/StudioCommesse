@@ -38,7 +38,7 @@
             </div>
             {{ form_end(form, {render_rest: false}) }}
         </div>
-        {% if not is_new %}
+        {% if not is_new and ((expense is defined and is_granted('EXPENSE_MANAGE', expense)) or (payment is defined and is_granted('ROLE_PARTNER'))) %}
             <div class="card mt-3 border-danger">
                 <div class="card-body">
                     <h3 class="card-title text-danger">Operazione irreversibile</h3>

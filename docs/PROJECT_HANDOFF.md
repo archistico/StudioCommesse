@@ -2,30 +2,33 @@
 
 ## Stato autoritativo
 
-- ultima baseline validata: **M6.3 Hotfix 1**;
-- esito: `M6.3 HOTFIX 1 VALIDATION PASSED`;
-- archivio baseline: `StudioCommesse_M6.3_Hotfix1_Archive_Filter_Tests.zip`;
-- candidate corrente: **M7 `0.7.0-M7`**;
-- gate richiesto: `M7 VALIDATION PASSED`.
+- ultima baseline validata: **M8**;
+- esito: `M8 VALIDATION PASSED`;
+- archivio baseline: `StudioCommesse_M8_Report_Mensile_Economia_Ruoli.zip`;
+- candidate corrente: **M9.1 Hotfix 2 `0.9.1-M9.1-HF2`**;
+- archivio candidate atteso: `StudioCommesse_M9.1_Hotfix2_Backup_Contract.zip`;
+- gate richiesto: `M9.1 HOTFIX 2 VALIDATION PASSED`.
 
-## M7 candidate
+## M9.1 Hotfix 2 candidate
 
-M7 introduce allegati protetti collegati a commessa e, facoltativamente, attività.
+- backup coordinato di SQLite e `var/storage/attachments`;
+- formato `studio-commesse-backup-v1` con manifest JSON;
+- snapshot SQLite con `VACUUM INTO`;
+- allegati copiati esclusivamente in base ai record presenti nello snapshot;
+- verifica di hash, dimensioni, inventario migrazioni, `integrity_check`, `foreign_key_check` e inventario file;
+- lock condiviso sulle mutazioni documentali e lock esclusivo durante il backup;
+- modalità manutenzione e lock richieste durante ripristino, migrazioni e verifica;
+- manutenzione mantenuta attiva in caso di fallimento e sblocco esplicito `CLEAR`;
+- backup automatico pre-ripristino;
+- rollback di database e storage in caso di sostituzione fallita;
+- wrapper `backup.ps1`, `verify-backup.ps1` e `restore-backup.ps1`, con rifiuto di path traversal, symlink, flussi NTFS alternativi e nomi speciali Windows;
+- report soci degli importi dovuti per cliente;
+- correzione filtri Ore vuoti e dei narrowing PHPStan;
+- verifica automatica dell’ultimo backup o diagnostica dei file disponibili;
+- corretto il contratto PHPUnit sulle versioni di migrazione senza modificare la logica di backup;
+- nessuna migrazione e nessuna nuova dipendenza.
 
-- nuova entità `Attachment` e migrazione `Version20260727234500`;
-- classificazione tecnico/contrattuale/amministrativo/comunicazione/altro;
-- area globale `/documenti` e archivio `/commesse/{id}/documenti`;
-- collegamenti dal dettaglio commessa e dalla modifica attività;
-- file memorizzati in `var/storage/attachments`, mai sotto `public`;
-- nome fisico casuale, MIME rilevato, dimensione e SHA-256;
-- massimo 10 MiB, formati autorizzati e controllo della firma;
-- download soltanto tramite controller autenticato;
-- modifica/eliminazione nella pagina documento, senza colonne azioni nelle tabelle;
-- audit di caricamento, modifica, download ed eliminazione;
-- test di storage, entità, controller, permessi e contratti;
-- documentazione autoritativa in `docs/ATTACHMENTS.md`.
-
-## Comandi
+## Comandi ordinari
 
 ```powershell
 .\scripts\setup.ps1 -SkipPartnerBootstrap
@@ -33,6 +36,14 @@ M7 introduce allegati protetti collegati a commessa e, facoltativamente, attivit
 .\scripts\load-fixtures.ps1
 ```
 
+## Comandi backup
+
+```powershell
+.\scripts\backup.ps1
+.\scripts\verify-backup.ps1
+.\scripts\restore-backup.ps1 -Archive "<backup.zip>" -Confirm RESTORE
+```
+
 ## Passo successivo dopo la validazione
 
-M8 “Report, backup e rilascio 1.0”, iniziando dal backup atomico di database e spazio documentale.
+M9.2: hardening finale, test end-to-end, installazione/ripristino controllati e manuale utente completo.

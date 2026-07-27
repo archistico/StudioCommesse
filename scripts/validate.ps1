@@ -71,6 +71,10 @@ Invoke-Checked -Command "php" -Arguments @("scripts/php-lint.php")
 Invoke-Checked -Command "php" -Arguments @("scripts/doctrine-config-contract.php")
 Invoke-Checked -Command "php" -Arguments @("scripts/symfony-api-contract.php")
 Invoke-Checked -Command "php" -Arguments @("scripts/attachment-storage-contract.php")
+Invoke-Checked -Command "php" -Arguments @("scripts/monthly-report-contract.php")
+Invoke-Checked -Command "php" -Arguments @("scripts/backup-contract.php")
+Invoke-Checked -Command "php" -Arguments @("scripts/m91-hotfix1-contract.php")
+Invoke-Checked -Command "php" -Arguments @("scripts/m91-hotfix2-contract.php")
 Invoke-Checked -Command "php" -Arguments @("bin/console", "lint:yaml", "config")
 Invoke-Checked -Command "php" -Arguments @("bin/console", "lint:twig", "templates")
 Invoke-Checked -Command "php" -Arguments @("bin/console", "cache:clear", "--env=dev")
@@ -79,7 +83,18 @@ Remove-Item "var/studio_commesse_test.db" -Force -ErrorAction SilentlyContinue
 Invoke-Checked -Command "php" -Arguments @("bin/console", "doctrine:migrations:migrate", "--env=test", "--no-interaction")
 Invoke-Checked -Command "php" -Arguments @("bin/console", "doctrine:migrations:up-to-date", "--env=test", "--no-interaction")
 Invoke-SchemaValidation
+
+$backupSmokeDirectory = Join-Path (Get-Location) "var/backup-smoke-test"
+Remove-Item $backupSmokeDirectory -Recurse -Force -ErrorAction SilentlyContinue
+try {
+    Invoke-Checked -Command "php" -Arguments @("bin/console", "app:backup:create", $backupSmokeDirectory, "--env=test")
+    Invoke-Checked -Command "php" -Arguments @("bin/console", "app:backup:verify", $backupSmokeDirectory, "--env=test")
+}
+finally {
+    Remove-Item $backupSmokeDirectory -Recurse -Force -ErrorAction SilentlyContinue
+}
+
 Invoke-Checked -Command "php" -Arguments @("vendor/bin/phpstan", "analyse", "--memory-limit=1G")
 Invoke-Checked -Command "php" -Arguments @("vendor/bin/phpunit")
 
-Write-Host "M7 VALIDATION PASSED" -ForegroundColor Green
+Write-Host "M9.1 HOTFIX 2 VALIDATION PASSED" -ForegroundColor Green

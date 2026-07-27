@@ -50,3 +50,18 @@
 - database e spazio documentale devono essere salvati e ripristinati insieme.
 
 Il controllo integrato non sostituisce un antivirus di sistema. In ambienti esposti a file esterni è raccomandata una scansione antivirus della directory documentale.
+
+
+## M9.1 backup e ripristino
+
+- database e allegati vengono salvati come un’unica unità verificabile;
+- il database viene fotografato con `VACUUM INTO`, senza copia a caldo del solo file SQLite;
+- caricamenti ed eliminazioni di allegati sono coordinati tramite lock filesystem;
+- il manifest registra hash SHA-256, dimensione e inventario delle migrazioni, confrontato con il database;
+- la verifica esegue `PRAGMA integrity_check` e `PRAGMA foreign_key_check`;
+- l’estrazione ZIP rifiuta path traversal, collegamenti simbolici, flussi NTFS alternativi e nomi speciali Windows;
+- durante il ripristino le richieste ricevono HTTP 503 e non accedono ai file in sostituzione;
+- prima di sostituire lo stato corrente viene creato un backup automatico;
+- il ripristino richiede la conferma letterale `RESTORE`;
+- un errore di ripristino mantiene la modalità manutenzione fino allo sblocco esplicito `CLEAR`;
+- gli archivi non sono cifrati: protezione, copia esterna e retention restano responsabilità operativa dello studio.

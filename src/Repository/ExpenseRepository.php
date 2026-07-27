@@ -6,6 +6,7 @@ namespace App\Repository;
 
 use App\Entity\Expense;
 use App\Entity\Project;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\Persistence\ManagerRegistry;
@@ -50,6 +51,38 @@ final class ExpenseRepository extends ServiceEntityRepository
 
         /** @var list<Expense> $result */
         return $result;
+    }
+
+    /** @return list<Expense> */
+    public function findForProjectAndRecorder(Project $project, User $user): array
+    {
+        $result = $this->createQueryBuilder('expense')
+            ->addSelect('activity', 'recordedBy')
+            ->leftJoin('expense.activity', 'activity')
+            ->join('expense.recordedBy', 'recordedBy')
+            ->andWhere('expense.project = :project')
+            ->andWhere('expense.recordedBy = :recordedBy')
+            ->setParameter('project', $project)
+            ->setParameter('recordedBy', $user)
+            ->orderBy('expense.spentOn', 'DESC')
+            ->addOrderBy('expense.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        /** @var list<Expense> $result */
+        return $result;
+    }
+
+    public function sumCentsForProjectAndRecorder(Project $project, User $user): int
+    {
+        return (int) $this->createQueryBuilder('expense')
+            ->select('COALESCE(SUM(expense.amountCents), 0)')
+            ->andWhere('expense.project = :project')
+            ->andWhere('expense.recordedBy = :recordedBy')
+            ->setParameter('project', $project)
+            ->setParameter('recordedBy', $user)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 
     public function sumCentsForProject(Project $project): int

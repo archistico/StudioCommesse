@@ -67,6 +67,12 @@
                     </li>
                     {% if is_granted('ROLE_PARTNER') %}
                         <li class="nav-item">
+                            <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_monthly_report' ? 'active' : '' }}" href="{{ path('app_monthly_report') }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M4 9h16"/><path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/></svg></span>
+                                <span class="nav-link-title">Report mensile</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_control_' ? 'active' : '' }}" href="{{ path('app_control_index') }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V9"/><path d="M10 19V5"/><path d="M16 19v-7"/><path d="M22 19V3"/><path d="M2 19h22"/></svg></span>
                                 <span class="nav-link-title">Controllo</span>

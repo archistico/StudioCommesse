@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Entity\Client;
 use App\Entity\Project;
 use App\Repository\ExpenseRepository;
 use App\Repository\PaymentRepository;
@@ -63,5 +64,57 @@ final readonly class ProjectFinancialService
         }
 
         return $summaries;
+    }
+
+    /**
+     * @param list<ProjectFinancialSummary> $summaries
+     * @return list<ClientFinancialSummary>
+     */
+    public function summarizeByClient(array $summaries): array
+    {
+        /** @var array<int, array{client: Client, project_count: int, estimated: int, payments: int, remaining: int, unconfigured: int}> $grouped */
+        $grouped = [];
+
+        foreach ($summaries as $summary) {
+            $client = $summary->project->getClient();
+            $clientId = $client?->getId();
+            if (!$client instanceof Client || null === $clientId) {
+                continue;
+            }
+
+            $grouped[$clientId] ??= [
+                'client' => $client,
+                'project_count' => 0,
+                'estimated' => 0,
+                'payments' => 0,
+                'remaining' => 0,
+                'unconfigured' => 0,
+            ];
+            ++$grouped[$clientId]['project_count'];
+            $grouped[$clientId]['estimated'] += $summary->estimatedAmountCents;
+            $grouped[$clientId]['payments'] += $summary->paymentsCents;
+            $grouped[$clientId]['remaining'] += $summary->getRemainingToCollectCents();
+            if ($summary->estimatedAmountCents <= 0) {
+                ++$grouped[$clientId]['unconfigured'];
+            }
+        }
+
+        $rows = array_map(
+            static fn (array $row): ClientFinancialSummary => new ClientFinancialSummary(
+                client: $row['client'],
+                projectCount: $row['project_count'],
+                estimatedAmountCents: $row['estimated'],
+                paymentsCents: $row['payments'],
+                remainingToCollectCents: $row['remaining'],
+                unconfiguredProjectCount: $row['unconfigured'],
+            ),
+            array_values($grouped),
+        );
+        usort($rows, static fn (ClientFinancialSummary $left, ClientFinancialSummary $right): int =>
+            [$right->remainingToCollectCents, $left->client->getName()]
+            <=> [$left->remainingToCollectCents, $right->client->getName()]
+        );
+
+        return $rows;
     }
 }

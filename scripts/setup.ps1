@@ -115,6 +115,8 @@ Invoke-Checked -Command "npm" -Arguments @("test")
 Invoke-Checked -Command "php" -Arguments @("scripts/doctrine-config-contract.php")
 Invoke-Checked -Command "php" -Arguments @("scripts/symfony-api-contract.php")
 Invoke-Checked -Command "php" -Arguments @("scripts/attachment-storage-contract.php")
+Invoke-Checked -Command "php" -Arguments @("scripts/monthly-report-contract.php")
+Invoke-Checked -Command "php" -Arguments @("scripts/backup-contract.php")
 Invoke-Checked -Command "php" -Arguments @("bin/console", "lint:yaml", "config")
 Invoke-Checked -Command "php" -Arguments @("bin/console", "lint:twig", "templates")
 Invoke-Checked -Command "php" -Arguments @("bin/console", "cache:clear", "--env=dev")
@@ -133,6 +135,12 @@ if ($PartnerUsername -and $PartnerDisplayName) {
     Invoke-Checked -Command "php" -Arguments @("bin/console", "app:user:create", "--role=partner", "--skip-if-active-partner-exists")
 } else {
     Write-Host "Creazione guidata del primo socio ignorata su richiesta." -ForegroundColor Yellow
+}
+
+New-Item -ItemType Directory -Path "backups" -Force | Out-Null
+New-Item -ItemType Directory -Path "var/locks" -Force | Out-Null
+if (-not (Test-Path "backups" -PathType Container) -or -not (Test-Path "var/locks" -PathType Container)) {
+    throw "Impossibile preparare le directory operative di backup e lock."
 }
 
 Write-Host "Installazione completata correttamente." -ForegroundColor Green

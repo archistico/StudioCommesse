@@ -278,26 +278,42 @@ final class TimeEntryController extends AbstractController
 
     private function findProjectFilter(Request $request, ProjectRepository $repository): ?Project
     {
-        $id = $request->query->getInt('project');
-        $project = $id > 0 ? $repository->find($id) : null;
+        $id = $this->positiveInt($request->query->get('project'));
+        $project = null !== $id ? $repository->find($id) : null;
 
         return $project instanceof Project ? $project : null;
     }
 
     private function findActivityFilter(Request $request, ActivityRepository $repository): ?Activity
     {
-        $id = $request->query->getInt('activity');
-        $activity = $id > 0 ? $repository->find($id) : null;
+        $id = $this->positiveInt($request->query->get('activity'));
+        $activity = null !== $id ? $repository->find($id) : null;
 
         return $activity instanceof Activity ? $activity : null;
     }
 
     private function findUserFilter(Request $request, UserRepository $repository): ?User
     {
-        $id = $request->query->getInt('user');
-        $user = $id > 0 ? $repository->find($id) : null;
+        $id = $this->positiveInt($request->query->get('user'));
+        $user = null !== $id ? $repository->find($id) : null;
 
         return $user instanceof User ? $user : null;
+    }
+
+    private function positiveInt(mixed $value): ?int
+    {
+        if (!is_scalar($value)) {
+            return null;
+        }
+
+        $normalized = trim((string) $value);
+        if ('' === $normalized || !ctype_digit($normalized)) {
+            return null;
+        }
+
+        $id = (int) $normalized;
+
+        return $id > 0 ? $id : null;
     }
 
     private function parseDate(string $value): ?DateTimeImmutable

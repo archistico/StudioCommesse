@@ -14,7 +14,7 @@ use App\Form\PaymentType;
 use App\Repository\ExpenseRepository;
 use App\Repository\PaymentRepository;
 use App\Repository\ProjectRepository;
-use App\Security\Voter\ProjectVoter;
+use App\Security\Voter\ExpenseVoter;
 use App\Service\AuditLogger;
 use App\Service\ProjectFinancialService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -52,6 +52,7 @@ final class EconomicsController extends AbstractController
 
         return $this->render('economics/index.html.twig', [
             'summaries' => $summaries,
+            'client_summaries' => $financialService->summarizeByClient($summaries),
             'totals' => $totals,
         ]);
     }
@@ -63,31 +64,38 @@ final class EconomicsController extends AbstractController
         PaymentRepository $paymentRepository,
         ProjectFinancialService $financialService,
     ): Response {
-        $this->denyAccessUnlessGranted(ProjectVoter::VIEW_FINANCIAL, $project);
+        $user = $this->requireCurrentUser();
+        $isPartner = $user->isPartner();
 
         return $this->render('economics/show.html.twig', [
             'project' => $project,
-            'summary' => $financialService->summarize($project),
-            'expenses' => $expenseRepository->findForProject($project),
-            'payments' => $paymentRepository->findForProject($project),
+            'is_partner_view' => $isPartner,
+            'summary' => $isPartner ? $financialService->summarize($project) : null,
+            'expenses' => $isPartner
+                ? $expenseRepository->findForProject($project)
+                : $expenseRepository->findForProjectAndRecorder($project, $user),
+            'own_expense_total_cents' => $isPartner ? null : $expenseRepository->sumCentsForProjectAndRecorder($project, $user),
+            'payments' => $isPartner ? $paymentRepository->findForProject($project) : [],
         ]);
     }
 
     #[Route('/commessa/{id}/spesa', name: 'app_expense_new', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
-    #[IsGranted('ROLE_PARTNER')]
     public function newExpense(
         Project $project,
         Request $request,
         ExpenseRepository $repository,
         AuditLogger $auditLogger,
     ): Response {
+        if ($project->isArchived()) {
+            throw $this->createAccessDeniedException('Le spese di una commessa archiviata sono in sola lettura.');
+        }
+
         $expense = (new Expense())->setProject($project)->setRecordedBy($this->requireCurrentUser());
 
         return $this->handleExpenseForm($expense, $project, $request, $repository, $auditLogger, true);
     }
 
     #[Route('/spesa/{id}/modifica', name: 'app_expense_edit', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
-    #[IsGranted('ROLE_PARTNER')]
     public function editExpense(
         Expense $expense,
         Request $request,
@@ -98,12 +106,12 @@ final class EconomicsController extends AbstractController
         if (!$project instanceof Project) {
             throw new \LogicException('La spesa non è associata a una commessa.');
         }
+        $this->denyAccessUnlessGranted(ExpenseVoter::MANAGE, $expense);
 
         return $this->handleExpenseForm($expense, $project, $request, $repository, $auditLogger, false);
     }
 
     #[Route('/spesa/{id}/elimina', name: 'app_expense_delete', requirements: ['id' => '\\d+'], methods: ['POST'])]
-    #[IsGranted('ROLE_PARTNER')]
     public function deleteExpense(
         Expense $expense,
         Request $request,
@@ -114,6 +122,7 @@ final class EconomicsController extends AbstractController
         if (!$project instanceof Project) {
             throw new \LogicException('La spesa non è associata a una commessa.');
         }
+        $this->denyAccessUnlessGranted(ExpenseVoter::MANAGE, $expense);
         $this->validateCsrf('delete_expense_'.$expense->getId(), $request);
 
         $id = $expense->getId();

@@ -34,4 +34,54 @@ enum AuditAction: string
     case AttachmentDownloaded = 'attachment.downloaded';
     case AttachmentDeleted = 'attachment.deleted';
     case FixturesLoaded = 'fixtures.loaded';
+
+    public function label(): string
+    {
+        return match ($this) {
+            self::LoginSucceeded => 'Accesso riuscito',
+            self::LoginFailed => 'Accesso non riuscito',
+            self::UserCreated => 'Utente creato',
+            self::UserUpdated => 'Utente aggiornato',
+            self::ClientCreated => 'Cliente creato',
+            self::ClientUpdated => 'Cliente aggiornato',
+            self::ClientArchived => 'Cliente archiviato',
+            self::ClientRestored => 'Cliente ripristinato',
+            self::ProjectCreated => 'Commessa creata',
+            self::ProjectUpdated => 'Commessa aggiornata',
+            self::ProjectArchived => 'Commessa archiviata',
+            self::ProjectRestored => 'Commessa ripristinata',
+            self::ActivityCreated => 'Attività creata',
+            self::ActivityUpdated => 'Attività aggiornata',
+            self::TimeEntryCreated => 'Ore registrate',
+            self::TimerStarted => 'Timer avviato',
+            self::TimerStopped => 'Timer fermato',
+            self::ExpenseCreated => 'Spesa registrata',
+            self::ExpenseUpdated => 'Spesa aggiornata',
+            self::ExpenseDeleted => 'Spesa eliminata',
+            self::PaymentCreated => 'Incasso registrato',
+            self::PaymentUpdated => 'Incasso aggiornato',
+            self::PaymentDeleted => 'Incasso eliminato',
+            self::AttachmentUploaded => 'Documento caricato',
+            self::AttachmentUpdated => 'Documento aggiornato',
+            self::AttachmentDownloaded => 'Documento scaricato',
+            self::AttachmentDeleted => 'Documento eliminato',
+            self::FixturesLoaded => 'Fixtures caricate',
+        };
+    }
+
+    public function groupLabel(): string
+    {
+        return match ($this) {
+            self::LoginSucceeded, self::LoginFailed => 'Sicurezza',
+            self::UserCreated, self::UserUpdated => 'Utenti',
+            self::ClientCreated, self::ClientUpdated, self::ClientArchived, self::ClientRestored => 'Clienti',
+            self::ProjectCreated, self::ProjectUpdated, self::ProjectArchived, self::ProjectRestored => 'Commesse',
+            self::ActivityCreated, self::ActivityUpdated => 'Attività',
+            self::TimeEntryCreated, self::TimerStarted, self::TimerStopped => 'Ore',
+            self::ExpenseCreated, self::ExpenseUpdated, self::ExpenseDeleted,
+            self::PaymentCreated, self::PaymentUpdated, self::PaymentDeleted => 'Economia',
+            self::AttachmentUploaded, self::AttachmentUpdated, self::AttachmentDownloaded, self::AttachmentDeleted => 'Documenti',
+            self::FixturesLoaded => 'Sistema',
+        };
+    }
 }

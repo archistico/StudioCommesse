@@ -11,6 +11,7 @@ use App\Form\ClientType;
 use App\Repository\ClientRepository;
 use App\Repository\ProjectRepository;
 use App\Service\AuditLogger;
+use App\Service\ProjectFinancialService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,13 +23,31 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class ClientController extends AbstractController
 {
     #[Route('', name: 'app_client_index', methods: ['GET'])]
-    public function index(Request $request, ClientRepository $clientRepository): Response
-    {
+    public function index(
+        Request $request,
+        ClientRepository $clientRepository,
+        ProjectRepository $projectRepository,
+        ProjectFinancialService $financialService,
+    ): Response {
         $query = trim((string) $request->query->get('q', ''));
         $includeArchived = $request->query->getBoolean('archiviati');
+        $clients = $clientRepository->findFiltered($query, $includeArchived);
+        $financialSummariesByClientId = [];
+        $user = $this->getUser();
+
+        if ($user instanceof User && $user->isPartner()) {
+            $projectSummaries = $financialService->summarizeMany($projectRepository->findForEconomics());
+            foreach ($financialService->summarizeByClient($projectSummaries) as $summary) {
+                $clientId = $summary->client->getId();
+                if (null !== $clientId) {
+                    $financialSummariesByClientId[$clientId] = $summary;
+                }
+            }
+        }
 
         return $this->render('client/index.html.twig', [
-            'clients' => $clientRepository->findFiltered($query, $includeArchived),
+            'clients' => $clients,
+            'financial_summaries_by_client_id' => $financialSummariesByClientId,
             'query' => $query,
             'include_archived' => $includeArchived,
         ]);

@@ -4,7 +4,10 @@
 {% block page_title %}Clienti{% endblock %}
 {% block page_actions %}
     {% if is_granted('ROLE_PARTNER') %}
-        <a href="{{ path('app_client_new') }}" class="btn btn-primary">Nuovo cliente</a>
+        <div class="btn-list">
+            <a href="{{ path('app_economics_index') }}#importi-clienti" class="btn btn-outline-primary">Riepilogo dovuti</a>
+            <a href="{{ path('app_client_new') }}" class="btn btn-primary">Nuovo cliente</a>
+        </div>
     {% endif %}
 {% endblock %}
 
@@ -38,12 +41,14 @@
                 <th>Cliente</th>
                 <th>Referente</th>
                 <th>Contatti</th>
+                {% if is_granted('ROLE_PARTNER') %}<th>Dovuto</th>{% endif %}
                 <th>Stato</th>
             </tr>
             </thead>
             <tbody>
             {% for client in clients %}
-                <tr class="{{ client.archived ? 'text-secondary' : '' }}">
+                {% set financial_summary = financial_summaries_by_client_id[client.id]|default(null) %}
+                <tr data-client-id="{{ client.id }}" class="{{ client.archived ? 'text-secondary' : '' }}">
                     <td><a href="{{ path('app_client_show', {id: client.id}) }}" class="fw-semibold">{{ client.name }}</a></td>
                     <td>{{ client.contactPerson ?? '—' }}</td>
                     <td>
@@ -51,6 +56,14 @@
                         {% if client.phone %}<div class="text-secondary">{{ client.phone }}</div>{% endif %}
                         {% if not client.email and not client.phone %}—{% endif %}
                     </td>
+                    {% if is_granted('ROLE_PARTNER') %}
+                        <td
+                            class="fw-semibold {{ financial_summary and financial_summary.remainingToCollectCents > 0 ? 'text-warning' : 'text-success' }}"
+                            data-order="{{ financial_summary ? financial_summary.remainingToCollectCents : 0 }}"
+                        >
+                            {{ (financial_summary ? financial_summary.remainingToCollectCents : 0)|money_eur }}
+                        </td>
+                    {% endif %}
                     <td>
                         {% if client.archived %}
                             <span class="status status-secondary">Archiviato</span>
@@ -60,7 +73,7 @@
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="4" class="text-center text-secondary py-5">Nessun cliente corrisponde ai filtri.</td></tr>
+                <tr><td colspan="{{ is_granted('ROLE_PARTNER') ? 5 : 4 }}" class="text-center text-secondary py-5">Nessun cliente corrisponde ai filtri.</td></tr>
             {% endfor %}
             </tbody>
         </table>

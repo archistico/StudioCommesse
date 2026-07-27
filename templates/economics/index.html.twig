@@ -11,6 +11,49 @@
     <div class="col-12 col-lg-6 col-xl-3"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Da incassare</div><div class="h2 mb-0">{{ totals.remaining|money_eur }}</div><div class="small text-secondary">{{ totals.over_budget }} commesse oltre budget</div></div></div></div>
 </div>
 
+<div class="card mb-3" id="importi-clienti">
+    <div class="card-header d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-2">
+        <div>
+            <h3 class="card-title">Importi dovuti per cliente</h3>
+            <div class="text-secondary small">Il residuo è calcolato per ogni commessa come preventivo meno incassi, senza valori negativi, e poi sommato per cliente.</div>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Commesse</th>
+                    <th>Preventivato</th>
+                    <th>Incassato</th>
+                    <th>Importo dovuto</th>
+                    <th>Preventivo mancante</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for summary in client_summaries %}
+                <tr data-client-id="{{ summary.client.id }}">
+                    <td><a class="fw-semibold" href="{{ path('app_client_show', {id: summary.client.id}) }}">{{ summary.client.name }}</a></td>
+                    <td data-order="{{ summary.projectCount }}">{{ summary.projectCount }}</td>
+                    <td data-order="{{ summary.estimatedAmountCents }}">{{ summary.estimatedAmountCents|money_eur }}</td>
+                    <td class="text-success" data-order="{{ summary.paymentsCents }}">{{ summary.paymentsCents|money_eur }}</td>
+                    <td class="fw-semibold {{ summary.remainingToCollectCents > 0 ? 'text-warning' : 'text-success' }}" data-order="{{ summary.remainingToCollectCents }}">{{ summary.remainingToCollectCents|money_eur }}</td>
+                    <td data-order="{{ summary.unconfiguredProjectCount }}">
+                        {% if summary.unconfiguredProjectCount > 0 %}
+                            <span class="badge bg-warning-lt">{{ summary.unconfiguredProjectCount }}</span>
+                        {% else %}
+                            <span class="text-secondary">0</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6" class="text-secondary text-center py-4">Nessun cliente con commesse attive.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-header"><h3 class="card-title">Riepilogo per commessa</h3></div>
     <div class="table-responsive">

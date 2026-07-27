@@ -1,5 +1,65 @@
 # Changelog
 
+## 0.9.1-M9.1-HF2 — Candidate
+
+- Basata esclusivamente sulla candidate M9.1 Hotfix 1 derivata dalla baseline validata M8.
+- Corretto `BackupContractTest`: la stringa attesa `readMigrationVersions($databasePath)` usa ora apici singoli e non interpola accidentalmente la variabile PHP non definita.
+- Nessuna modifica alla logica di backup, ripristino, filtri Ore o report economici.
+- Nessuna migrazione e nessuna nuova dipendenza.
+- Gate atteso: `M9.1 HOTFIX 2 VALIDATION PASSED`.
+
+## 0.9.1-M9.1-HF1 — Candidate
+
+- Basata esclusivamente sulla candidate M9.1 derivata dalla baseline validata M8.
+- Corretti i tre errori PHPStan in `BackupManager` e `FileLockManager` senza ridurre il livello di analisi.
+- I filtri opzionali `project`, `activity` e `user` del report Ore accettano correttamente valori vuoti.
+- `verify-backup.ps1` può verificare automaticamente l’ultimo backup, supporta pattern e mostra gli archivi disponibili quando il percorso richiesto non esiste.
+- Aggiunto in Economia il report soci degli importi dovuti per cliente, con numero commesse, preventivato, incassato, residuo e preventivi mancanti.
+- Nessuna migrazione e nessuna nuova dipendenza.
+- Gate atteso: `M9.1 HOTFIX 1 VALIDATION PASSED`.
+
+## 0.9.1-M9.1 — Candidate
+
+- Basata esclusivamente sulla baseline validata M8.
+- Aggiunto backup coordinato del database SQLite e degli allegati protetti.
+- Snapshot SQLite coerente tramite `VACUUM INTO`.
+- Aggiunto manifest `studio-commesse-backup-v1` con versione applicativa, migrazioni, dimensioni e SHA-256.
+- Verifica di integrità SQLite, chiavi esterne, migrazioni, record allegati e inventario filesystem.
+- Le mutazioni documentali partecipano a un lock condiviso; il backup acquisisce il lock esclusivo.
+- Aggiunta modalità manutenzione HTTP 503 e lock delle richieste durante il ripristino.
+- Il ripristino crea automaticamente un backup dello stato sostituito e tenta il rollback in caso di errore.
+- Aggiunti gli script PowerShell `backup.ps1`, `verify-backup.ps1` e `restore-backup.ps1`, con estrazione ZIP protetta anche da nomi speciali Windows e flussi NTFS alternativi.
+- Aggiunti smoke test del backup nel gate, test di backup/ripristino reale e contratto M9.1.
+- Nessuna nuova migrazione e nessuna nuova dipendenza.
+- Gate atteso: `M9.1 VALIDATION PASSED`.
+
+## 0.8.0-M8 — Validata
+
+- Validata dall’utente con esito `M8 VALIDATION PASSED`; diventa la baseline autoritativa per M9.1.
+- Basata esclusivamente sulla baseline validata M7 Hotfix 1.
+- In economia commessa i soci vedono il quadro completo; i collaboratori ricevono soltanto le proprie spese e il relativo totale.
+- I collaboratori possono creare e gestire esclusivamente le proprie spese; incassi e dati finanziari completi restano riservati ai soci.
+- Aggiunta l’area soci `Report mensile` con filtro per mese e commessa.
+- Aggiunti indicatori mensili su ore, fatturabilità, persone, commesse movimentate, spese, incassi, documenti e azioni.
+- Aggiunto riepilogo per commessa con stato corrente, avanzamento, residuo, scadenze e movimenti del periodo.
+- Aggiunti dettaglio completo delle registrazioni ore, totali per azione e cronologia audit.
+- Aggiunta esportazione CSV UTF-8 del dettaglio ore.
+- Nessuna nuova migrazione e nessuna nuova dipendenza.
+- Gate superato: `M8 VALIDATION PASSED`.
+
+## 0.7.0-M7-HF1 — Validata
+
+- Validata dall’utente con esito `M7 HOTFIX 1 VALIDATION PASSED`; diventa la baseline autoritativa per M8.
+- Basata esclusivamente sulla candidate M7 derivata dalla baseline validata M6.3 Hotfix 1.
+- Corretti i quattro problemi della suite `AttachmentManagementTest`.
+- I PDF temporanei dei test mantengono il nome originale richiesto e usano una cartella casuale separata, evitando prefissi indesiderati nel basename.
+- Le ricerche degli allegati appena caricati tornano coerenti con `originalName`.
+- Il test dell’upload forzato su commessa archiviata ottiene il token CSRF da una sessione browser reale prima dell’archiviazione, senza accedere al token manager fuori da una richiesta.
+- Aggiunta pulizia deterministica delle cartelle temporanee create dai test.
+- Nessuna modifica funzionale, nessuna migrazione e nessuna variazione ai permessi o allo storage.
+- Gate superato: `M7 HOTFIX 1 VALIDATION PASSED`.
+
+
 ## 0.7.0-M7 — Candidate
 
 - Basata esclusivamente sulla baseline validata M6.3 Hotfix 1.

@@ -8,9 +8,7 @@
     <a href="{{ path('app_project_index') }}" class="btn btn-outline-secondary">Torna alle commesse</a>
     <a href="{{ path('app_time_entry_index', {project: project.id}) }}" class="btn btn-outline-success">Ore della commessa</a>
     <a href="{{ path('app_attachment_project', {id: project.id}) }}" class="btn btn-outline-primary">Documenti{% if attachment_count > 0 %} ({{ attachment_count }}){% endif %}</a>
-    {% if is_granted('PROJECT_VIEW_FINANCIAL', project) %}
-        <a href="{{ path('app_economics_project', {id: project.id}) }}" class="btn btn-outline-success">Economia</a>
-    {% endif %}
+    <a href="{{ path('app_economics_project', {id: project.id}) }}" class="btn btn-outline-success">Economia</a>
     {% if is_granted('PROJECT_EDIT', project) %}
         <a href="{{ path('app_project_edit', {id: project.id}) }}" class="btn btn-primary">Modifica</a>
     {% endif %}

@@ -9,7 +9,7 @@ Il gate autoritativo è:
 Esito atteso:
 
 ```text
-M7 VALIDATION PASSED
+M9.1 HOTFIX 2 VALIDATION PASSED
 ```
 
 Il gate esegue:
@@ -23,7 +23,7 @@ Il gate esegue:
 - PHPStan livello 8;
 - PHPUnit.
 
-La baseline M6.3 Hotfix 1 è validata. La candidate M7 aggiunge la gestione documentale protetta e mantiene in regressione l’intera catena M1–M6.
+La baseline M8 è validata. La candidate M9.1 aggiunge backup e ripristino coordinati, mantenendo in regressione l’intera catena M1–M8.
 
 M6.1 aggiunge test per dettaglio ore multi-persona, filtro assegnatario, report globale, filtri, paginazione e permessi.
 
@@ -105,3 +105,39 @@ M7 aggiunge test per:
 - modifica dei metadati ed eliminazione dalla pagina documento;
 - commesse archiviate in sola lettura documentale;
 - presenza della nuova migrazione, della voce menu e del contratto sullo spazio documentale.
+
+
+## M8
+
+M8 aggiunge test per:
+
+- visibilità completa di spese e incassi per i soci;
+- visibilità limitata alle proprie spese per i collaboratori;
+- gestione delle sole spese proprie tramite `ExpenseVoter`;
+- divieto dei form incasso ai collaboratori;
+- accesso al report mensile riservato ai soci;
+- filtro per mese e commessa;
+- dettaglio delle registrazioni ore e esclusione delle registrazioni fuori periodo;
+- riepiloghi per commessa e per azione;
+- esportazione CSV;
+- contratto statico `monthly-report-contract.php`;
+- assenza di nuove migrazioni e dipendenze.
+
+
+## M9.1
+
+M9.1 aggiunge verifiche per:
+
+- creazione di uno snapshot SQLite reale con `VACUUM INTO`;
+- manifest versionato e hash SHA-256;
+- corrispondenza tra record `attachment` e file salvati;
+- rifiuto di backup manomessi;
+- ripristino effettivo di database e allegati;
+- creazione e verifica del backup automatico pre-ripristino;
+- disattivazione della modalità manutenzione al termine;
+- risposta HTTP 503 durante la manutenzione;
+- conferma esplicita `RESTORE`;
+- estrazione ZIP protetta da path traversal e collegamenti simbolici;
+- smoke test `app:backup:create` e `app:backup:verify` sul database di test migrato.
+
+- verificare i filtri vuoti del report Ore, il riepilogo importi dovuti per cliente e la selezione automatica dell’ultimo backup;
