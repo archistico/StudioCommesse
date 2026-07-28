@@ -56,7 +56,7 @@ Preventivi, tariffe, costi storici, spese, incassi, margini, dashboard economica
 
 ## M9.2 – Hardening e collaudo di rilascio
 
-### M9.2-A Hotfix 1 – Normalizzazione baseline e packaging — CANDIDATE CORRENTE
+### M9.2-A Hotfix 2 – Completezza packaging e filtri — VALIDATA CUMULATIVAMENTE CON M9.2-C HF3
 
 - riallineamento di versione, gate, changelog, roadmap, handoff e checklist;
 - rimozione delle configurazioni locali dal pacchetto;
@@ -65,22 +65,105 @@ Preventivi, tariffe, costi storici, spese, incassi, margini, dashboard economica
 - nessuna modifica funzionale, migrazione o dipendenza.
 - correzione del parser PowerShell di `package-release.ps1`;
 
-### M9.2-B – Autorizzazioni e riservatezza — PROSSIMA
+### M9.2-B – Autorizzazioni e riservatezza — VALIDATA CUMULATIVAMENTE CON M9.2-C HF3
 
-- matrice completa delle rotte per ruolo e proprietà del dato;
-- verifica accessi diretti, POST costruiti manualmente e assenza di dati economici per i collaboratori.
+- matrice macchina e documentale completa delle 48 rotte;
+- verifica accessi diretti, proprietà del dato e aree riservate ai Soci;
+- blocco delle scritture su commesse archiviate per attività, ore, incassi e documenti;
+- test contro POST costruiti manualmente e assegnazione di campi finanziari/amministrativi;
+- verifica che note private, tariffe, costi, incassi e margini non raggiungano il markup dei Collaboratori.
 
-### M9.2-C – Robustezza ed error handling
+### M9.2-C Hotfix 3 – PHPStan e completezza enum — VALIDATA
 
-- transazioni, concorrenza SQLite, errori 403/404/500/503 e messaggi uniformi.
+- correzione dei tre errori PHPStan emersi dopo l’abilitazione di `fileinfo`;
+- narrowing esplicito nel subscriber degli errori database;
+- lettura del marker manutenzione dichiarata impura per l’analisi statica;
+- gestione esaustiva di `TimeEntryUpdated` nel report mensile;
+- include il preflight PHP/fileinfo della Hotfix 1;
+- validata con 203 test, 2.125 asserzioni e PHPStan senza errori.
 
-### M9.2-D/E – Audit operativo e flussi end-to-end
+### M9.2-C Hotfix 4 Fix 2 – Dashboard e viste operative — VALIDATA
 
-- logging, audit e scenari completi di commessa, collaboratore, chiusura e ripristino.
+- contratto M6.3 corretto per verificare la semantica reale del filtro e non il codice letterale del test;
+- README sintetico, senza cronologia milestone, con requisiti, installazione e script;
+- seconda riga di card operative con clienti, attività e totali ore;
+- tabelle recenti di commesse, attività e ore a larghezza piena;
+- attività personali caricate subito e filtro assegnatario automatico;
+- priorità commesse rappresentata con icone accessibili;
+- descrizione inclusa nelle ore recenti e breakpoint responsive solo da `lg`;
+- test del filtro riallineati all’assenza del pulsante “Mostra”;
+- nessuna migrazione o nuova dipendenza.
 
-### M9.2-F/G/H – Installazione, prestazioni, accessibilità e manuali
+### M9.2-C – Robustezza ed error handling — VALIDATA CON HOTFIX 3
 
-- installazione/aggiornamento puliti, benchmark, audit responsive e documentazione utente/amministrativa.
+- mutazioni e audit persistiti nella stessa transazione;
+- lock applicativi per timer e registrazioni ore concorrenti;
+- compensazione filesystem/database per documenti;
+- gestione uniforme di conflitti, database occupato e manutenzione;
+- identificativo richiesta nelle risposte e nelle pagine di errore.
+
+### M9.2-D – Audit operativo e logging — VALIDATA
+
+- area Soci `/audit` con filtri, paginazione server-side e CSV;
+- correlazione request ID e logging JSON separato;
+- matrice autorizzazioni completa su 48 rotte.
+
+Gate superato: `M9.2-D VALIDATION PASSED`.
+
+### M9.2-E – Flussi end-to-end completi — VALIDATA
+
+- commessa conclusa, pagata e archiviata;
+- flusso Collaboratore con attività e ore;
+- chiusura incoerente e ripristino ordinato;
+- backup-ripristino del grafo aziendale e degli allegati;
+- nessuna migrazione o nuova dipendenza.
+
+Gate superato: `M9.2-E VALIDATION PASSED`.
+
+### M9.2-E.1 – Riepilogo mensile costi per utente — VALIDATA
+
+- ore concluse aggregate per utente, inclusi account disattivati;
+- tariffa standard attuale distinta dagli snapshot storici;
+- costo standard teorico, costo storico effettivo e scostamento;
+- CSV riepilogativo separato e filtri mese/commessa coerenti.
+
+Gate superato: `M9.2-E.1 VALIDATION PASSED`.
+
+### M9.2-E.2 – Dashboard ore del mese corrente — VALIDATA
+
+- etichette complete “Commesse in attesa” e “Commesse in ritardo”;
+- valore e titolo delle ore effettuate sulla stessa riga;
+- totale limitato alle registrazioni concluse iniziate nel mese corrente;
+- card e aggregato “Ore pianificate” rimossi;
+- nessuna migrazione, nuova rotta o dipendenza.
+
+Gate superato: `M9.2-E.2 VALIDATION PASSED`.
+
+### M9.2-F – Installazione, aggiornamento e distribuzione puliti — VALIDATA
+
+- preflight condiviso per installazione, aggiornamento e pacchetto estratto;
+- aggiornamento da cartella separata con backup dati e codice verificati;
+- manutenzione coordinata, rimozione dei file obsoleti e verifica post-migrazione;
+- rollback automatico di codice, database e allegati;
+- smoke test dello ZIP estratto e procedura operativa documentata.
+
+Gate: `M9.2-F VALIDATION PASSED`.
+
+### M9.2-G – Prestazioni e capacità — VALIDATA
+
+- dashboard consolidata in una sola query per i dieci indicatori numerici;
+- indici mirati e benchmark deterministici 30/200/600;
+- copertura di percorsi applicativi e backup-ripristino;
+- gate superato: `M9.2-G VALIDATION PASSED`, 235 test e PHPStan senza errori.
+
+### M9.2-H – Accessibilità, responsive, manuali e sicurezza login — CANDIDATE CORRENTE
+
+- navigazione da tastiera, landmark, focus visibile, scope delle tabelle e responsive;
+- manuali utente, amministratore, sicurezza e accessibilità;
+- throttling login: 5 fallimenti per utenza/IP in un’ora e limite globale IP;
+- audit dei blocchi, pseudonimizzazione dei fallimenti e log minimizzati;
+- intestazioni HTTP difensive e session cookie SameSite Strict;
+- attesi 244 test e gate `M9.2-H VALIDATION PASSED`.
 
 ## M9.3 – Release Candidate 1.0
 
@@ -92,4 +175,17 @@ Pacchetto definitivo, documentazione finale e gate di esercizio.
 
 ## M9.2-A Hotfix 1
 
-Corregge esclusivamente la sintassi PowerShell del ciclo ricorsivo in `package-release.ps1`; nessuna funzione applicativa è stata modificata. Gate: `M9.2-A HOTFIX 1 VALIDATION PASSED`.
+Corregge la sintassi PowerShell dei blocchi `if`, spostando gli operatori `-or` a fine riga; il ciclo con `Get-ChildItem` resta parentetizzato solo per chiarezza. Validata localmente con 174 test e 1.651 asserzioni.
+
+## M9.2-A Hotfix 2
+
+Chiude le osservazioni dell’audit esterno: verificatore ZIP indipendente, inventario completo e non vuoto, matrice permessi economica riallineata e filtri Controllo resilienti ai parametri estranei. È inclusa cumulativamente nella candidate M9.2-C e mantiene il proprio gate storico `M9.2-A HOTFIX 2 VALIDATION PASSED`.
+
+### M9.2-F.1 – Apache e self-staging update — VALIDATA
+
+- dipendenza `symfony/apache-pack` e recipe `.htaccess`;
+- documentazione Apache;
+- staging temporaneo automatico quando `update.ps1` viene avviato dalla destinazione;
+- update no-op sicuro quando non esistono file distribuibili obsoleti.
+
+Gate superato: `M9.2-F.1 VALIDATION PASSED`, 230 test e PHPStan senza errori.

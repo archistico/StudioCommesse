@@ -40,3 +40,8 @@ Licenza MIT. Gli asset sono installati localmente da npm e copiati in `public/ve
 
 Copyright OpenJS Foundation and other contributors.
 Licenza MIT. L’asset è installato localmente da npm e copiato in `public/vendor/jquery`.
+
+
+## Symfony Apache Pack 1.0.1
+
+Package `symfony/apache-pack`, licenza MIT. La recipe distribuisce `public/.htaccess` per il supporto Apache.

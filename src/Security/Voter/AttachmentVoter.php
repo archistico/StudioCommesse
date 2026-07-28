@@ -34,6 +34,12 @@ final class AttachmentVoter extends Voter
             return true;
         }
 
+        if ($subject->getProject()->isArchived()) {
+            $vote?->addReason('I documenti di una commessa archiviata sono in sola lettura.');
+
+            return false;
+        }
+
         if ($user->isPartner()) {
             return true;
         }

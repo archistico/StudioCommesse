@@ -10,7 +10,8 @@ use App\Enum\UserRole;
 use App\Form\UserType;
 use App\Repository\ProjectRepository;
 use App\Repository\UserRepository;
-use App\Service\AuditLogger;
+use App\Service\AuditRecord;
+use App\Service\AuditedTransaction;
 use App\Service\UserAccountGuard;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
@@ -37,7 +38,7 @@ final class UserController extends AbstractController
         Request $request,
         UserRepository $userRepository,
         UserPasswordHasherInterface $passwordHasher,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $user = new User();
         $form = $this->createForm(UserType::class, $user, ['password_required' => true]);
@@ -50,20 +51,25 @@ final class UserController extends AbstractController
             }
 
             $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
-            $userRepository->save($user, true);
-
             $actor = $this->requireCurrentUser();
-            $auditLogger->log(
-                AuditAction::UserCreated,
-                $actor->getUserIdentifier(),
-                User::class,
-                $user->getId(),
-                [
-                    'username' => $user->getUsername(),
-                    'role' => $user->getRole()->value,
-                    'active' => $user->isActive(),
-                ],
-                $request->getClientIp(),
+            $transaction->execute(
+                static function () use ($userRepository, $user): User {
+                    $userRepository->save($user, false);
+
+                    return $user;
+                },
+                static fn (User $saved): AuditRecord => new AuditRecord(
+                    AuditAction::UserCreated,
+                    $actor->getUserIdentifier(),
+                    User::class,
+                    $saved->getId(),
+                    [
+                        'username' => $saved->getUsername(),
+                        'role' => $saved->getRole()->value,
+                        'active' => $saved->isActive(),
+                    ],
+                    $request->getClientIp(),
+                ),
             );
 
             $this->addFlash('success', 'Utente creato correttamente.');
@@ -88,7 +94,7 @@ final class UserController extends AbstractController
         ProjectRepository $projectRepository,
         UserPasswordHasherInterface $passwordHasher,
         UserAccountGuard $guard,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $previousRole = $user->getRole();
         $previouslyActive = $user->isActive();
@@ -118,23 +124,28 @@ final class UserController extends AbstractController
                     $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
                 }
 
-                $userRepository->save($user, true);
+                $transaction->execute(
+                    static function () use ($userRepository, $user): User {
+                        $userRepository->save($user, false);
 
-                $auditLogger->log(
-                    AuditAction::UserUpdated,
-                    $actor->getUserIdentifier(),
-                    User::class,
-                    $user->getId(),
-                    [
-                        'previous_username' => $previousUsername,
-                        'username' => $user->getUsername(),
-                        'previous_role' => $previousRole->value,
-                        'role' => $user->getRole()->value,
-                        'previous_active' => $previouslyActive,
-                        'active' => $user->isActive(),
-                        'password_changed' => $passwordChanged,
-                    ],
-                    $request->getClientIp(),
+                        return $user;
+                    },
+                    static fn (User $saved): AuditRecord => new AuditRecord(
+                        AuditAction::UserUpdated,
+                        $actor->getUserIdentifier(),
+                        User::class,
+                        $saved->getId(),
+                        [
+                            'previous_username' => $previousUsername,
+                            'username' => $saved->getUsername(),
+                            'previous_role' => $previousRole->value,
+                            'role' => $saved->getRole()->value,
+                            'previous_active' => $previouslyActive,
+                            'active' => $saved->isActive(),
+                            'password_changed' => $passwordChanged,
+                        ],
+                        $request->getClientIp(),
+                    ),
                 );
 
                 $this->addFlash('success', 'Utente aggiornato correttamente.');

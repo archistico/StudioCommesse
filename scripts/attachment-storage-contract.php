@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-$root = dirname(__DIR__);
-if (!extension_loaded('fileinfo')) {
-    fwrite(STDERR, "Estensione PHP richiesta non disponibile: fileinfo\n");
+require_once __DIR__.'/php-runtime-contract.php';
+
+if (!studioCommessePhpRuntimeContract(false)) {
     exit(1);
 }
 
+$root = dirname(__DIR__);
 $directory = $root.'/var/storage/attachments';
 if (!is_dir($directory) && !mkdir($directory, 0700, true) && !is_dir($directory)) {
     fwrite(STDERR, "Impossibile creare var/storage/attachments.\n");

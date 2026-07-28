@@ -12,6 +12,7 @@ use App\Query\MonthlyActionReportRow;
 use App\Query\MonthlyProjectReportRow;
 use App\Query\MonthlyReport;
 use App\Query\MonthlyTimeEntryReportRow;
+use App\Query\MonthlyUserCostReportRow;
 use App\Repository\MonthlyReportRepository;
 use DateTimeImmutable;
 
@@ -33,6 +34,10 @@ final readonly class MonthlyReportService
         $timeEntries = array_map(
             fn (array $row): MonthlyTimeEntryReportRow => $this->mapTimeEntry($row),
             $this->repository->findTimeEntries($periodFrom, $periodBefore, $projectId),
+        );
+        $userCosts = array_map(
+            fn (array $row): MonthlyUserCostReportRow => $this->mapUserCost($row),
+            $this->repository->findUserCostSummaries($periodFrom, $periodBefore, $projectId),
         );
 
         $actions = [];
@@ -78,6 +83,7 @@ final readonly class MonthlyReportService
             periodBefore: $periodBefore,
             projects: $projects,
             timeEntries: $timeEntries,
+            userCosts: $userCosts,
             actions: $actions,
             events: $events,
             workedMinutes: $workedMinutes,
@@ -148,6 +154,30 @@ final readonly class MonthlyReportService
         );
     }
 
+
+    /** @param array<string, mixed> $row */
+    private function mapUserCost(array $row): MonthlyUserCostReportRow
+    {
+        $workedMinutes = (int) ($row['worked_minutes'] ?? 0);
+        $standardHourlyRateCents = (int) ($row['standard_hourly_rate_cents'] ?? 0);
+        $historicalCostCents = (int) ($row['historical_cost_cents'] ?? 0);
+        $standardCostCents = $standardHourlyRateCents > 0
+            ? (int) round($workedMinutes * $standardHourlyRateCents / 60)
+            : null;
+
+        return new MonthlyUserCostReportRow(
+            userId: (int) ($row['user_id'] ?? 0),
+            userName: (string) ($row['user_name'] ?? ''),
+            active: (bool) ($row['user_active'] ?? false),
+            timeEntryCount: (int) ($row['time_entry_count'] ?? 0),
+            workedMinutes: $workedMinutes,
+            standardHourlyRateCents: $standardHourlyRateCents,
+            standardCostCents: $standardCostCents,
+            historicalCostCents: $historicalCostCents,
+            varianceCents: null === $standardCostCents ? null : $historicalCostCents - $standardCostCents,
+        );
+    }
+
     private function dateOrNull(mixed $value): ?DateTimeImmutable
     {
         return is_string($value) && '' !== $value ? new DateTimeImmutable($value) : null;
@@ -190,14 +220,14 @@ final readonly class MonthlyReportService
         return match ($action) {
             AuditAction::ProjectCreated, AuditAction::ProjectUpdated, AuditAction::ProjectArchived, AuditAction::ProjectRestored => $project ?? $name ?? 'Commessa',
             AuditAction::ActivityCreated, AuditAction::ActivityUpdated => trim(($project ? $project.' · ' : '').($title ?? 'Attività')),
-            AuditAction::TimeEntryCreated, AuditAction::TimerStarted => $title ?? 'Registrazione ore',
+            AuditAction::TimeEntryCreated, AuditAction::TimeEntryUpdated, AuditAction::TimerStarted => $title ?? 'Registrazione ore',
             AuditAction::TimerStopped => 'Timer'.$minutes,
             AuditAction::ExpenseCreated, AuditAction::ExpenseUpdated, AuditAction::ExpenseDeleted => ($project ?? 'Commessa').$amount,
             AuditAction::PaymentCreated, AuditAction::PaymentUpdated, AuditAction::PaymentDeleted => ($project ?? 'Commessa').$amount,
             AuditAction::AttachmentUploaded, AuditAction::AttachmentUpdated, AuditAction::AttachmentDownloaded, AuditAction::AttachmentDeleted => $name ?? 'Documento',
             AuditAction::ClientCreated, AuditAction::ClientUpdated, AuditAction::ClientArchived, AuditAction::ClientRestored => $name ?? 'Cliente',
             AuditAction::UserCreated, AuditAction::UserUpdated => $this->text($details['username'] ?? null) ?? 'Utente',
-            AuditAction::LoginSucceeded, AuditAction::LoginFailed => 'Accesso applicativo',
+            AuditAction::LoginSucceeded, AuditAction::LoginFailed, AuditAction::LoginThrottled => 'Accesso applicativo',
             AuditAction::FixturesLoaded => 'Dataset dimostrativo',
         };
     }

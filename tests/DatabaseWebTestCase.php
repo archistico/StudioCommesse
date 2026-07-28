@@ -29,7 +29,7 @@ abstract class DatabaseWebTestCase extends WebTestCase
     protected function setUp(): void
     {
         self::ensureKernelShutdown();
-        $this->client = self::createClient();
+        $this->client = self::createClient(['debug' => false]);
         $this->client->disableReboot();
         $this->entityManager = self::getContainer()->get('doctrine.orm.entity_manager');
 

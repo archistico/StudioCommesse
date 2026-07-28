@@ -38,11 +38,11 @@
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
             <thead>
             <tr>
-                <th>Cliente</th>
-                <th>Referente</th>
-                <th>Contatti</th>
-                {% if is_granted('ROLE_PARTNER') %}<th>Dovuto</th>{% endif %}
-                <th>Stato</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Referente</th>
+                <th scope="col">Contatti</th>
+                {% if is_granted('ROLE_PARTNER') %}<th scope="col">Dovuto</th>{% endif %}
+                <th scope="col">Stato</th>
             </tr>
             </thead>
             <tbody>

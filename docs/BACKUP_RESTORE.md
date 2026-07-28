@@ -74,12 +74,7 @@ Durante il ripristino:
 
 Il valore `RESTORE` è intenzionalmente obbligatorio e sensibile alle maiuscole.
 
-Dopo un ripristino proveniente da una versione applicativa precedente, eseguire:
-
-```powershell
-.\scripts\setup.ps1 -SkipPartnerBootstrap
-.\scripts\validate.ps1
-```
+Dopo un ripristino proveniente da una versione applicativa precedente, riallineare il codice con una release estratta separatamente tramite `update.ps1`, oppure eseguire `setup.ps1 -SkipPartnerBootstrap` se il codice corretto è già presente. Al termine eseguire sempre `validate.ps1`.
 
 ## Ripristino fallito
 
@@ -130,3 +125,13 @@ Sono disponibili per diagnosi e automazioni controllate, ma per l’uso ordinari
 ## Selezione dell’archivio da verificare
 
 Se `-Archive` viene omesso, viene selezionato il più recente `StudioCommesse_Backup_*.zip` nella cartella `backups`. Sono supportati anche pattern espliciti. Un percorso inesistente non viene sostituito silenziosamente: lo script elenca fino a cinque backup disponibili.
+
+## Backup durante l’aggiornamento
+
+`update.ps1` crea prima della manutenzione:
+
+- un backup verificato di database e allegati;
+- uno ZIP verificato del codice precedente;
+- un file `ROLLBACK.txt` con l’esito dell’operazione.
+
+Il materiale viene conservato in `backups/update-YYYYMMDD-HHMMSS/`. Non eliminarlo prima del collaudo della nuova versione.

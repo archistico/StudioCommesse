@@ -9,16 +9,15 @@
         <form method="get" class="row g-2 align-items-end">
             <div class="col-12 col-lg-6">
                 <label class="form-label" for="assignee">Assegnatario</label>
-                <select id="assignee" name="assignee" class="form-select">
+                <select id="assignee" name="assignee" class="form-select" onchange="this.form.requestSubmit()" aria-describedby="assignee-help">
                     <option value="me" {{ selected_assignee_id is null ? 'selected' : '' }}>Le mie attività</option>
                     {% for user in users %}
                         <option value="{{ user.id }}" {{ selected_assignee_id == user.id ? 'selected' : '' }}>{{ user.displayName }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-12 col-lg-auto"><button class="btn btn-primary w-100">Mostra</button></div>
             <div class="col-12">
-                <p class="filter-explanation text-secondary mb-0">Il filtro riguarda la persona responsabile dell’attività, non chi ha registrato ore.</p>
+                <p id="assignee-help" class="filter-explanation text-secondary mb-0">All’apertura vengono mostrate subito le tue attività. Il filtro considera la persona responsabile dell’attività, non chi ha registrato le ore. Cambiando assegnatario, l’elenco si aggiorna automaticamente.</p>
             </div>
         </form>
     </div>
@@ -30,13 +29,13 @@
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
             <thead>
                 <tr>
-                    <th>Commessa</th>
-                    <th>Attività</th>
-                    <th>Stato</th>
-                    <th>Stima</th>
-                    <th>Consuntivato</th>
-                    <th>Residuo</th>
-                    <th>Scadenza</th>
+                    <th scope="col">Commessa</th>
+                    <th scope="col">Attività</th>
+                    <th scope="col">Stato</th>
+                    <th scope="col">Stima</th>
+                    <th scope="col">Consuntivato</th>
+                    <th scope="col">Residuo</th>
+                    <th scope="col">Scadenza</th>
                 </tr>
             </thead>
             <tbody>

@@ -177,6 +177,42 @@ SQL,
     }
 
     /** @return list<array<string, mixed>> */
+    public function findUserCostSummaries(DateTimeImmutable $from, DateTimeImmutable $before, ?int $projectId = null): array
+    {
+        $filter = null === $projectId ? '' : 'AND project.id = :project_id';
+        $parameters = [
+            'date_from' => $from->format('Y-m-d H:i:s'),
+            'date_before' => $before->format('Y-m-d H:i:s'),
+        ];
+        if (null !== $projectId) {
+            $parameters['project_id'] = $projectId;
+        }
+
+        return $this->connection->fetchAllAssociative(
+            <<<SQL
+SELECT worker.id AS user_id,
+       worker.display_name AS user_name,
+       worker.active AS user_active,
+       worker.default_hourly_rate_cents AS standard_hourly_rate_cents,
+       COUNT(time_entry.id) AS time_entry_count,
+       COALESCE(SUM(MAX(0, CAST((strftime('%s', time_entry.ended_at) - strftime('%s', time_entry.started_at)) / 60 AS INTEGER))), 0) AS worked_minutes,
+       COALESCE(SUM(time_entry.cost_snapshot_cents), 0) AS historical_cost_cents
+FROM time_entry
+INNER JOIN app_user worker ON worker.id = time_entry.user_id
+INNER JOIN activity ON activity.id = time_entry.activity_id
+INNER JOIN project ON project.id = activity.project_id
+WHERE time_entry.started_at >= :date_from
+  AND time_entry.started_at < :date_before
+  AND time_entry.ended_at IS NOT NULL
+  {$filter}
+GROUP BY worker.id, worker.display_name, worker.active, worker.default_hourly_rate_cents
+ORDER BY worker.display_name COLLATE NOCASE ASC, worker.id ASC
+SQL,
+            $parameters,
+        );
+    }
+
+    /** @return list<array<string, mixed>> */
     public function findActionCounts(DateTimeImmutable $from, DateTimeImmutable $before, ?int $projectId = null): array
     {
         [$filter, $parameters] = $this->auditFilter($from, $before, $projectId);

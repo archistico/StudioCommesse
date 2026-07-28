@@ -1,11 +1,15 @@
 parameters:
   app.name: 'Studio Commesse'
-  app.version: '0.9.2-M9.2-A-HF1'
+  app.version: '0.9.2-M9.2-H'
   app.default_hourly_rate_cents: 0
   app.attachment_storage_dir: '%kernel.project_dir%/var/storage/attachments'
   app.attachment_mutation_lock_file: '%kernel.project_dir%/var/locks/attachments.lock'
   app.request_runtime_lock_file: '%kernel.project_dir%/var/locks/requests.lock'
+  app.timer_mutation_lock_file: '%kernel.project_dir%/var/locks/timers.lock'
   app.maintenance_marker_file: '%kernel.project_dir%/var/maintenance.lock'
+  app.login_max_attempts: 5
+  app.login_lockout_interval: '1 hour'
+  app.login_lockout_minutes: 60
 
 services:
   _defaults:
@@ -18,6 +22,8 @@ services:
       - '../src/DependencyInjection/'
       - '../src/Entity/'
       - '../src/Service/FileLock.php'
+      - '../src/Service/AuditRecord.php'
+      - '../src/Service/QuarantinedAttachment.php'
       - '../src/Service/FileLockManager.php'
       - '../src/Service/BackupSummary.php'
       - '../src/Service/RestoreResult.php'
@@ -28,6 +34,14 @@ services:
     tags: ['controller.service_arguments']
 
   App\Command\LoadDemoFixturesCommand:
+    arguments:
+      $kernelEnvironment: '%kernel.environment%'
+
+  App\Command\SeedPerformanceDatasetCommand:
+    arguments:
+      $kernelEnvironment: '%kernel.environment%'
+
+  App\Command\BenchmarkCapacityCommand:
     arguments:
       $kernelEnvironment: '%kernel.environment%'
 
@@ -43,6 +57,10 @@ services:
     arguments:
       $lockFile: '%app.request_runtime_lock_file%'
 
+  App\Service\TimerMutationLock:
+    arguments:
+      $lockFile: '%app.timer_mutation_lock_file%'
+
   App\Service\MaintenanceMode:
     arguments:
       $markerFile: '%app.maintenance_marker_file%'
@@ -51,3 +69,11 @@ services:
     arguments:
       $attachmentStorageDirectory: '%app.attachment_storage_dir%'
       $appVersion: '%app.version%'
+
+  App\Service\AuditPrivacyGuard:
+    arguments:
+      $secret: '%kernel.secret%'
+
+  App\EventSubscriber\SecurityAuditSubscriber:
+    arguments:
+      $loginLockoutMinutes: '%app.login_lockout_minutes%'

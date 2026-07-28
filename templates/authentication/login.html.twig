@@ -4,7 +4,7 @@
 {% block body_class %}d-flex flex-column bg-body-tertiary{% endblock %}
 
 {% block body %}
-<div class="page page-center">
+<main class="page page-center" id="main-content" tabindex="-1">
     <div class="container container-tight py-4">
         <div class="text-center mb-4">
             <span class="brand-mark brand-mark-lg" aria-hidden="true">SC</span>
@@ -12,19 +12,19 @@
             <p class="text-secondary mb-0">Gestione interna di commesse e collaboratori</p>
         </div>
 
-        <form class="card card-md" method="post" autocomplete="off">
+        <form class="card card-md" method="post" aria-describedby="login-security-note">
             <div class="card-body">
                 <h2 class="h2 text-center mb-4">Accedi</h2>
 
                 {% if error %}
-                    <div class="alert alert-danger" role="alert">
-                        Credenziali non valide oppure account non disponibile.
+                    <div class="alert alert-danger" role="alert" aria-live="assertive" tabindex="-1">
+                        Credenziali non valide oppure accesso temporaneamente non disponibile.
                     </div>
                 {% endif %}
 
                 <div class="mb-3">
                     <label class="form-label" for="username">Nome utente</label>
-                    <input type="text" id="username" name="_username" value="{{ last_username }}" class="form-control" autocomplete="username" required autofocus>
+                    <input type="text" id="username" name="_username" value="{{ error ? '' : last_username }}" class="form-control" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus>
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="password">Password</label>
@@ -34,11 +34,12 @@
                 <div class="form-footer">
                     <button type="submit" class="btn btn-primary w-100">Accedi</button>
                 </div>
+                <p class="form-hint mt-3 mb-0" id="login-security-note">Dopo 5 tentativi falliti sulla stessa utenza e postazione, nuovi tentativi vengono sospesi per un’ora.</p>
             </div>
         </form>
         <div class="text-center text-secondary mt-3">
             Applicazione riservata alla rete interna dello studio.
         </div>
     </div>
-</div>
+</main>
 {% endblock %}

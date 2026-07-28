@@ -21,7 +21,7 @@
             <div class="col-12 col-lg-4 col-xl-3">
                 <label for="control-client" class="form-label">Cliente</label>
                 <select id="control-client" name="client" class="form-select">
-                    <option value="">Tutti i clienti</option>
+                    <option value="" {{ selected_client_id is null ? 'selected' : '' }}>Tutti i clienti</option>
                     {% for client in clients_filter %}
                         <option value="{{ client.id }}" {{ selected_client_id == client.id ? 'selected' : '' }}>{{ client.name }}</option>
                     {% endfor %}
@@ -30,7 +30,7 @@
             <div class="col-12 col-lg-4 col-xl-3">
                 <label for="control-responsible" class="form-label">Responsabile</label>
                 <select id="control-responsible" name="responsible" class="form-select">
-                    <option value="">Tutti i responsabili</option>
+                    <option value="" {{ selected_responsible_id is null ? 'selected' : '' }}>Tutti i responsabili</option>
                     {% for responsible in responsibles_filter %}
                         <option value="{{ responsible.id }}" {{ selected_responsible_id == responsible.id ? 'selected' : '' }}>{{ responsible.displayName }}{{ responsible.active ? '' : ' (disattivato)' }}</option>
                     {% endfor %}
@@ -39,7 +39,7 @@
             <div class="col-12 col-lg-4 col-xl-3">
                 <label for="control-closure" class="form-label">Chiusura complessiva</label>
                 <select id="control-closure" name="closure" class="form-select">
-                    <option value="">Tutte</option>
+                    <option value="" {{ criteria.overallStatus is null ? 'selected' : '' }}>Tutte</option>
                     {% for closure in closure_statuses %}
                         <option value="{{ closure.value }}" {{ criteria.overallStatus == closure ? 'selected' : '' }}>{{ closure.label }}</option>
                     {% endfor %}
@@ -92,15 +92,15 @@
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
             <thead>
                 <tr>
-                    <th>Commessa</th>
-                    <th>Chiusura operativa</th>
-                    <th>Chiusura economica</th>
-                    <th>Complessiva</th>
-                    <th>Ore stimate / effettive</th>
-                    <th>Costi / preventivo</th>
-                    <th>Incassato / residuo</th>
-                    <th>Ultimo avanzamento</th>
-                    <th>Criticità</th>
+                    <th scope="col">Commessa</th>
+                    <th scope="col">Chiusura operativa</th>
+                    <th scope="col">Chiusura economica</th>
+                    <th scope="col">Complessiva</th>
+                    <th scope="col">Ore stimate / effettive</th>
+                    <th scope="col">Costi / preventivo</th>
+                    <th scope="col">Incassato / residuo</th>
+                    <th scope="col">Ultimo avanzamento</th>
+                    <th scope="col">Criticità</th>
                 </tr>
             </thead>
             <tbody>
@@ -152,7 +152,7 @@
             <div class="card-header"><h3 class="card-title">Carico per persona</h3></div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
-                    <thead><tr><th>Persona</th><th>Attività aperte</th><th>Residuo</th><th>Ore periodo</th><th>Fatturabili</th><th>Commesse</th></tr></thead>
+                    <thead><tr><th scope="col">Persona</th><th scope="col">Attività aperte</th><th scope="col">Residuo</th><th scope="col">Ore periodo</th><th scope="col">Fatturabili</th><th scope="col">Commesse</th></tr></thead>
                     <tbody>
                     {% for collaborator in dashboard.collaborators %}
                         <tr class="{{ collaborator.overloaded ? 'table-danger' : '' }}">
@@ -180,7 +180,7 @@
             <div class="card-header"><h3 class="card-title">Riepilogo per cliente</h3></div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
-                    <thead><tr><th>Cliente</th><th>Commesse</th><th>Ore periodo</th><th>Costi periodo</th><th>Incassi periodo</th><th>Saldo gestionale</th></tr></thead>
+                    <thead><tr><th scope="col">Cliente</th><th scope="col">Commesse</th><th scope="col">Ore periodo</th><th scope="col">Costi periodo</th><th scope="col">Incassi periodo</th><th scope="col">Saldo gestionale</th></tr></thead>
                     <tbody>
                     {% for client in dashboard.clients %}
                         <tr>
@@ -203,7 +203,7 @@
     <div class="card-header"><h3 class="card-title">Andamento mensile del periodo</h3></div>
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
-            <thead><tr><th>Mese</th><th>Ore lavorate</th><th>Ore fatturabili</th><th>Costo ore</th><th>Spese</th><th>Incassi</th><th>Saldo gestionale</th></tr></thead>
+            <thead><tr><th scope="col">Mese</th><th scope="col">Ore lavorate</th><th scope="col">Ore fatturabili</th><th scope="col">Costo ore</th><th scope="col">Spese</th><th scope="col">Incassi</th><th scope="col">Saldo gestionale</th></tr></thead>
             <tbody>
             {% for period in dashboard.periods %}
                 <tr>

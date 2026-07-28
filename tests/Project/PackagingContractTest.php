@@ -19,7 +19,10 @@ final class PackagingContractTest extends TestCase
         }
         self::assertStringContainsString('Assert-SafeArchiveEntryName', $script);
         self::assertStringContainsString('requiredEntries', $script);
-        self::assertStringContainsString('StudioCommesse_M9.2-A_Hotfix1_PowerShell_Parser.zip', $script);
+        self::assertStringContainsString('src/Kernel.php', $script);
+        self::assertStringContainsString('src/Controller/UserController.php', $script);
+        self::assertStringContainsString('verify-release-package.ps1', $script);
+        self::assertStringContainsString('StudioCommesse_M9.2-H_Accessibility_Security_Manuals_Fix1.zip', $script);
     }
 
     public function testM92AAuthoritativeDocumentsAndVersionsAreAligned(): void
@@ -30,10 +33,15 @@ final class PackagingContractTest extends TestCase
         $readme = (string) file_get_contents($root.'/README.md');
         $handoff = (string) file_get_contents($root.'/docs/PROJECT_HANDOFF.md');
 
-        self::assertStringContainsString("app.version: '0.9.2-M9.2-A-HF1'", $services);
-        self::assertStringContainsString('M9.2-A HOTFIX 1 VALIDATION PASSED', $validation);
-        self::assertStringContainsString('StudioCommesse_M9.1_Hotfix3_Corretto.zip', $readme);
-        self::assertStringContainsString('StudioCommesse_M9.1_Hotfix3_Corretto.zip', $handoff);
+        self::assertStringContainsString("app.version: '0.9.2-M9.2-H'", $services);
+        self::assertStringContainsString('M9.2-H VALIDATION PASSED', $validation);
+        self::assertStringContainsString('## Requisiti', $readme);
+        self::assertStringContainsString('## Installazione', $readme);
+        self::assertStringContainsString('## Script principali', $readme);
+        self::assertStringNotContainsString('Candidate corrente', $readme);
+        self::assertStringNotContainsString('Ultima baseline validata', $readme);
+        self::assertStringContainsString('StudioCommesse_M9.2-G_Performance_Capacity_Fix3.zip', $handoff);
+        self::assertStringContainsString('StudioCommesse_M9.2-H_Accessibility_Security_Manuals_Fix1.zip', $handoff);
         self::assertFileExists($root.'/docs/PACKAGING.md');
     }
 }

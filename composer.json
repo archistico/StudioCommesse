@@ -16,6 +16,7 @@
     "ext-pdo": "*",
     "ext-pdo_sqlite": "*",
     "php": ">=8.4",
+    "symfony/apache-pack": "^1.0",
     "symfony/asset": "8.1.*",
     "symfony/console": "8.1.*",
     "symfony/dotenv": "8.1.*",

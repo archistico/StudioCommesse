@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Exception\ApplicationBusyException;
+
 final readonly class AttachmentMutationLock
 {
     private FileLockManager $manager;
@@ -15,7 +17,12 @@ final readonly class AttachmentMutationLock
 
     public function acquireShared(): FileLock
     {
-        return $this->manager->acquireShared();
+        $lock = $this->manager->tryAcquireShared();
+        if (!$lock instanceof FileLock) {
+            throw new ApplicationBusyException('È in corso un backup o un ripristino dello spazio documentale.');
+        }
+
+        return $lock;
     }
 
     public function acquireExclusive(): FileLock

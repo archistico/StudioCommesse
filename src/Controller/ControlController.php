@@ -118,19 +118,34 @@ final class ControlController extends AbstractController
     private function resolveValues(Request $request): array
     {
         $session = $request->getSession();
-        if ($request->query->count() > 0) {
-            $values = [];
-            foreach (self::FILTER_KEYS as $key) {
-                $values[$key] = $request->query->get($key, '');
-            }
-            $session->set(self::SESSION_KEY, $values);
+        $values = $this->normalizeStoredValues($session->get(self::SESSION_KEY, []));
+        $queryValues = $request->query->all();
+        $hasRecognizedFilter = false;
 
-            return $values;
+        foreach (self::FILTER_KEYS as $key) {
+            if (!array_key_exists($key, $queryValues)) {
+                continue;
+            }
+
+            $hasRecognizedFilter = true;
+            $values[$key] = $request->query->get($key, '');
         }
 
-        $stored = $session->get(self::SESSION_KEY, []);
+        if ($hasRecognizedFilter) {
+            $session->set(self::SESSION_KEY, $values);
+        }
+
+        return $values;
+    }
+
+    /**
+     * @param mixed $stored
+     * @return array<string, string>
+     */
+    private function normalizeStoredValues(mixed $stored): array
+    {
         if (!is_array($stored)) {
-            return [];
+            $stored = [];
         }
 
         $values = [];

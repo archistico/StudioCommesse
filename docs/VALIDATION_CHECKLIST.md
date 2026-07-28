@@ -1,56 +1,42 @@
-# Checklist M9.2-A
+# Checklist M9.2-H
 
 ## Gate automatico
 
-1. `setup.ps1 -SkipPartnerBootstrap` termina senza errori.
-2. `validate.ps1` termina con `M9.2-A HOTFIX 1 VALIDATION PASSED`.
-3. PHPStan livello 8 non riporta errori.
-4. PHPUnit è completamente verde.
-5. Migrazioni e mapping Doctrine sono sincronizzati.
-6. `scripts/m92a-packaging-contract.php` passa.
-7. Il gate crea e verifica un pacchetto smoke, poi lo rimuove.
-8. Non risultano nuove migrazioni o dipendenze.
+0. Il preflight PHP conferma runtime ed estensioni obbligatorie.
+1. Tutti gli script PowerShell superano il parser.
+2. Composer/npm, audit dipendenze e build asset passano.
+3. Lint PHP, YAML e Twig passano.
+4. Tutti i contratti da M8 a M9.2-H passano.
+5. Migrazioni, schema Doctrine e backup smoke passano.
+6. Il pacchetto smoke viene creato, confrontato ed estratto in una cartella pulita.
+7. PHPStan livello 8 non segnala errori.
+8. PHPUnit esegue **244 test** senza errori o failure.
+9. I benchmark isolati 30/200/600 rispettano i budget.
+10. `validate.ps1` termina con `M9.2-H VALIDATION PASSED`.
 
-## Verifica baseline
+## Sicurezza login
 
-1. Versione applicativa: `0.9.2-M9.2-A-HF1`.
-2. Baseline dichiarata: `StudioCommesse_M9.1_Hotfix3_Corretto.zip`.
-3. La documentazione registra 171 test e 1.631 asserzioni sulla baseline.
-4. Le correzioni manuali su `$safetyBackupDirectory`, nota Attività e dovuti Clienti sono documentate.
+1. Verificare 5 tentativi falliti e blocco del tentativo successivo per un’ora.
+2. Confermare che il messaggio non distingua utente inesistente, password errata, account disattivato o throttling.
+3. Verificare in Audit gli eventi Accesso non riuscito e Accesso temporaneamente bloccato.
+4. Confermare che il nome utente tentato non sia salvato in chiaro nei fallimenti.
+5. Controllare che password, token, cookie e session ID non compaiano in database audit o log.
+6. Verificare CSP, HSTS su HTTPS, no-referrer, anti-frame, no-sniff e cache no-store.
+7. Confermare `cookie_httponly`, `cookie_secure: auto` e `cookie_samesite: strict`.
 
-## Pacchetto di distribuzione
+## Accessibilità e responsive
 
-1. Eseguire `.\scripts\package-release.ps1`.
-2. Verificare la creazione di `dist/StudioCommesse_M9.2-A_Hotfix1_PowerShell_Parser.zip`.
-3. Confermare che lo script dichiari il pacchetto verificato.
-4. Aprire lo ZIP e verificare che contenga almeno README, lock file, `src`, `templates`, `migrations`, `scripts`, `tests` e `docs`.
-5. Verificare l’assenza di `.env.local`, database, allegati, backup, log, cache, `vendor`, `node_modules` e `public/vendor`.
-6. Estrarre lo ZIP in una cartella nuova ed eseguire il setup.
+1. Eseguire la checklist di `docs/ACCESSIBILITY.md`.
+2. Navigare login, dashboard, commesse, attività, ore, report, audit e utenti senza mouse.
+3. Verificare focus visibile, skip link e pagina corrente.
+4. Provare zoom 200% e larghezze 360/768/1024/1440 pixel.
+5. Verificare tabelle e azioni sui display stretti.
+6. Confermare che i messaggi siano annunciati come alert o status.
 
-## Aggiornamento di un’installazione esistente
+## Manuali e packaging
 
-Prima di sostituire i file applicativi preservare:
-
-- `.env.local`;
-- database indicato da `DATABASE_URL`;
-- `var/storage/attachments`;
-- cartella `backups`;
-- eventuali log utili alla diagnosi.
-
-Dopo la copia eseguire setup e validazione senza caricare fixtures.
-
-## Regressioni M1–M9.1
-
-- accessi e riservatezza invariati;
-- ore, economia, report e dovuti invariati;
-- allegati e backup invariati;
-- nessuna nuova migrazione;
-- nessuna nuova dipendenza;
-- fixtures standard ancora idempotenti.
-
-## Hotfix 1 PowerShell
-
-1. `validate.ps1` analizza tutti gli script `.ps1` senza errori.
-2. PowerShell analizza `package-release.ps1` senza errori.
-3. `package-release.ps1` crea e verifica lo ZIP smoke.
-4. Il gate finale è `M9.2-A HOTFIX 1 VALIDATION PASSED`.
+1. Controllare `USER_MANUAL.md`, `ADMIN_MANUAL.md`, `SECURITY.md` e `ACCESSIBILITY.md`.
+2. Eseguire `package-release.ps1`.
+3. Verificare `dist/StudioCommesse_M9.2-H_Accessibility_Security_Manuals_Fix1.zip`.
+4. Eseguire `verify-release-package.ps1` e `install-smoke.ps1` sullo ZIP.
+5. Confermare l’assenza di database, log, backup, cache, credenziali e dipendenze installate.

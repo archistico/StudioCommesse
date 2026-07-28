@@ -41,6 +41,43 @@ final class TimeEntryRepository extends ServiceEntityRepository
         }
     }
 
+
+    /** @return list<TimeEntry> */
+    public function findRecentlyUpdated(int $limit = 8): array
+    {
+        $result = $this->createQueryBuilder('entry')
+            ->addSelect('user', 'activity', 'project', 'client')
+            ->join('entry.user', 'user')
+            ->join('entry.activity', 'activity')
+            ->join('activity.project', 'project')
+            ->join('project.client', 'client')
+            ->andWhere('project.archivedAt IS NULL')
+            ->orderBy('entry.updatedAt', 'DESC')
+            ->setMaxResults(max(1, $limit))
+            ->getQuery()
+            ->getResult();
+
+        /** @var list<TimeEntry> $result */
+        return $result;
+    }
+
+    public function sumCompletedMinutesForPeriod(DateTimeImmutable $startedFrom, DateTimeImmutable $startedBefore): int
+    {
+        return (int) $this->getEntityManager()->getConnection()->fetchOne(
+            <<<'SQL'
+SELECT COALESCE(SUM(MAX(0, CAST((strftime('%s', ended_at) - strftime('%s', started_at)) / 60 AS INTEGER))), 0)
+FROM time_entry
+WHERE ended_at IS NOT NULL
+  AND started_at >= :started_from
+  AND started_at < :started_before
+SQL,
+            [
+                'started_from' => $startedFrom->format('Y-m-d H:i:s'),
+                'started_before' => $startedBefore->format('Y-m-d H:i:s'),
+            ],
+        );
+    }
+
     public function findRunningForUser(User $user): ?TimeEntry
     {
         return $this->findOneBy(['user' => $user, 'endedAt' => null], ['startedAt' => 'DESC']);

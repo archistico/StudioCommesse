@@ -10,7 +10,8 @@ use App\Enum\AuditAction;
 use App\Form\ClientType;
 use App\Repository\ClientRepository;
 use App\Repository\ProjectRepository;
-use App\Service\AuditLogger;
+use App\Service\AuditRecord;
+use App\Service\AuditedTransaction;
 use App\Service\ProjectFinancialService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -58,21 +59,28 @@ final class ClientController extends AbstractController
     public function new(
         Request $request,
         ClientRepository $clientRepository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $client = new Client();
         $form = $this->createForm(ClientType::class, $client);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $clientRepository->save($client, true);
-            $auditLogger->log(
-                AuditAction::ClientCreated,
-                $this->requireCurrentUser()->getUserIdentifier(),
-                Client::class,
-                $client->getId(),
-                ['name' => $client->getName()],
-                $request->getClientIp(),
+            $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+            $transaction->execute(
+                static function () use ($clientRepository, $client): Client {
+                    $clientRepository->save($client, false);
+
+                    return $client;
+                },
+                static fn (Client $saved): AuditRecord => new AuditRecord(
+                    AuditAction::ClientCreated,
+                    $actorIdentifier,
+                    Client::class,
+                    $saved->getId(),
+                    ['name' => $saved->getName()],
+                    $request->getClientIp(),
+                ),
             );
             $this->addFlash('success', 'Cliente creato correttamente.');
 
@@ -101,7 +109,7 @@ final class ClientController extends AbstractController
         Client $client,
         Request $request,
         ClientRepository $clientRepository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         if ($client->isArchived()) {
             throw $this->createAccessDeniedException('Ripristinare il cliente prima di modificarlo.');
@@ -112,14 +120,21 @@ final class ClientController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $clientRepository->save($client, true);
-            $auditLogger->log(
-                AuditAction::ClientUpdated,
-                $this->requireCurrentUser()->getUserIdentifier(),
-                Client::class,
-                $client->getId(),
-                ['previous_name' => $previousName, 'name' => $client->getName()],
-                $request->getClientIp(),
+            $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+            $transaction->execute(
+                static function () use ($clientRepository, $client): Client {
+                    $clientRepository->save($client, false);
+
+                    return $client;
+                },
+                static fn (Client $saved): AuditRecord => new AuditRecord(
+                    AuditAction::ClientUpdated,
+                    $actorIdentifier,
+                    Client::class,
+                    $saved->getId(),
+                    ['previous_name' => $previousName, 'name' => $saved->getName()],
+                    $request->getClientIp(),
+                ),
             );
             $this->addFlash('success', 'Cliente aggiornato correttamente.');
 
@@ -141,24 +156,35 @@ final class ClientController extends AbstractController
         Request $request,
         ClientRepository $clientRepository,
         ProjectRepository $projectRepository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $this->validateCsrf('archive_client_'.$client->getId(), $request);
 
-        if ($projectRepository->countNonArchivedForClient($client) > 0) {
-            $this->addFlash('danger', 'Il cliente ha commesse non archiviate e non può essere archiviato.');
-        } else {
-            $client->archive();
-            $clientRepository->save($client, true);
-            $auditLogger->log(
-                AuditAction::ClientArchived,
-                $this->requireCurrentUser()->getUserIdentifier(),
-                Client::class,
-                $client->getId(),
-                ['name' => $client->getName()],
-                $request->getClientIp(),
+        $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+        try {
+            $transaction->execute(
+                static function () use ($client, $clientRepository, $projectRepository): Client {
+                    if ($projectRepository->countNonArchivedForClient($client) > 0) {
+                        throw new \DomainException('Il cliente ha commesse non archiviate e non può essere archiviato.');
+                    }
+
+                    $client->archive();
+                    $clientRepository->save($client, false);
+
+                    return $client;
+                },
+                static fn (Client $saved): AuditRecord => new AuditRecord(
+                    AuditAction::ClientArchived,
+                    $actorIdentifier,
+                    Client::class,
+                    $saved->getId(),
+                    ['name' => $saved->getName()],
+                    $request->getClientIp(),
+                ),
             );
             $this->addFlash('success', 'Cliente archiviato.');
+        } catch (\DomainException $exception) {
+            $this->addFlash('danger', $exception->getMessage());
         }
 
         return $this->redirectToRoute('app_client_show', ['id' => $client->getId()]);
@@ -170,18 +196,25 @@ final class ClientController extends AbstractController
         Client $client,
         Request $request,
         ClientRepository $clientRepository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $this->validateCsrf('restore_client_'.$client->getId(), $request);
-        $client->restore();
-        $clientRepository->save($client, true);
-        $auditLogger->log(
-            AuditAction::ClientRestored,
-            $this->requireCurrentUser()->getUserIdentifier(),
-            Client::class,
-            $client->getId(),
-            ['name' => $client->getName()],
-            $request->getClientIp(),
+        $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+        $transaction->execute(
+            static function () use ($client, $clientRepository): Client {
+                $client->restore();
+                $clientRepository->save($client, false);
+
+                return $client;
+            },
+            static fn (Client $saved): AuditRecord => new AuditRecord(
+                AuditAction::ClientRestored,
+                $actorIdentifier,
+                Client::class,
+                $saved->getId(),
+                ['name' => $saved->getName()],
+                $request->getClientIp(),
+            ),
         );
         $this->addFlash('success', 'Cliente ripristinato.');
 

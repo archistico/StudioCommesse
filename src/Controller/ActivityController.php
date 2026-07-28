@@ -13,7 +13,8 @@ use App\Repository\ActivityRepository;
 use App\Repository\AttachmentRepository;
 use App\Repository\TimeEntryRepository;
 use App\Repository\UserRepository;
-use App\Service\AuditLogger;
+use App\Service\AuditRecord;
+use App\Service\AuditedTransaction;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -62,7 +63,7 @@ final class ActivityController extends AbstractController
     }
 
     #[Route('/commessa/{id}/nuova', name: 'app_activity_new', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
-    public function new(Project $project, Request $request, ActivityRepository $repository, AuditLogger $auditLogger): Response
+    public function new(Project $project, Request $request, ActivityRepository $repository, AuditedTransaction $transaction): Response
     {
         if ($project->isArchived()) {
             throw $this->createAccessDeniedException('La commessa è archiviata.');
@@ -77,14 +78,20 @@ final class ActivityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $repository->save($activity, true);
-            $auditLogger->log(
-                AuditAction::ActivityCreated,
-                $user->getUserIdentifier(),
-                Activity::class,
-                $activity->getId(),
-                ['project' => $project->getCode(), 'title' => $activity->getTitle()],
-                $request->getClientIp(),
+            $transaction->execute(
+                static function () use ($repository, $activity): Activity {
+                    $repository->save($activity, false);
+
+                    return $activity;
+                },
+                static fn (Activity $saved): AuditRecord => new AuditRecord(
+                    AuditAction::ActivityCreated,
+                    $user->getUserIdentifier(),
+                    Activity::class,
+                    $saved->getId(),
+                    ['project' => $project->getCode(), 'title' => $saved->getTitle()],
+                    $request->getClientIp(),
+                ),
             );
             $this->addFlash('success', 'Attività creata.');
 
@@ -106,9 +113,12 @@ final class ActivityController extends AbstractController
         Request $request,
         ActivityRepository $repository,
         AttachmentRepository $attachmentRepository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response
     {
+        if ($activity->getProject()?->isArchived()) {
+            throw $this->createAccessDeniedException('La commessa è archiviata e le attività sono in sola lettura.');
+        }
         if (!$this->canEdit($activity)) {
             throw $this->createAccessDeniedException();
         }
@@ -117,14 +127,21 @@ final class ActivityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $repository->save($activity, true);
-            $auditLogger->log(
-                AuditAction::ActivityUpdated,
-                $this->requireCurrentUser()->getUserIdentifier(),
-                Activity::class,
-                $activity->getId(),
-                ['title' => $activity->getTitle()],
-                $request->getClientIp(),
+            $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+            $transaction->execute(
+                static function () use ($repository, $activity): Activity {
+                    $repository->save($activity, false);
+
+                    return $activity;
+                },
+                static fn (Activity $saved): AuditRecord => new AuditRecord(
+                    AuditAction::ActivityUpdated,
+                    $actorIdentifier,
+                    Activity::class,
+                    $saved->getId(),
+                    ['title' => $saved->getTitle()],
+                    $request->getClientIp(),
+                ),
             );
             $this->addFlash('success', 'Attività aggiornata.');
 

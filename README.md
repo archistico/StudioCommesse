@@ -1,131 +1,92 @@
 # Studio Commesse
 
-Gestionale interno per uno studio tecnico, sviluppato con PHP 8.4, Symfony 8.1, Doctrine ORM 3, SQLite, Twig e Tabler 1.4.0.
+Studio Commesse è un gestionale web interno per studi tecnici. Centralizza clienti, commesse, attività, ore, spese, incassi e documenti, con accessi distinti per Soci e Collaboratori.
 
-**Candidate corrente:** `0.9.2-M9.2-A-HF1`  
-**Correzione:** parser PowerShell del comando di packaging.  
-**Ultima baseline validata:** M9.1 Hotfix 3 corretta  
-**Archivio baseline:** `StudioCommesse_M9.1_Hotfix3_Corretto.zip`  
-**Gate atteso:** `M9.2-A HOTFIX 1 VALIDATION PASSED`
+L’applicazione usa Symfony, Doctrine ORM, SQLite, Twig e un’interfaccia Tabler responsive. Include report mensili, audit operativo, backup coordinati e strumenti per installazione e aggiornamento controllati.
 
-## Funzioni disponibili
+## Funzioni principali
 
-- utenti con ruoli Socio e Collaboratore;
-- clienti e commesse con responsabile unico;
-- attività, assegnazioni, priorità, avanzamento e scadenze;
-- registrazione manuale delle ore e timer personale;
-- autore delle ore indipendente dall’assegnatario dell’attività;
-- dettaglio consuntivato per persona nelle attività di una commessa;
-- area globale `Ore` con filtri per periodo, commessa, attività, persona e fatturabilità;
-- paginazione delle registrazioni a 50 righe;
-- durate uniformate nel formato `ore:minuti`;
-- preventivo e regole tariffarie per collaboratore, commessa e attività;
-- costo storico congelato su ogni registrazione ore;
-- spese e incassi semplici, senza contabilità fiscale;
-- visibilità economica per ruolo: i collaboratori vedono e gestiscono soltanto le proprie spese;
-- riepilogo economico con costi, incassato, residuo e margine;
-- importi dovuti per cliente, visibili esclusivamente ai soci;
-- area soci `Controllo` con chiusura operativa, economica e complessiva;
-- indicatori su commesse ferme, scostamenti e sovraccarico;
-- riepiloghi per persona, cliente e mese con filtri persistenti;
-- valutazione giornaliera di ogni collaboratore con attività svolte, descrizioni e ore totali;
-- form CRUD responsive con campi compatti affiancati sui soli schermi grandi, testi estesi a riga intera e salvataggi a piena larghezza;
-- pagine multi-colonna a una sola colonna sotto il breakpoint `lg`;
-- DataTables 2.3.8 e Responsive 3.0.8 locali su tutte le tabelle;
-- navigazione coerente dalle colonne identificative e operazioni distruttive concentrate nelle schermate di modifica;
-- area `Documenti` con allegati protetti di commessa e attività, classificazione, impronta SHA-256 e download autorizzato;
-- report mensile soci con ore, movimenti per commessa, spese, incassi, documenti, azioni di audit e CSV;
-- backup e ripristino coordinati di SQLite e allegati, con manifest, hash, verifica e backup automatico pre-ripristino;
-- fixtures dimostrative ricche, deterministiche e idempotenti.
+- gestione di clienti, commesse, responsabili, attività, priorità e scadenze;
+- registrazione ore manuale o tramite timer, con riepiloghi per persona e commessa;
+- preventivi, tariffe, spese, incassi e controllo della chiusura economica;
+- documenti protetti associati a commesse e attività;
+- report mensile, permessi per ruolo, registro audit filtrabile riservato ai Soci, blocco temporaneo del login, backup e ripristino.
 
-## Aggiornamento e validazione
+## Requisiti
 
-Durante un aggiornamento preservare sempre `.env.local`, il database locale, `var/storage/attachments` e gli archivi di backup, quindi eseguire:
+- PHP 8.4 o successivo;
+- estensioni PHP `ctype`, `fileinfo`, `iconv`, `mbstring`, `PDO` e `pdo_sqlite`;
+- Composer;
+- Node.js 20 o successivo e npm;
+- PowerShell per gli script Windows inclusi nel progetto;
+- per Apache: Apache 2.4+, `mod_rewrite`, `DocumentRoot` sulla cartella `public` e `AllowOverride All`.
+
+Per verificare la configurazione PHP usata dal terminale:
 
 ```powershell
-.\scripts\setup.ps1 -SkipPartnerBootstrap
-.\scripts\validate.ps1
+php --ini
+php -m
 ```
 
-Esito atteso:
+## Installazione
 
-```text
-M9.2-A HOTFIX 1 VALIDATION PASSED
-```
-
-La baseline corretta M9.1 Hotfix 3 è stata validata con 171 test e 1.631 asserzioni.
-
-## Creazione del pacchetto di distribuzione
-
-Per produrre uno ZIP pulito e già verificato:
+Estrarre il pacchetto in una cartella vuota ed eseguire:
 
 ```powershell
-.\scripts\package-release.ps1
+.\scripts\setup.ps1
 ```
 
-Output predefinito:
+Lo script controlla i requisiti, crea `.env.local`, installa le dipendenze, compila gli asset, applica le migrazioni e guida la creazione del primo Socio.
 
-```text
-dist/StudioCommesse_M9.2-A_Hotfix1_PowerShell_Parser.zip
-```
+## Aggiornamento
 
-Il comando non modifica i dati locali. Dal pacchetto esclude automaticamente `.env.local`, database, allegati operativi, backup, log, cache, `vendor`, `node_modules`, asset generati e altri file locali. Il gate crea inoltre un pacchetto temporaneo e ne verifica l’inventario. Vedere `docs/PACKAGING.md`.
-
-## Backup e ripristino
-
-Creazione e verifica automatica dello ZIP operativo:
+È preferibile estrarre la nuova release in una cartella separata e avviare da lì:
 
 ```powershell
-.\scripts\backup.ps1
+.\scripts\update.ps1 -TargetDirectory "C:\Percorso\StudioCommesse" -Confirm UPDATE
 ```
 
-Verifica dell’ultimo archivio creato:
+Sostituire `C:\Percorso\StudioCommesse` con il percorso assoluto reale dell’installazione esistente; non usare letteralmente il segnaposto.
 
-```powershell
-.\scripts\verify-backup.ps1
-```
+Se viene avviato direttamente dall’installazione da aggiornare, lo script crea automaticamente uno staging temporaneo. Crea e verifica backup di dati e codice, attiva la manutenzione, aggiorna l’applicazione e tenta il rollback automatico in caso di errore. La procedura completa è descritta in `docs/INSTALL_UPDATE.md`.
 
-Ripristino esplicito, con backup automatico dello stato corrente:
+## Apache
 
-```powershell
-.\scripts\restore-backup.ps1 -Archive "<backup.zip>" -Confirm RESTORE
-```
+Il pacchetto include `symfony/apache-pack` e `public/.htaccess`. La configurazione del VirtualHost è descritta in `docs/APACHE.md`.
 
-Gli archivi operativi non sono cifrati automaticamente e devono essere conservati in una posizione protetta. Vedere `docs/BACKUP_RESTORE.md`.
+## Sicurezza e manuali
 
-## Fixtures
+Il login è protetto da CSRF e rate limiting: dopo 5 tentativi falliti dalla stessa utenza e postazione, nuovi tentativi vengono sospesi per un’ora. Per dati personali e produzione usare HTTPS. I manuali utente, amministratore, sicurezza e accessibilità sono disponibili in `docs/`.
 
-Le fixtures non vengono mai caricate dal setup ordinario. Per generare o aggiornare il dataset dimostrativo:
-
-```powershell
-.\scripts\load-fixtures.ps1
-```
-
-Account principale del dataset dimostrativo:
-
-```text
-Username: demo.socio
-Password: Demo-accesso-2026!
-```
-
-Il profilo standard genera 8 utenti, 10 clienti, 30 commesse, 200 attività, 600 registrazioni ore, 240 spese e 120 incassi.
-
-## Avvio locale
+## Avvio
 
 ```powershell
 .\scripts\start-server.ps1
 ```
 
-In alternativa:
+L’applicazione è disponibile, salvo diversa configurazione, su `http://localhost:8000`.
+
+## Script principali
+
+| Script | Scopo |
+| --- | --- |
+| `setup.ps1` | Esegue l’installazione iniziale o riallinea un ambiente già configurato. |
+| `update.ps1` | Aggiorna un’installazione esistente con backup, manutenzione e rollback. |
+| `release-preflight.ps1` | Verifica sorgente, requisiti e pulizia del pacchetto. |
+| `validate.ps1` | Esegue controlli statici, test e smoke test del pacchetto. |
+| `benchmark-capacity.ps1` | Misura i profili isolati da 30, 200 e 600 commesse. |
+| `start-server.ps1` | Avvia il server PHP locale. |
+| `load-fixtures.ps1` | Carica dati dimostrativi; non viene eseguito dal setup ordinario. |
+| `backup.ps1` | Crea e verifica un backup di database e allegati. |
+| `verify-backup.ps1` | Controlla l’integrità di un backup esistente. |
+| `restore-backup.ps1` | Ripristina un backup dopo conferma esplicita. |
+| `clear-database-keep-users.ps1` | Svuota i dati operativi conservando utenti e migrazioni. |
+| `package-release.ps1` | Genera uno ZIP pulito, senza dati locali o dipendenze installate. |
+
+## Validazione
 
 ```powershell
-php -d opcache.enable_cli=1 -S 127.0.0.1:8000 -t public public/router.php
+.\scripts\validate.ps1
 ```
 
-## Prestazioni e diagnosi
-
-```powershell
-.\scripts\diagnose-performance.ps1
-```
-
-La documentazione tecnica è nella cartella `docs`.
+La documentazione tecnica e operativa dettagliata è disponibile nella cartella `docs`.

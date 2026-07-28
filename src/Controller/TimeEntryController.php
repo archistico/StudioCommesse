@@ -15,8 +15,10 @@ use App\Repository\ActivityRepository;
 use App\Repository\ProjectRepository;
 use App\Repository\TimeEntryRepository;
 use App\Repository\UserRepository;
-use App\Service\AuditLogger;
+use App\Service\AuditRecord;
+use App\Service\AuditedTransaction;
 use App\Service\HourlyRateResolver;
+use App\Service\TimerMutationLock;
 use App\Service\TimerService;
 use DateTimeImmutable;
 use DomainException;
@@ -126,7 +128,8 @@ final class TimeEntryController extends AbstractController
         Request $request,
         TimeEntryRepository $repository,
         HourlyRateResolver $rateResolver,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
+        TimerMutationLock $mutationLock,
     ): Response {
         $this->denyUnlessUsable($activity);
         $user = $this->requireCurrentUser();
@@ -135,22 +138,33 @@ final class TimeEntryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if ($repository->overlaps($user, $entry->getStartedAt(), $entry->getEndedAt())) {
-                $form->addError(new FormError('L’intervallo si sovrappone a un’altra registrazione.'));
-            } else {
-                $entry->applyRateSnapshot($rateResolver->resolve($activity, $user));
-                $repository->save($entry, true);
-                $auditLogger->log(
-                    AuditAction::TimeEntryCreated,
-                    $user->getUserIdentifier(),
-                    TimeEntry::class,
-                    $entry->getId(),
-                    ['activity' => $activity->getTitle()],
-                    $request->getClientIp(),
-                );
-                $this->addFlash('success', 'Ore registrate.');
+            $lock = $mutationLock->acquireExclusive();
+            try {
+                if ($repository->overlaps($user, $entry->getStartedAt(), $entry->getEndedAt())) {
+                    $form->addError(new FormError('L’intervallo si sovrappone a un’altra registrazione.'));
+                } else {
+                    $entry->applyRateSnapshot($rateResolver->resolve($activity, $user));
+                    $transaction->execute(
+                        static function () use ($repository, $entry): TimeEntry {
+                            $repository->save($entry, false);
 
-                return $this->redirectToRoute('app_activity_time', ['id' => $activity->getId()]);
+                            return $entry;
+                        },
+                        static fn (TimeEntry $saved): AuditRecord => new AuditRecord(
+                            AuditAction::TimeEntryCreated,
+                            $user->getUserIdentifier(),
+                            TimeEntry::class,
+                            $saved->getId(),
+                            ['activity' => $activity->getTitle()],
+                            $request->getClientIp(),
+                        ),
+                    );
+                    $this->addFlash('success', 'Ore registrate.');
+
+                    return $this->redirectToRoute('app_activity_time', ['id' => $activity->getId()]);
+                }
+            } finally {
+                $lock->release();
             }
         }
 
@@ -174,7 +188,7 @@ final class TimeEntryController extends AbstractController
     }
 
     #[Route('/timer/{id}/avvia', name: 'app_timer_start', requirements: ['id' => '\\d+'], methods: ['POST'])]
-    public function start(Activity $activity, Request $request, TimerService $timer, AuditLogger $auditLogger): Response
+    public function start(Activity $activity, Request $request, TimerService $timer): Response
     {
         $this->denyUnlessUsable($activity);
         if (!$this->isCsrfTokenValid('timer_start_'.$activity->getId(), (string) $request->request->get('_token'))) {
@@ -183,15 +197,7 @@ final class TimeEntryController extends AbstractController
 
         $user = $this->requireCurrentUser();
         try {
-            $entry = $timer->start($activity, $user);
-            $auditLogger->log(
-                AuditAction::TimerStarted,
-                $user->getUserIdentifier(),
-                TimeEntry::class,
-                $entry->getId(),
-                ['activity' => $activity->getTitle()],
-                $request->getClientIp(),
-            );
+            $timer->start($activity, $user, ipAddress: $request->getClientIp());
             $this->addFlash('success', 'Timer avviato.');
         } catch (DomainException $exception) {
             $this->addFlash('danger', $exception->getMessage());
@@ -201,7 +207,7 @@ final class TimeEntryController extends AbstractController
     }
 
     #[Route('/timer/ferma', name: 'app_timer_stop', methods: ['POST'])]
-    public function stop(Request $request, TimerService $timer, AuditLogger $auditLogger): Response
+    public function stop(Request $request, TimerService $timer): Response
     {
         if (!$this->isCsrfTokenValid('timer_stop', (string) $request->request->get('_token'))) {
             throw $this->createAccessDeniedException();
@@ -209,15 +215,7 @@ final class TimeEntryController extends AbstractController
 
         $user = $this->requireCurrentUser();
         try {
-            $entry = $timer->stop($user);
-            $auditLogger->log(
-                AuditAction::TimerStopped,
-                $user->getUserIdentifier(),
-                TimeEntry::class,
-                $entry->getId(),
-                ['minutes' => $entry->getDurationMinutes()],
-                $request->getClientIp(),
-            );
+            $entry = $timer->stop($user, ipAddress: $request->getClientIp());
             $this->addFlash('success', 'Timer fermato.');
 
             return $this->redirectToRoute('app_activity_time', ['id' => $entry->getActivity()?->getId()]);
@@ -234,8 +232,13 @@ final class TimeEntryController extends AbstractController
         Request $request,
         TimeEntryRepository $repository,
         HourlyRateResolver $rateResolver,
+        AuditedTransaction $transaction,
+        TimerMutationLock $mutationLock,
     ): Response
     {
+        if ($entry->getActivity()?->getProject()?->isArchived()) {
+            throw $this->createAccessDeniedException('La commessa è archiviata e le registrazioni ore sono in sola lettura.');
+        }
         if (!$this->canManage($entry)) {
             throw $this->createAccessDeniedException();
         }
@@ -252,19 +255,39 @@ final class TimeEntryController extends AbstractController
                 throw new \LogicException('Collaboratore mancante.');
             }
 
-            if ($repository->overlaps($owner, $entry->getStartedAt(), $entry->getEndedAt(), $entry->getId())) {
-                $form->addError(new FormError('L’intervallo si sovrappone a un’altra registrazione.'));
-            } else {
-                $activity = $entry->getActivity();
-                if (0 === $entry->getHourlyRateSnapshotCents() && $activity instanceof Activity) {
-                    $entry->applyRateSnapshot($rateResolver->resolve($activity, $owner));
+            $lock = $mutationLock->acquireExclusive();
+            try {
+                if ($repository->overlaps($owner, $entry->getStartedAt(), $entry->getEndedAt(), $entry->getId())) {
+                    $form->addError(new FormError('L’intervallo si sovrappone a un’altra registrazione.'));
                 } else {
-                    $entry->recalculateCostFromSnapshot();
-                }
-                $repository->save($entry, true);
-                $this->addFlash('success', 'Registrazione aggiornata.');
+                    $activity = $entry->getActivity();
+                    if (0 === $entry->getHourlyRateSnapshotCents() && $activity instanceof Activity) {
+                        $entry->applyRateSnapshot($rateResolver->resolve($activity, $owner));
+                    } else {
+                        $entry->recalculateCostFromSnapshot();
+                    }
+                    $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+                    $transaction->execute(
+                        static function () use ($repository, $entry): TimeEntry {
+                            $repository->save($entry, false);
 
-                return $this->redirectToRoute('app_activity_time', ['id' => $entry->getActivity()?->getId()]);
+                            return $entry;
+                        },
+                        static fn (TimeEntry $saved): AuditRecord => new AuditRecord(
+                            AuditAction::TimeEntryUpdated,
+                            $actorIdentifier,
+                            TimeEntry::class,
+                            $saved->getId(),
+                            ['activity' => $saved->getActivity()?->getTitle()],
+                            $request->getClientIp(),
+                        ),
+                    );
+                    $this->addFlash('success', 'Registrazione aggiornata.');
+
+                    return $this->redirectToRoute('app_activity_time', ['id' => $entry->getActivity()?->getId()]);
+                }
+            } finally {
+                $lock->release();
             }
         }
 

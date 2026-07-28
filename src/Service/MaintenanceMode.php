@@ -44,6 +44,7 @@ final readonly class MaintenanceMode
         }
     }
 
+    /** @phpstan-impure */
     public function isEnabled(): bool
     {
         return is_file($this->markerFile);

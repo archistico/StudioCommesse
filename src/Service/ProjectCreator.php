@@ -15,12 +15,10 @@ final readonly class ProjectCreator
     ) {
     }
 
+    /** Prepara e registra la commessa; flush e audit appartengono alla transazione chiamante. */
     public function create(Project $project): void
     {
-        $this->entityManager->wrapInTransaction(function (EntityManagerInterface $entityManager) use ($project): void {
-            $project->assignCode($this->codeGenerator->nextCode());
-            $entityManager->persist($project);
-            $entityManager->flush();
-        });
+        $project->assignCode($this->codeGenerator->nextCode());
+        $this->entityManager->persist($project);
     }
 }

@@ -7,6 +7,8 @@ param(
 $ErrorActionPreference = "Stop"
 Set-Location (Split-Path -Parent $PSScriptRoot)
 
+& (Join-Path $PSScriptRoot 'release-preflight.ps1') -Mode Install -ProjectRoot (Get-Location).Path
+
 function Require-Command([string]$Name) {
     if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
         throw "Comando richiesto non trovato: $Name"
@@ -56,29 +58,7 @@ Require-Command "composer"
 Require-Command "node"
 Require-Command "npm"
 
-$phpVersion = & php -r "echo PHP_VERSION_ID;"
-if ($LASTEXITCODE -ne 0) {
-    throw "Impossibile rilevare la versione di PHP."
-}
-if ([int]$phpVersion -lt 80400) {
-    throw "È richiesto PHP 8.4 o successivo."
-}
-
-$nodeMajor = & node -p "Number(process.versions.node.split('.')[0])"
-if ($LASTEXITCODE -ne 0) {
-    throw "Impossibile rilevare la versione di Node.js."
-}
-if ([int]$nodeMajor -lt 20) {
-    throw "È richiesto Node.js 20 o successivo."
-}
-
-$requiredExtensions = @("ctype", "fileinfo", "iconv", "mbstring", "pdo", "pdo_sqlite")
-foreach ($extension in $requiredExtensions) {
-    & php -r "exit(extension_loaded('$extension') ? 0 : 1);"
-    if ($LASTEXITCODE -ne 0) {
-        throw "Estensione PHP richiesta non disponibile: $extension"
-    }
-}
+Invoke-Checked -Command "php" -Arguments @("scripts/php-runtime-contract.php")
 
 if (-not (Test-Path ".env.local")) {
     $secret = & php -r "echo bin2hex(random_bytes(32));"
@@ -109,7 +89,7 @@ if (Test-Path "package-lock.json") {
 Invoke-Checked -Command "npm" -Arguments @("run", "build")
 Invoke-Checked -Command "npm" -Arguments @("test")
 
-# Eseguiamo i controlli Symfony in modo esplicito dopo l’installazione Composer.
+# Eseguiamo i controlli Symfony in modo esplicito dopo l'installazione Composer.
 # In questo modo un errore di configurazione viene attribuito al comando corretto
 # invece di apparire come errore generico di uno script post-install.
 Invoke-Checked -Command "php" -Arguments @("scripts/doctrine-config-contract.php")

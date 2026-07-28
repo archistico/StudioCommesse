@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Enum\ProjectStatus;
-use App\Enum\UserRole;
 use App\Repository\ActivityRepository;
-use App\Repository\ClientRepository;
+use App\Repository\DashboardRepository;
 use App\Repository\ProjectRepository;
-use App\Repository\UserRepository;
+use App\Repository\TimeEntryRepository;
+use DateTimeImmutable;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -20,28 +19,32 @@ final class DashboardController extends AbstractController
 {
     #[Route('/dashboard', name: 'app_dashboard', methods: ['GET'])]
     public function __invoke(
+        DashboardRepository $dashboardRepository,
         ProjectRepository $projectRepository,
         ActivityRepository $activityRepository,
-        ClientRepository $clientRepository,
-        UserRepository $userRepository,
+        TimeEntryRepository $timeEntryRepository,
     ): Response {
-        $userStatistics = [
-            'activeUsers' => $userRepository->countActiveUsers(),
-            'activePartners' => $userRepository->countActiveByRole(UserRole::Partner),
-            'activeCollaborators' => $userRepository->countActiveByRole(UserRole::Collaborator),
-        ];
+        $currentMonth = new DateTimeImmutable('first day of this month midnight');
+        $summary = $dashboardRepository->summarize($currentMonth, $currentMonth->modify('+1 month'));
 
         return $this->render('dashboard/index.html.twig', [
             'project_statistics' => [
-                'open' => $projectRepository->countOpenProjects(),
-                'waiting' => $projectRepository->countByStatus(ProjectStatus::Waiting),
-                'overdue' => $projectRepository->countOverdue(),
-                'clients' => $clientRepository->countActiveClients(),
-                'openActivities' => $activityRepository->countOpen(),
-                'overdueActivities' => $activityRepository->countOverdue(),
+                'open' => $summary->openProjects,
+                'waiting' => $summary->waitingProjects,
+                'overdue' => $summary->overdueProjects,
+                'clients' => $summary->activeClients,
+                'openActivities' => $summary->openActivities,
+                'overdueActivities' => $summary->overdueActivities,
+                'workedMinutes' => $summary->workedMinutes,
             ],
             'recent_projects' => $projectRepository->findRecentActive(),
-            'user_statistics' => $userStatistics,
+            'recent_activities' => $activityRepository->findRecentlyUpdated(),
+            'recent_time_entries' => $timeEntryRepository->findRecentlyUpdated(),
+            'user_statistics' => [
+                'activeUsers' => $summary->activeUsers,
+                'activePartners' => $summary->activePartners,
+                'activeCollaborators' => $summary->activeCollaborators,
+            ],
         ]);
     }
 }

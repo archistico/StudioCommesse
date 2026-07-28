@@ -52,7 +52,7 @@ final class AttachmentStorageTest extends TestCase
         }
 
         $eicar = $this->temporaryDirectory.'/nota.txt';
-        file_put_contents($eicar, 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*');
+        file_put_contents($eicar, "Fixture innocua: EICAR-STANDARD-ANTIVIRUS-TEST-\nFILE");
 
         $this->expectException(AttachmentValidationException::class);
         $this->expectExceptionMessage('controllo di sicurezza');
@@ -82,6 +82,33 @@ final class AttachmentStorageTest extends TestCase
         $this->expectException(AttachmentValidationException::class);
         $this->expectExceptionMessage('10 MiB');
         $storage->store(new UploadedFile($large, 'large.txt', 'text/plain', null, true));
+    }
+
+
+    public function testQuarantineCanBeRestoredOrPurgedWithoutLeavingActiveFiles(): void
+    {
+        $source = $this->temporaryDirectory.'/documento.pdf';
+        file_put_contents($source, "%PDF-1.4
+%%EOF
+");
+        $storage = new AttachmentStorage($this->storageDirectory);
+        $stored = $storage->store(new UploadedFile($source, 'documento.pdf', 'application/pdf', null, true));
+        $activePath = $storage->resolve($stored->storageKey);
+
+        $quarantined = $storage->quarantine($stored->storageKey);
+        self::assertNotNull($quarantined);
+        self::assertFileDoesNotExist($activePath);
+        self::assertFileExists($quarantined->quarantinePath);
+
+        $storage->restore($quarantined);
+        self::assertFileExists($activePath);
+        self::assertFileDoesNotExist($quarantined->quarantinePath);
+
+        $quarantinedAgain = $storage->quarantine($stored->storageKey);
+        self::assertNotNull($quarantinedAgain);
+        $storage->purge($quarantinedAgain);
+        self::assertFileDoesNotExist($activePath);
+        self::assertFileDoesNotExist($quarantinedAgain->quarantinePath);
     }
 
     protected function tearDown(): void

@@ -42,6 +42,36 @@ final class ControlDashboardTest extends DatabaseWebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorExists(sprintf('select[name="client"] option[value="%d"][selected]', $client->getId()));
         self::assertSelectorExists('input[name="from"][value="2026-01-01"]');
+
+        $this->client->request('GET', '/controllo?reset=1');
+        self::assertResponseRedirects('/controllo');
+        $this->client->followRedirect();
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('select[name="client"] option[value=""][selected]');
+        self::assertSelectorExists('select[name="sort"] option[value="criticality"][selected]');
+    }
+
+    public function testUnknownQueryParametersDoNotResetStoredFiltersAndExplicitEmptyValuesClearOnlyTheirFilter(): void
+    {
+        $partner = $this->createUser('filtri-estranei', UserRole::Partner);
+        $client = $this->createCustomer('Cliente filtri estranei');
+        $this->createProject($client, $partner, 'Commessa filtri estranei');
+        $this->client->loginUser($partner);
+
+        $this->client->request('GET', sprintf('/controllo?client=%d&from=2026-01-01&to=2026-07-31&sort=code&direction=asc', $client->getId()));
+        self::assertResponseIsSuccessful();
+
+        $this->client->request('GET', '/controllo?utm_source=test');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists(sprintf('select[name="client"] option[value="%d"][selected]', $client->getId()));
+        self::assertSelectorExists('input[name="from"][value="2026-01-01"]');
+        self::assertSelectorExists('select[name="sort"] option[value="code"][selected]');
+
+        $this->client->request('GET', '/controllo?client=');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('select[name="client"] option[value=""][selected]');
+        self::assertSelectorExists('input[name="from"][value="2026-01-01"]');
+        self::assertSelectorExists('select[name="sort"] option[value="code"][selected]');
     }
 
     public function testProjectClosurePanelIsVisibleOnlyToPartners(): void

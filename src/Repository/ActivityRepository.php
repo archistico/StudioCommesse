@@ -96,6 +96,25 @@ final class ActivityRepository extends ServiceEntityRepository
         return $result;
     }
 
+
+    /** @return list<Activity> */
+    public function findRecentlyUpdated(int $limit = 8): array
+    {
+        $result = $this->createQueryBuilder('activity')
+            ->addSelect('project', 'client', 'assignee')
+            ->join('activity.project', 'project')
+            ->join('project.client', 'client')
+            ->join('activity.assignee', 'assignee')
+            ->andWhere('project.archivedAt IS NULL')
+            ->orderBy('activity.updatedAt', 'DESC')
+            ->setMaxResults(max(1, $limit))
+            ->getQuery()
+            ->getResult();
+
+        /** @var list<Activity> $result */
+        return $result;
+    }
+
     public function countOpen(): int
     {
         return (int) $this->createQueryBuilder('activity')

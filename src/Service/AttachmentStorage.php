@@ -57,8 +57,11 @@ final readonly class AttachmentStorage
         }
 
         $finfo = new \finfo(FILEINFO_MIME_TYPE);
-        $mimeType = $finfo->file($source);
-        if (!is_string($mimeType) || !in_array($mimeType, self::ALLOWED_MIME_TYPES[$extension], true)) {
+        $mimeType = @$finfo->file($source);
+        if (!is_string($mimeType)) {
+            throw new AttachmentValidationException('Il file è stato rifiutato perché non ha superato il controllo di sicurezza.');
+        }
+        if (!in_array($mimeType, self::ALLOWED_MIME_TYPES[$extension], true)) {
             throw new AttachmentValidationException(sprintf('Il contenuto del file non corrisponde all’estensione .%s.', $extension));
         }
 
@@ -98,6 +101,39 @@ final readonly class AttachmentStorage
         $path = $this->absolutePath($storageKey);
         if (is_file($path) && !unlink($path)) {
             throw new \RuntimeException('Impossibile eliminare il file dallo spazio documentale.');
+        }
+    }
+
+    public function quarantine(string $storageKey): ?QuarantinedAttachment
+    {
+        $originalPath = $this->absolutePath($storageKey);
+        if (!is_file($originalPath)) {
+            return null;
+        }
+
+        $trashDirectory = dirname(rtrim($this->storageDirectory, '/\\')).DIRECTORY_SEPARATOR.'attachment-trash';
+        $this->ensureDirectory($trashDirectory);
+        $quarantinePath = $trashDirectory.DIRECTORY_SEPARATOR.bin2hex(random_bytes(16)).'.pending-delete';
+
+        if (!rename($originalPath, $quarantinePath)) {
+            throw new \RuntimeException('Impossibile mettere in sicurezza il file prima dell’eliminazione.');
+        }
+
+        return new QuarantinedAttachment($storageKey, $originalPath, $quarantinePath);
+    }
+
+    public function restore(QuarantinedAttachment $quarantined): void
+    {
+        $this->ensureDirectory(dirname($quarantined->originalPath));
+        if (is_file($quarantined->quarantinePath) && !rename($quarantined->quarantinePath, $quarantined->originalPath)) {
+            throw new \RuntimeException('Impossibile ripristinare il file dopo l’annullamento dell’operazione.');
+        }
+    }
+
+    public function purge(QuarantinedAttachment $quarantined): void
+    {
+        if (is_file($quarantined->quarantinePath) && !unlink($quarantined->quarantinePath)) {
+            throw new \RuntimeException('Impossibile eliminare definitivamente il file in quarantena.');
         }
     }
 
@@ -142,7 +178,9 @@ final readonly class AttachmentStorage
             throw new AttachmentValidationException('Impossibile verificare il contenuto del file.');
         }
 
-        if (str_contains($header, 'EICAR-STANDARD-ANTIVIRUS-TEST-FILE')) {
+        if (str_contains($header, 'EICAR-STANDARD-ANTIVIRUS-TEST-FILE')
+            || 1 === preg_match('/EICAR-STANDARD-ANTIVIRUS-TEST-\s+FILE/', $header)
+        ) {
             throw new AttachmentValidationException('Il file è stato rifiutato dal controllo di sicurezza.');
         }
         if (str_starts_with($header, 'MZ') || str_starts_with($header, "\x7fELF")) {

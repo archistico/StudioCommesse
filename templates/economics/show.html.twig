@@ -44,7 +44,7 @@
             <div class="card-header"><h3 class="card-title">{{ is_partner_view ? 'Spese' : 'Le mie spese' }}</h3></div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
-                    <thead><tr><th>Data</th><th>Descrizione</th><th>Registrata da</th><th>Importo</th></tr></thead>
+                    <thead><tr><th scope="col">Data</th><th scope="col">Descrizione</th><th scope="col">Registrata da</th><th scope="col">Importo</th></tr></thead>
                     <tbody>
                     {% for expense in expenses %}
                         <tr>
@@ -70,13 +70,13 @@
                 <div class="card-header"><h3 class="card-title">Incassi</h3></div>
                 <div class="table-responsive">
                     <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
-                        <thead><tr><th>Data</th><th>Descrizione</th><th>Registrato da</th><th>Importo</th></tr></thead>
+                        <thead><tr><th scope="col">Data</th><th scope="col">Descrizione</th><th scope="col">Registrato da</th><th scope="col">Importo</th></tr></thead>
                         <tbody>
                         {% for payment in payments %}
                             <tr>
                                 <td data-order="{{ payment.paidOn|date('Y-m-d') }}">{{ payment.paidOn|date('d/m/Y') }}</td>
                                 <td>
-                                    <a class="fw-semibold" href="{{ path('app_payment_edit', {id: payment.id}) }}">{{ payment.description ?: payment.method }}</a>
+                                    {% if project.archived %}<span class="fw-semibold">{{ payment.description ?: payment.method }}</span>{% else %}<a class="fw-semibold" href="{{ path('app_payment_edit', {id: payment.id}) }}">{{ payment.description ?: payment.method }}</a>{% endif %}
                                     <div class="small text-secondary">{{ payment.method }}{% if payment.reference %} · {{ payment.reference }}{% endif %}</div>
                                 </td>
                                 <td>{{ payment.recordedBy.displayName }}</td>

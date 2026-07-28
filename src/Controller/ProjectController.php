@@ -18,7 +18,8 @@ use App\Repository\ProjectRepository;
 use App\Repository\TimeEntryRepository;
 use App\Repository\UserRepository;
 use App\Security\Voter\ProjectVoter;
-use App\Service\AuditLogger;
+use App\Service\AuditRecord;
+use App\Service\AuditedTransaction;
 use App\Service\ProjectControlService;
 use App\Service\ProjectCreator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -65,26 +66,33 @@ final class ProjectController extends AbstractController
     public function new(
         Request $request,
         ProjectCreator $projectCreator,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $project = new Project();
         $form = $this->createForm(ProjectType::class, $project, ['allow_administration' => true]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $projectCreator->create($project);
-            $auditLogger->log(
-                AuditAction::ProjectCreated,
-                $this->requireCurrentUser()->getUserIdentifier(),
-                Project::class,
-                $project->getId(),
-                [
-                    'code' => $project->getCode(),
-                    'name' => $project->getName(),
-                    'client_id' => $project->getClient()?->getId(),
-                    'responsible_id' => $project->getResponsible()?->getId(),
-                ],
-                $request->getClientIp(),
+            $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+            $transaction->execute(
+                static function () use ($projectCreator, $project): Project {
+                    $projectCreator->create($project);
+
+                    return $project;
+                },
+                static fn (Project $saved): AuditRecord => new AuditRecord(
+                    AuditAction::ProjectCreated,
+                    $actorIdentifier,
+                    Project::class,
+                    $saved->getId(),
+                    [
+                        'code' => $saved->getCode(),
+                        'name' => $saved->getName(),
+                        'client_id' => $saved->getClient()?->getId(),
+                        'responsible_id' => $saved->getResponsible()?->getId(),
+                    ],
+                    $request->getClientIp(),
+                ),
             );
             $this->addFlash('success', sprintf('Commessa %s creata correttamente.', $project->getCode()));
 
@@ -128,7 +136,7 @@ final class ProjectController extends AbstractController
         Project $project,
         Request $request,
         ProjectRepository $projectRepository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $this->denyAccessUnlessGranted(ProjectVoter::EDIT, $project);
         $allowAdministration = $this->isGranted('ROLE_PARTNER');
@@ -144,26 +152,33 @@ final class ProjectController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $projectRepository->save($project, true);
-            $auditLogger->log(
-                AuditAction::ProjectUpdated,
-                $this->requireCurrentUser()->getUserIdentifier(),
-                Project::class,
-                $project->getId(),
-                [
-                    'code' => $project->getCode(),
-                    'previous_name' => $previous['name'],
-                    'name' => $project->getName(),
-                    'previous_status' => $previous['status'],
-                    'status' => $project->getStatus()->value,
-                    'previous_priority' => $previous['priority'],
-                    'priority' => $project->getPriority()->value,
-                    'previous_client_id' => $previous['client_id'],
-                    'client_id' => $project->getClient()?->getId(),
-                    'previous_responsible_id' => $previous['responsible_id'],
-                    'responsible_id' => $project->getResponsible()?->getId(),
-                ],
-                $request->getClientIp(),
+            $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+            $transaction->execute(
+                static function () use ($projectRepository, $project): Project {
+                    $projectRepository->save($project, false);
+
+                    return $project;
+                },
+                static fn (Project $saved): AuditRecord => new AuditRecord(
+                    AuditAction::ProjectUpdated,
+                    $actorIdentifier,
+                    Project::class,
+                    $saved->getId(),
+                    [
+                        'code' => $saved->getCode(),
+                        'previous_name' => $previous['name'],
+                        'name' => $saved->getName(),
+                        'previous_status' => $previous['status'],
+                        'status' => $saved->getStatus()->value,
+                        'previous_priority' => $previous['priority'],
+                        'priority' => $saved->getPriority()->value,
+                        'previous_client_id' => $previous['client_id'],
+                        'client_id' => $saved->getClient()?->getId(),
+                        'previous_responsible_id' => $previous['responsible_id'],
+                        'responsible_id' => $saved->getResponsible()?->getId(),
+                    ],
+                    $request->getClientIp(),
+                ),
             );
             $this->addFlash('success', 'Commessa aggiornata correttamente.');
 
@@ -185,20 +200,27 @@ final class ProjectController extends AbstractController
         Project $project,
         Request $request,
         ProjectRepository $projectRepository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $this->validateCsrf('archive_project_'.$project->getId(), $request);
 
         try {
-            $project->archive();
-            $projectRepository->save($project, true);
-            $auditLogger->log(
-                AuditAction::ProjectArchived,
-                $this->requireCurrentUser()->getUserIdentifier(),
-                Project::class,
-                $project->getId(),
-                ['code' => $project->getCode()],
-                $request->getClientIp(),
+            $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+            $transaction->execute(
+                static function () use ($project, $projectRepository): Project {
+                    $project->archive();
+                    $projectRepository->save($project, false);
+
+                    return $project;
+                },
+                static fn (Project $saved): AuditRecord => new AuditRecord(
+                    AuditAction::ProjectArchived,
+                    $actorIdentifier,
+                    Project::class,
+                    $saved->getId(),
+                    ['code' => $saved->getCode()],
+                    $request->getClientIp(),
+                ),
             );
             $this->addFlash('success', 'Commessa archiviata.');
         } catch (\DomainException $exception) {
@@ -214,20 +236,27 @@ final class ProjectController extends AbstractController
         Project $project,
         Request $request,
         ProjectRepository $projectRepository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $this->validateCsrf('restore_project_'.$project->getId(), $request);
 
         try {
-            $project->restore();
-            $projectRepository->save($project, true);
-            $auditLogger->log(
-                AuditAction::ProjectRestored,
-                $this->requireCurrentUser()->getUserIdentifier(),
-                Project::class,
-                $project->getId(),
-                ['code' => $project->getCode()],
-                $request->getClientIp(),
+            $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+            $transaction->execute(
+                static function () use ($project, $projectRepository): Project {
+                    $project->restore();
+                    $projectRepository->save($project, false);
+
+                    return $project;
+                },
+                static fn (Project $saved): AuditRecord => new AuditRecord(
+                    AuditAction::ProjectRestored,
+                    $actorIdentifier,
+                    Project::class,
+                    $saved->getId(),
+                    ['code' => $saved->getCode()],
+                    $request->getClientIp(),
+                ),
             );
             $this->addFlash('success', 'Commessa ripristinata.');
         } catch (\DomainException $exception) {

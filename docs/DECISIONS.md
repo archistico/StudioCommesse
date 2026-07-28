@@ -159,3 +159,11 @@ Ogni milestone richiede ZIP completo, documentazione aggiornata, test, analisi s
 - gli indicatori mensili sono storici per i movimenti, mentre stato, avanzamento e residuo delle attività sono proiezioni correnti esplicitamente dichiarate;
 - il CSV esporta il dettaglio ore in UTF-8 con separatore `;`;
 - M8 non introduce nuovi campi o migrazioni.
+
+## D017 – Ore dashboard riferite al mese corrente
+
+- la card `Ore effettuate` usa soltanto registrazioni concluse;
+- l’attribuzione mensile segue la data di inizio della registrazione, come nel report mensile;
+- l’intervallo è chiuso a sinistra e aperto a destra: dal primo giorno del mese incluso al primo giorno del mese successivo escluso;
+- timer aperti e registrazioni iniziate nei mesi precedenti non contribuiscono al totale;
+- le ore pianificate non sono più mostrate in dashboard e il relativo aggregato inutilizzato viene rimosso.

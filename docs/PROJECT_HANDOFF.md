@@ -2,52 +2,35 @@
 
 ## Stato autoritativo
 
-- ultima baseline validata: **M9.1 Hotfix 3 corretta**;
-- archivio baseline: `StudioCommesse_M9.1_Hotfix3_Corretto.zip`;
-- validazione confermata: `M9.1 HOTFIX 2 VALIDATION PASSED`;
-- risultato baseline: **171 test e 1.631 asserzioni**;
-- candidate corrente: **M9.2-A `0.9.2-M9.2-A-HF1`**;
-- archivio candidate atteso: `StudioCommesse_M9.2-A_Hotfix1_PowerShell_Parser.zip`;
-- gate richiesto: `M9.2-A HOTFIX 1 VALIDATION PASSED`.
+- ultima baseline validata: **M9.2-G `0.9.2-M9.2-G`**;
+- risultato baseline: **235 test**, PHPStan senza errori, benchmark 30/200/600 entro budget e gate `M9.2-G VALIDATION PASSED`;
+- archivio baseline: `StudioCommesse_M9.2-G_Performance_Capacity_Fix3.zip`;
+- candidate corrente: **M9.2-H PHPStan Fix 1 `0.9.2-M9.2-H`**;
+- archivio candidate: `StudioCommesse_M9.2-H_Accessibility_Security_Manuals_Fix1.zip`;
+- gate richiesto: `M9.2-H VALIDATION PASSED`;
+- suite attesa: **244 test**, PHPStan senza errori e benchmark 30/200/600 entro budget.
 
-## Correzioni autoritative già presenti nella baseline
+## Contenuto M9.2-H
 
-- contratto PHP delle versioni di migrazione senza interpolazione accidentale di `$databasePath`;
-- contratto del backup di sicurezza senza interpolazione accidentale di `$safetyBackupDirectory`;
-- nota del filtro Attività come testo normale a larghezza piena;
-- colonna `Dovuto` nell’elenco Clienti visibile esclusivamente ai soci;
-- pulsante `Riepilogo dovuti` verso Economia;
-- dovuto calcolato come `max(0, preventivo - incassi)` sulle commesse attive del cliente;
-- dati economici non esposti ai collaboratori.
+- login throttling Symfony: 5 fallimenti per combinazione utenza/IP in un’ora, più limite globale IP;
+- nuovo evento audit `security.login_throttled`;
+- tentativi falliti pseudonimizzati con impronta HMAC, senza nome utente in chiaro né ristampa nel form;
+- log JSON minimizzati: impronte attore/IP e soli nomi dei campi di dettaglio;
+- intestazioni CSP, HSTS su HTTPS, no-referrer, anti-frame, no-sniff, permissions policy e cache no-store;
+- cookie di sessione HttpOnly, Secure automatico e SameSite Strict;
+- skip link, landmark, `aria-current`, intestazioni tabella con scope, focus visibile e riduzione animazioni;
+- comportamento responsive consolidato per azioni, tabelle e contenuti stretti;
+- manuali utente, amministratore, sicurezza e accessibilità;
+- nessuna migrazione, nuova rotta o dipendenza.
 
-## M9.2-A candidate
-
-- nessuna nuova funzionalità di dominio;
-- versione e documentazione riallineate alla baseline reale;
-- `.env.local` escluso dai pacchetti di distribuzione;
-- aggiunto `scripts/package-release.ps1` per creare e verificare uno ZIP pulito;
-- esclusi dati runtime, backup, database, allegati, log, cache, dipendenze installate e asset generati;
-- aggiunti contratto statico, test e smoke test di packaging nel gate;
-- nessuna migrazione e nessuna nuova dipendenza.
-
-## Comandi ordinari
+## Comandi
 
 ```powershell
 .\scripts\setup.ps1 -SkipPartnerBootstrap
 .\scripts\validate.ps1
-.\scripts\load-fixtures.ps1
-```
-
-## Creazione pacchetto
-
-```powershell
 .\scripts\package-release.ps1
 ```
 
 ## Passo successivo dopo la validazione
 
-M9.2-B: audit completo di autorizzazioni e riservatezza.
-
-## M9.2-A Hotfix 1
-
-Corregge esclusivamente la sintassi PowerShell del ciclo ricorsivo in `package-release.ps1`; nessuna funzione applicativa è stata modificata. Gate: `M9.2-A HOTFIX 1 VALIDATION PASSED`.
+Procedere con M9.3: Release Candidate 1.0, blocco funzionale e collaudo completo.

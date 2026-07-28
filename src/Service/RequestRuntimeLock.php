@@ -18,6 +18,11 @@ final readonly class RequestRuntimeLock
         return $this->manager->acquireShared();
     }
 
+    public function tryAcquireShared(): ?FileLock
+    {
+        return $this->manager->tryAcquireShared();
+    }
+
     public function acquireExclusive(): FileLock
     {
         return $this->manager->acquireExclusive();

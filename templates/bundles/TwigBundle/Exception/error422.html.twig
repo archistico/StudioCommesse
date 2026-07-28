@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dati non validi · {{ app_name }}{% endblock %}
+{% block body_class %}d-flex flex-column{% endblock %}
+
+{% block body %}
+<main class="page page-center" id="main-content" tabindex="-1">
+    <div class="container-tight py-4 text-center">
+        <div class="empty">
+            <div class="empty-header">422</div>
+            <p class="empty-title">Dati non validi</p>
+            <p class="empty-subtitle text-secondary">La richiesta è stata compresa, ma i dati non possono essere applicati.</p>
+            <div class="empty-action"><a href="{{ path('app_dashboard') }}" class="btn btn-primary">Torna alla dashboard</a></div>
+        </div>
+    </div>
+</main>
+{% endblock %}

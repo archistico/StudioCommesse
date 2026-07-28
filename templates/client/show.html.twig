@@ -51,7 +51,7 @@
             </div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
-                    <thead><tr><th>Codice</th><th>Commessa</th><th>Responsabile</th><th>Stato</th></tr></thead>
+                    <thead><tr><th scope="col">Codice</th><th scope="col">Commessa</th><th scope="col">Responsabile</th><th scope="col">Stato</th></tr></thead>
                     <tbody>
                     {% for project in projects %}
                         <tr class="{{ project.archived ? 'text-secondary' : '' }}">

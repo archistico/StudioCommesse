@@ -15,6 +15,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ORM\Table(name: 'time_entry')]
 #[ORM\Index(columns: ['activity_id', 'started_at'], name: 'idx_time_entry_activity_started')]
 #[ORM\Index(columns: ['user_id', 'started_at'], name: 'idx_time_entry_user_started')]
+#[ORM\Index(columns: ['started_at', 'ended_at'], name: 'idx_time_entry_started_ended')]
+#[ORM\Index(columns: ['updated_at'], name: 'idx_time_entry_updated_at')]
 #[ORM\HasLifecycleCallbacks]
 class TimeEntry
 {

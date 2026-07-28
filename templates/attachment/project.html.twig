@@ -61,7 +61,7 @@
     <div class="card-header"><h3 class="card-title">Archivio documentale</h3><span class="badge bg-blue-lt ms-auto">{{ attachments|length }}</span></div>
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
-            <thead><tr><th>Documento</th><th>Attività</th><th>Classificazione</th><th>Caricato da</th><th>Data</th><th>Dimensione</th></tr></thead>
+            <thead><tr><th scope="col">Documento</th><th scope="col">Attività</th><th scope="col">Classificazione</th><th scope="col">Caricato da</th><th scope="col">Data</th><th scope="col">Dimensione</th></tr></thead>
             <tbody>
             {% for attachment in attachments %}
                 <tr>

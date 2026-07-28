@@ -69,7 +69,7 @@ Questi controlli riducono il rischio ma non sostituiscono un motore antivirus ce
 
 ## Installazione e backup
 
-`setup.ps1`, `setup.sh` e `validate.ps1` controllano l’estensione PHP `fileinfo` e la scrivibilità dello spazio documentale. Il server PHP integrato avviato da `start-server.ps1` imposta `upload_max_filesize=10M` e `post_max_size=12M`; su IIS, Apache o altri server gli stessi limiti devono essere configurati nel relativo `php.ini`.
+`setup.ps1`, `setup.sh` e `validate.ps1` eseguono prima `scripts/php-runtime-contract.php`, che controlla PHP 8.4+, `fileinfo` e le altre estensioni richieste. Se `fileinfo` manca su Windows, il diagnostico mostra il `php.ini` caricato dalla CLI, `extension_dir` e la presenza di `php_fileinfo.dll`. Nel file indicato va abilitata `extension=fileinfo`; dopo aver riaperto il terminale verificare con `php --ini` e `php -m | Select-String -Pattern '^fileinfo$'`. La scrivibilità dello spazio documentale viene controllata soltanto dopo il superamento del preflight. Il server PHP integrato avviato da `start-server.ps1` imposta `upload_max_filesize=10M` e `post_max_size=12M`; su IIS, Apache o altri server gli stessi limiti devono essere configurati nel relativo `php.ini`.
 
 Il backup applicativo deve includere insieme:
 

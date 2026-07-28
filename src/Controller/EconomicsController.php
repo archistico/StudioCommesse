@@ -15,7 +15,8 @@ use App\Repository\ExpenseRepository;
 use App\Repository\PaymentRepository;
 use App\Repository\ProjectRepository;
 use App\Security\Voter\ExpenseVoter;
-use App\Service\AuditLogger;
+use App\Service\AuditRecord;
+use App\Service\AuditedTransaction;
 use App\Service\ProjectFinancialService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -84,7 +85,7 @@ final class EconomicsController extends AbstractController
         Project $project,
         Request $request,
         ExpenseRepository $repository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         if ($project->isArchived()) {
             throw $this->createAccessDeniedException('Le spese di una commessa archiviata sono in sola lettura.');
@@ -92,7 +93,7 @@ final class EconomicsController extends AbstractController
 
         $expense = (new Expense())->setProject($project)->setRecordedBy($this->requireCurrentUser());
 
-        return $this->handleExpenseForm($expense, $project, $request, $repository, $auditLogger, true);
+        return $this->handleExpenseForm($expense, $project, $request, $repository, $transaction, true);
     }
 
     #[Route('/spesa/{id}/modifica', name: 'app_expense_edit', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
@@ -100,7 +101,7 @@ final class EconomicsController extends AbstractController
         Expense $expense,
         Request $request,
         ExpenseRepository $repository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $project = $expense->getProject();
         if (!$project instanceof Project) {
@@ -108,7 +109,7 @@ final class EconomicsController extends AbstractController
         }
         $this->denyAccessUnlessGranted(ExpenseVoter::MANAGE, $expense);
 
-        return $this->handleExpenseForm($expense, $project, $request, $repository, $auditLogger, false);
+        return $this->handleExpenseForm($expense, $project, $request, $repository, $transaction, false);
     }
 
     #[Route('/spesa/{id}/elimina', name: 'app_expense_delete', requirements: ['id' => '\\d+'], methods: ['POST'])]
@@ -116,7 +117,7 @@ final class EconomicsController extends AbstractController
         Expense $expense,
         Request $request,
         ExpenseRepository $repository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $project = $expense->getProject();
         if (!$project instanceof Project) {
@@ -126,14 +127,21 @@ final class EconomicsController extends AbstractController
         $this->validateCsrf('delete_expense_'.$expense->getId(), $request);
 
         $id = $expense->getId();
-        $repository->remove($expense, true);
-        $auditLogger->log(
-            AuditAction::ExpenseDeleted,
-            $this->requireCurrentUser()->getUserIdentifier(),
-            Expense::class,
-            $id,
-            ['project' => $project->getCode()],
-            $request->getClientIp(),
+        $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+        $transaction->execute(
+            static function () use ($repository, $expense): ?int {
+                $repository->remove($expense, false);
+
+                return $expense->getId();
+            },
+            static fn (?int $deletedId): AuditRecord => new AuditRecord(
+                AuditAction::ExpenseDeleted,
+                $actorIdentifier,
+                Expense::class,
+                $deletedId ?? $id,
+                ['project' => $project->getCode()],
+                $request->getClientIp(),
+            ),
         );
         $this->addFlash('success', 'Spesa eliminata.');
 
@@ -146,11 +154,12 @@ final class EconomicsController extends AbstractController
         Project $project,
         Request $request,
         PaymentRepository $repository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
+        $this->denyIfProjectArchived($project, 'Gli incassi di una commessa archiviata sono in sola lettura.');
         $payment = (new Payment())->setProject($project)->setRecordedBy($this->requireCurrentUser());
 
-        return $this->handlePaymentForm($payment, $project, $request, $repository, $auditLogger, true);
+        return $this->handlePaymentForm($payment, $project, $request, $repository, $transaction, true);
     }
 
     #[Route('/incasso/{id}/modifica', name: 'app_payment_edit', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
@@ -159,14 +168,16 @@ final class EconomicsController extends AbstractController
         Payment $payment,
         Request $request,
         PaymentRepository $repository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $project = $payment->getProject();
         if (!$project instanceof Project) {
             throw new \LogicException('L’incasso non è associato a una commessa.');
         }
 
-        return $this->handlePaymentForm($payment, $project, $request, $repository, $auditLogger, false);
+        $this->denyIfProjectArchived($project, 'Gli incassi di una commessa archiviata sono in sola lettura.');
+
+        return $this->handlePaymentForm($payment, $project, $request, $repository, $transaction, false);
     }
 
     #[Route('/incasso/{id}/elimina', name: 'app_payment_delete', requirements: ['id' => '\\d+'], methods: ['POST'])]
@@ -175,23 +186,31 @@ final class EconomicsController extends AbstractController
         Payment $payment,
         Request $request,
         PaymentRepository $repository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
     ): Response {
         $project = $payment->getProject();
         if (!$project instanceof Project) {
             throw new \LogicException('L’incasso non è associato a una commessa.');
         }
+        $this->denyIfProjectArchived($project, 'Gli incassi di una commessa archiviata sono in sola lettura.');
         $this->validateCsrf('delete_payment_'.$payment->getId(), $request);
 
         $id = $payment->getId();
-        $repository->remove($payment, true);
-        $auditLogger->log(
-            AuditAction::PaymentDeleted,
-            $this->requireCurrentUser()->getUserIdentifier(),
-            Payment::class,
-            $id,
-            ['project' => $project->getCode()],
-            $request->getClientIp(),
+        $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+        $transaction->execute(
+            static function () use ($repository, $payment): ?int {
+                $repository->remove($payment, false);
+
+                return $payment->getId();
+            },
+            static fn (?int $deletedId): AuditRecord => new AuditRecord(
+                AuditAction::PaymentDeleted,
+                $actorIdentifier,
+                Payment::class,
+                $deletedId ?? $id,
+                ['project' => $project->getCode()],
+                $request->getClientIp(),
+            ),
         );
         $this->addFlash('success', 'Incasso eliminato.');
 
@@ -203,21 +222,28 @@ final class EconomicsController extends AbstractController
         Project $project,
         Request $request,
         ExpenseRepository $repository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
         bool $isNew,
     ): Response {
         $form = $this->createForm(ExpenseType::class, $expense, ['project' => $project]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $repository->save($expense, true);
-            $auditLogger->log(
-                $isNew ? AuditAction::ExpenseCreated : AuditAction::ExpenseUpdated,
-                $this->requireCurrentUser()->getUserIdentifier(),
-                Expense::class,
-                $expense->getId(),
-                ['project' => $project->getCode(), 'amount_cents' => $expense->getAmountCents()],
-                $request->getClientIp(),
+            $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+            $transaction->execute(
+                static function () use ($repository, $expense): Expense {
+                    $repository->save($expense, false);
+
+                    return $expense;
+                },
+                static fn (Expense $saved): AuditRecord => new AuditRecord(
+                    $isNew ? AuditAction::ExpenseCreated : AuditAction::ExpenseUpdated,
+                    $actorIdentifier,
+                    Expense::class,
+                    $saved->getId(),
+                    ['project' => $project->getCode(), 'amount_cents' => $saved->getAmountCents()],
+                    $request->getClientIp(),
+                ),
             );
             $this->addFlash('success', $isNew ? 'Spesa registrata.' : 'Spesa aggiornata.');
 
@@ -238,21 +264,28 @@ final class EconomicsController extends AbstractController
         Project $project,
         Request $request,
         PaymentRepository $repository,
-        AuditLogger $auditLogger,
+        AuditedTransaction $transaction,
         bool $isNew,
     ): Response {
         $form = $this->createForm(PaymentType::class, $payment);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $repository->save($payment, true);
-            $auditLogger->log(
-                $isNew ? AuditAction::PaymentCreated : AuditAction::PaymentUpdated,
-                $this->requireCurrentUser()->getUserIdentifier(),
-                Payment::class,
-                $payment->getId(),
-                ['project' => $project->getCode(), 'amount_cents' => $payment->getAmountCents()],
-                $request->getClientIp(),
+            $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
+            $transaction->execute(
+                static function () use ($repository, $payment): Payment {
+                    $repository->save($payment, false);
+
+                    return $payment;
+                },
+                static fn (Payment $saved): AuditRecord => new AuditRecord(
+                    $isNew ? AuditAction::PaymentCreated : AuditAction::PaymentUpdated,
+                    $actorIdentifier,
+                    Payment::class,
+                    $saved->getId(),
+                    ['project' => $project->getCode(), 'amount_cents' => $saved->getAmountCents()],
+                    $request->getClientIp(),
+                ),
             );
             $this->addFlash('success', $isNew ? 'Incasso registrato.' : 'Incasso aggiornato.');
 
@@ -266,6 +299,13 @@ final class EconomicsController extends AbstractController
             'payment' => $payment,
             'is_new' => $isNew,
         ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
+    }
+
+    private function denyIfProjectArchived(Project $project, string $message): void
+    {
+        if ($project->isArchived()) {
+            throw $this->createAccessDeniedException($message);
+        }
     }
 
     private function validateCsrf(string $id, Request $request): void

@@ -14,6 +14,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ORM\Entity(repositoryClass: ExpenseRepository::class)]
 #[ORM\Table(name: 'expense')]
 #[ORM\Index(columns: ['project_id', 'spent_on'], name: 'idx_expense_project_date')]
+#[ORM\Index(columns: ['spent_on', 'project_id'], name: 'idx_expense_date_project')]
 class Expense
 {
     public const CATEGORIES = [

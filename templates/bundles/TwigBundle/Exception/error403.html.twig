@@ -4,7 +4,7 @@
 {% block body_class %}d-flex flex-column{% endblock %}
 
 {% block body %}
-<div class="page page-center">
+<main class="page page-center" id="main-content" tabindex="-1">
     <div class="container-tight py-4 text-center">
         <div class="empty">
             <div class="empty-header">403</div>
@@ -13,5 +13,5 @@
             <div class="empty-action"><a href="{{ path('app_dashboard') }}" class="btn btn-primary">Torna alla dashboard</a></div>
         </div>
     </div>
-</div>
+</main>
 {% endblock %}

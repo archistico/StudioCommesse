@@ -1,6 +1,7 @@
 {% for type, messages in app.flashes %}
+    {% set is_error = type in ['error', 'danger'] %}
     {% for message in messages %}
-        <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible" role="alert">
+        <div class="alert alert-{{ type == 'error' ? 'danger' : type }} alert-dismissible" role="{{ is_error ? 'alert' : 'status' }}" aria-live="{{ is_error ? 'assertive' : 'polite' }}">
             <div>{{ message }}</div>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Chiudi"></button>
         </div>

@@ -7,14 +7,19 @@ namespace App\EventSubscriber;
 use App\Entity\User;
 use App\Enum\AuditAction;
 use App\Service\AuditLogger;
+use App\Service\AuditPrivacyGuard;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\Security\Core\Exception\TooManyLoginAttemptsAuthenticationException;
 use Symfony\Component\Security\Http\Event\LoginFailureEvent;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 
 final readonly class SecurityAuditSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private AuditLogger $auditLogger)
-    {
+    public function __construct(
+        private AuditLogger $auditLogger,
+        private AuditPrivacyGuard $privacyGuard,
+        private int $loginLockoutMinutes,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -35,7 +40,7 @@ final readonly class SecurityAuditSubscriber implements EventSubscriberInterface
             $identifier,
             User::class,
             $user instanceof User ? $user->getId() : null,
-            [],
+            ['identifier_fingerprint' => $this->privacyGuard->loginIdentifierFingerprint($identifier)],
             $event->getRequest()->getClientIp(),
         );
     }
@@ -43,14 +48,22 @@ final readonly class SecurityAuditSubscriber implements EventSubscriberInterface
     public function onLoginFailure(LoginFailureEvent $event): void
     {
         $request = $event->getRequest();
-        $identifier = $request->request->getString('_username');
+        $identifier = mb_strtolower(trim($request->request->getString('_username')));
+        $throttled = $event->getException() instanceof TooManyLoginAttemptsAuthenticationException;
+        $details = [
+            'failure_category' => $throttled ? 'temporarily_throttled' : 'credentials_rejected',
+            'identifier_fingerprint' => $this->privacyGuard->loginIdentifierFingerprint($identifier),
+        ];
+        if ($throttled) {
+            $details['lockout_minutes'] = $this->loginLockoutMinutes;
+        }
 
         $this->auditLogger->log(
-            AuditAction::LoginFailed,
-            '' !== $identifier ? mb_strtolower(trim($identifier)) : null,
+            $throttled ? AuditAction::LoginThrottled : AuditAction::LoginFailed,
             null,
             null,
-            ['reason' => $event->getException()->getMessageKey()],
+            null,
+            $details,
             $request->getClientIp(),
         );
     }

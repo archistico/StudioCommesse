@@ -61,8 +61,7 @@ final class TimeEntryReportingTest extends DatabaseWebTestCase
         $this->client->request('GET', '/attivita?assignee=me');
 
         self::assertResponseIsSuccessful();
-        $form = $this->client->getCrawler()->selectButton('Mostra')->form();
-        self::assertSame('me', $form->get('assignee')->getValue());
+        self::assertSelectorExists('select[name="assignee"] option[value="me"][selected]');
         self::assertSelectorTextContains('table', $activity->getTitle());
     }
 

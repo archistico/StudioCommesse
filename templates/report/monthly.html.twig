@@ -6,7 +6,8 @@
 <div class="btn-list">
     <a class="btn btn-outline-secondary" href="{{ path('app_monthly_report', {month: previous_month, project: selected_project ? selected_project.id : null}) }}">Mese precedente</a>
     <a class="btn btn-outline-secondary" href="{{ path('app_monthly_report', {month: next_month, project: selected_project ? selected_project.id : null}) }}">Mese successivo</a>
-    <a class="btn btn-success" href="{{ path('app_monthly_report_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">Esporta CSV</a>
+    <a class="btn btn-outline-success" href="{{ path('app_monthly_report_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">CSV dettaglio ore</a>
+    <a class="btn btn-success" href="{{ path('app_monthly_report_users_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">CSV riepilogo utenti</a>
 </div>
 {% endblock %}
 
@@ -48,7 +49,7 @@
     <div class="card-header"><h3 class="card-title">Andamento per commessa</h3><div class="small text-secondary ms-auto">Lo stato e l’avanzamento sono quelli correnti; ore e movimenti appartengono al mese selezionato.</div></div>
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-page-length="25">
-            <thead><tr><th>Commessa</th><th>Stato corrente</th><th>Attività</th><th>Ore mese</th><th>Movimenti</th><th>Economia mese</th><th>Ultimo movimento</th></tr></thead>
+            <thead><tr><th scope="col">Commessa</th><th scope="col">Stato corrente</th><th scope="col">Attività</th><th scope="col">Ore mese</th><th scope="col">Movimenti</th><th scope="col">Economia mese</th><th scope="col">Ultimo movimento</th></tr></thead>
             <tbody>
             {% for row in report.projects %}
                 <tr class="{{ row.hasMovement ? '' : 'text-secondary' }}">
@@ -68,11 +69,41 @@
     </div>
 </div>
 
+<div class="card mb-3" data-monthly-user-cost-summary>
+    <div class="card-header">
+        <div>
+            <h3 class="card-title">Riepilogo ore e costi per utente</h3>
+            <div class="small text-secondary">Il costo standard usa la tariffa attuale dell’utente; il costo storico usa le tariffe congelate sulle registrazioni concluse.</div>
+        </div>
+        <a class="btn btn-sm btn-outline-success ms-auto d-print-none" href="{{ path('app_monthly_report_users_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">Esporta riepilogo</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+            <thead><tr><th scope="col">Utente</th><th scope="col">Registrazioni</th><th scope="col">Ore registrate</th><th scope="col">Tariffa standard attuale</th><th scope="col">Costo standard teorico</th><th scope="col">Costo storico effettivo</th><th scope="col">Scostamento</th></tr></thead>
+            <tbody>
+            {% for row in report.userCosts %}
+                <tr>
+                    <td><span class="fw-semibold">{{ row.userName }}</span>{% if not row.active %}<div><span class="badge bg-secondary-lt">Utente disattivato</span></div>{% endif %}</td>
+                    <td data-order="{{ row.timeEntryCount }}">{{ row.timeEntryCount }}</td>
+                    <td data-order="{{ row.workedMinutes }}"><strong>{{ row.workedMinutes|duration_hm }}</strong></td>
+                    <td data-order="{{ row.standardHourlyRateCents }}">{{ row.hasStandardRate ? (row.standardHourlyRateCents|money_eur ~ '/h') : 'Non impostata' }}</td>
+                    <td data-order="{{ row.standardCostCents ?? -1 }}">{{ row.standardCostCents is null ? '—' : row.standardCostCents|money_eur }}</td>
+                    <td data-order="{{ row.historicalCostCents }}"><strong>{{ row.historicalCostCents|money_eur }}</strong></td>
+                    <td data-order="{{ row.varianceCents ?? 0 }}" class="{{ row.varianceCents is null or row.varianceCents == 0 ? 'text-secondary' : (row.varianceCents > 0 ? 'text-danger' : 'text-success') }}">{{ row.varianceCents is null ? '—' : row.varianceCents|money_eur }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-center text-secondary py-4">Nessuna registrazione conclusa nel periodo.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <div class="card mb-3">
     <div class="card-header"><h3 class="card-title">Registrazioni ore del mese</h3></div>
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-page-length="50">
-            <thead><tr><th>Data</th><th>Commessa e attività</th><th>Persona</th><th>Lavoro svolto</th><th>Durata</th><th>Fatturabile</th><th>Costo storico</th></tr></thead>
+            <thead><tr><th scope="col">Data</th><th scope="col">Commessa e attività</th><th scope="col">Persona</th><th scope="col">Lavoro svolto</th><th scope="col">Durata</th><th scope="col">Fatturabile</th><th scope="col">Costo storico</th></tr></thead>
             <tbody>
             {% for entry in report.timeEntries %}
                 <tr>
@@ -98,7 +129,7 @@
             <div class="card-header"><h3 class="card-title">Totali per azione</h3></div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-compact="true">
-                    <thead><tr><th>Area</th><th>Azione</th><th>Totale</th></tr></thead>
+                    <thead><tr><th scope="col">Area</th><th scope="col">Azione</th><th scope="col">Totale</th></tr></thead>
                     <tbody>{% for row in report.actions %}<tr><td>{{ row.action.groupLabel }}</td><td>{{ row.action.label }}</td><td data-order="{{ row.count }}">{{ row.count }}</td></tr>{% else %}<tr><td colspan="3" class="text-center text-secondary py-4">Nessuna azione.</td></tr>{% endfor %}</tbody>
                 </table>
             </div>
@@ -109,7 +140,7 @@
             <div class="card-header"><h3 class="card-title">Cronologia delle azioni</h3></div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-page-length="25">
-                    <thead><tr><th>Data</th><th>Area</th><th>Azione</th><th>Utente</th><th>Dettaglio</th></tr></thead>
+                    <thead><tr><th scope="col">Data</th><th scope="col">Area</th><th scope="col">Azione</th><th scope="col">Utente</th><th scope="col">Dettaglio</th></tr></thead>
                     <tbody>{% for event in report.events %}<tr><td data-order="{{ event.occurredAt|date('Y-m-d H:i:s') }}">{{ event.occurredAt|date('d/m/Y H:i') }}</td><td>{{ event.action.groupLabel }}</td><td>{{ event.action.label }}</td><td>{{ event.actor }}</td><td>{{ event.summary }}</td></tr>{% else %}<tr><td colspan="5" class="text-center text-secondary py-4">Nessuna azione registrata.</td></tr>{% endfor %}</tbody>
                 </table>
             </div>

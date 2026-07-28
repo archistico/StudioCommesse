@@ -97,6 +97,53 @@ final class BackupManagerTest extends TestCase
         self::assertSame('contenuto modificato', file_get_contents($safety.'/attachments/'.$this->storageKey()));
     }
 
+    public function testBackupRestorePreservesACompleteBusinessGraph(): void
+    {
+        $this->connection->executeStatement('CREATE TABLE app_user (id INTEGER PRIMARY KEY, username VARCHAR(80) NOT NULL)');
+        $this->connection->executeStatement('CREATE TABLE client (id INTEGER PRIMARY KEY, name VARCHAR(180) NOT NULL)');
+        $this->connection->executeStatement('CREATE TABLE project (id INTEGER PRIMARY KEY, client_id INTEGER NOT NULL, responsible_id INTEGER NOT NULL, code VARCHAR(16) NOT NULL, name VARCHAR(180) NOT NULL, status VARCHAR(32) NOT NULL)');
+        $this->connection->executeStatement('CREATE TABLE activity (id INTEGER PRIMARY KEY, project_id INTEGER NOT NULL, assignee_id INTEGER NOT NULL, title VARCHAR(180) NOT NULL, status VARCHAR(32) NOT NULL)');
+        $this->connection->executeStatement('CREATE TABLE time_entry (id INTEGER PRIMARY KEY, activity_id INTEGER NOT NULL, user_id INTEGER NOT NULL, description VARCHAR(255) NOT NULL, duration_minutes INTEGER NOT NULL)');
+        $this->connection->executeStatement('CREATE TABLE expense (id INTEGER PRIMARY KEY, project_id INTEGER NOT NULL, recorded_by_id INTEGER NOT NULL, description VARCHAR(255) NOT NULL, amount_cents INTEGER NOT NULL)');
+        $this->connection->executeStatement('CREATE TABLE payment (id INTEGER PRIMARY KEY, project_id INTEGER NOT NULL, recorded_by_id INTEGER NOT NULL, description VARCHAR(255) NOT NULL, amount_cents INTEGER NOT NULL)');
+        $this->connection->executeStatement('CREATE TABLE audit_log (id INTEGER PRIMARY KEY, action VARCHAR(80) NOT NULL, actor_identifier VARCHAR(180) NOT NULL, subject_id INTEGER DEFAULT NULL)');
+
+        $this->connection->executeStatement("INSERT INTO app_user VALUES (1, 'socio'), (2, 'collaboratore')");
+        $this->connection->executeStatement("INSERT INTO client VALUES (1, 'Cliente backup')");
+        $this->connection->executeStatement("INSERT INTO project VALUES (1, 1, 1, '2099-001', 'Commessa backup', 'completed')");
+        $this->connection->executeStatement("INSERT INTO activity VALUES (1, 1, 2, 'Attività backup', 'completed')");
+        $this->connection->executeStatement("INSERT INTO time_entry VALUES (1, 1, 2, 'Ore backup', 120)");
+        $this->connection->executeStatement("INSERT INTO expense VALUES (1, 1, 2, 'Spesa backup', 5000)");
+        $this->connection->executeStatement("INSERT INTO payment VALUES (1, 1, 1, 'Saldo backup', 100000)");
+        $this->connection->executeStatement("INSERT INTO audit_log VALUES (1, 'project.archived', 'socio', 1)");
+        $this->writeState('flusso completo', 'allegato del flusso completo');
+
+        $backup = $this->root.'/backup-flusso-completo';
+        $this->manager->create($backup);
+
+        $this->connection->executeStatement('DELETE FROM audit_log');
+        $this->connection->executeStatement('DELETE FROM payment');
+        $this->connection->executeStatement('DELETE FROM expense');
+        $this->connection->executeStatement('DELETE FROM time_entry');
+        $this->connection->executeStatement('DELETE FROM activity');
+        $this->connection->executeStatement('DELETE FROM project');
+        $this->connection->executeStatement("UPDATE client SET name = 'Cliente modificato'");
+        $this->writeState('stato modificato', 'allegato modificato');
+
+        $this->manager->restore($backup, $this->root.'/backup-sicurezza-flusso');
+
+        $restored = $this->openDatabase($this->databasePath);
+        self::assertSame('Cliente backup', $restored->query('SELECT name FROM client WHERE id = 1')?->fetchColumn());
+        self::assertSame('Commessa backup', $restored->query('SELECT name FROM project WHERE id = 1')?->fetchColumn());
+        self::assertSame('Attività backup', $restored->query('SELECT title FROM activity WHERE id = 1')?->fetchColumn());
+        self::assertSame('120', (string) $restored->query('SELECT duration_minutes FROM time_entry WHERE id = 1')?->fetchColumn());
+        self::assertSame('5000', (string) $restored->query('SELECT amount_cents FROM expense WHERE id = 1')?->fetchColumn());
+        self::assertSame('100000', (string) $restored->query('SELECT amount_cents FROM payment WHERE id = 1')?->fetchColumn());
+        self::assertSame('project.archived', $restored->query('SELECT action FROM audit_log WHERE id = 1')?->fetchColumn());
+        self::assertSame('flusso completo', $restored->query("SELECT value FROM app_state WHERE name = 'status'")?->fetchColumn());
+        self::assertSame('allegato del flusso completo', file_get_contents($this->storagePath.'/'.$this->storageKey()));
+    }
+
     public function testVerifyRejectsMigrationInventoryThatDoesNotMatchTheDatabase(): void
     {
         $this->writeState('originale', 'contenuto originale');

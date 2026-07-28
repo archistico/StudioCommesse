@@ -117,3 +117,68 @@ table.dataTable > tbody > tr.child span.dtr-title {
         width: 100%;
     }
 }
+
+
+.skip-link {
+    background: #fff;
+    border: 2px solid var(--studio-brand);
+    border-radius: .375rem;
+    color: #111827;
+    left: 1rem;
+    padding: .65rem 1rem;
+    position: fixed;
+    top: -5rem;
+    z-index: 2000;
+}
+
+.skip-link:focus {
+    top: 1rem;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid #ffbf47;
+    outline-offset: 2px;
+}
+
+.btn,
+.form-control,
+.form-select,
+.dropdown-item,
+.nav-link {
+    min-height: 2.75rem;
+}
+
+.table-responsive {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: hidden;
+}
+
+.table th {
+    white-space: nowrap;
+}
+
+@media (max-width: 575.98px) {
+    .card-body,
+    .card-header,
+    .card-footer {
+        padding-left: .875rem;
+        padding-right: .875rem;
+    }
+
+    .table td,
+    .table th {
+        max-width: 18rem;
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
+}

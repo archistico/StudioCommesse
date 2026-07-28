@@ -100,7 +100,7 @@
                     <div class="list-group-item">
                         <div class="d-flex justify-content-between align-items-start gap-3 responsive-entity-row">
                             <div class="flex-fill">
-                                <a class="fw-bold" href="{{ path('app_activity_edit', {id: activity.id}) }}">{{ activity.title }}</a>
+                                {% if project.archived %}<span class="fw-bold">{{ activity.title }}</span>{% else %}<a class="fw-bold" href="{{ path('app_activity_edit', {id: activity.id}) }}">{{ activity.title }}</a>{% endif %}
                                 <div class="small text-secondary">{{ activity.assignee.displayName }} · {{ activity.status.label }}{% if activity.dueAt %} · {{ activity.dueAt|date('d/m/Y') }}{% endif %}</div>
                                 <div class="small mt-2"><span class="text-secondary">Consuntivato totale:</span> <strong>{{ time_summary.total_minutes|default(0)|duration_hm }}</strong></div>
                                 {% if time_summary and time_summary.contributors is not empty %}

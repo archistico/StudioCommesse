@@ -11,6 +11,7 @@ final readonly class MonthlyReport
     /**
      * @param list<MonthlyProjectReportRow> $projects
      * @param list<MonthlyTimeEntryReportRow> $timeEntries
+     * @param list<MonthlyUserCostReportRow> $userCosts
      * @param list<MonthlyActionReportRow> $actions
      * @param list<MonthlyActionEventRow> $events
      */
@@ -20,6 +21,7 @@ final readonly class MonthlyReport
         public DateTimeImmutable $periodBefore,
         public array $projects,
         public array $timeEntries,
+        public array $userCosts,
         public array $actions,
         public array $events,
         public int $workedMinutes,

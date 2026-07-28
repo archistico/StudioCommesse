@@ -2,6 +2,7 @@ monolog:
   channels:
     - deprecation
     - security_audit
+    - operations
 
 when@dev:
   monolog:
@@ -10,7 +11,7 @@ when@dev:
         type: stream
         path: '%kernel.logs_dir%/%kernel.environment%.log'
         level: debug
-        channels: ['!event', '!doctrine']
+        channels: ['!event', '!doctrine', '!security_audit', '!operations']
       console:
         type: console
         process_psr_3_messages: false
@@ -20,6 +21,13 @@ when@dev:
         path: '%kernel.logs_dir%/security-audit.log'
         level: info
         channels: ['security_audit']
+        formatter: monolog.formatter.json
+      operations:
+        type: stream
+        path: '%kernel.logs_dir%/operations.log'
+        level: warning
+        channels: ['operations']
+        formatter: monolog.formatter.json
 
 when@test:
   monolog:
@@ -44,6 +52,7 @@ when@prod:
         handler: nested
         excluded_http_codes: [404, 405]
         buffer_size: 50
+        channels: ['!security_audit', '!operations']
       nested:
         type: stream
         path: 'php://stderr'
@@ -63,3 +72,10 @@ when@prod:
         path: '%kernel.logs_dir%/security-audit.log'
         level: info
         channels: ['security_audit']
+        formatter: monolog.formatter.json
+      operations:
+        type: stream
+        path: '%kernel.logs_dir%/operations.log'
+        level: warning
+        channels: ['operations']
+        formatter: monolog.formatter.json

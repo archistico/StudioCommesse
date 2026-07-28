@@ -27,8 +27,9 @@ security:
         csrf_token_id: authenticate
         default_target_path: app_dashboard
       login_throttling:
-        max_attempts: 5
-        interval: '15 minutes'
+        max_attempts: '%app.login_max_attempts%'
+        interval: '%app.login_lockout_interval%'
+        cache_pool: 'cache.rate_limiter'
       logout:
         path: app_logout
         target: app_login
@@ -37,6 +38,7 @@ security:
   access_control:
     - { path: ^/login$, roles: PUBLIC_ACCESS }
     - { path: ^/admin, roles: ROLE_PARTNER }
+    - { path: '^/audit(?:/|$)', roles: ROLE_PARTNER }
     - { path: ^/, roles: ROLE_COLLABORATOR }
 
 when@test:

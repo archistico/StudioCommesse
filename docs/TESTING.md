@@ -1,6 +1,6 @@
 # Testing
 
-Il gate autoritativo è:
+Gate autoritativo:
 
 ```powershell
 .\scripts\validate.ps1
@@ -9,52 +9,39 @@ Il gate autoritativo è:
 Esito atteso:
 
 ```text
-M9.2-A HOTFIX 1 VALIDATION PASSED
+M9.2-H VALIDATION PASSED
 ```
 
 ## Baseline di regressione
 
-La baseline M9.1 Hotfix 3 corretta è stata validata con **171 test e 1.631 asserzioni**. M9.2-A non modifica il comportamento applicativo, lo schema Doctrine o le dipendenze: tutta la suite M1–M9.1 deve restare verde.
+M9.2-G è la baseline validata: **235 test**, PHPStan senza errori e benchmark 30/200/600 superati. M9.2-H aggiunge nove test per login throttling, privacy audit, intestazioni HTTP, landmark, tastiera e contratti documentali, per un totale atteso di **244 test**.
 
-## Controlli eseguiti dal gate
+## Controlli del gate
 
-- sintassi degli script PowerShell;
-- validazione Composer, installazione bloccata e audit;
-- installazione npm, audit, build e test asset;
+- preflight PHP 8.4+ ed estensioni obbligatorie;
+- parsing di tutti gli script PowerShell;
+- Composer e npm con audit;
 - lint PHP, YAML e Twig;
-- contratti Doctrine, Symfony, storage, report mensile e backup;
-- contratto M9.2-A di baseline e packaging;
-- migrazioni su database di test pulito e schema sincronizzato;
-- creazione e verifica di un backup smoke;
-- creazione e verifica di un pacchetto di distribuzione smoke;
+- contratti Doctrine, Symfony, storage, report, backup, autorizzazioni, robustezza, dashboard, audit, end-to-end, deployment, prestazioni e M9.2-H;
+- migrazioni e schema Doctrine di test;
+- backup smoke;
+- creazione, verifica ed estrazione pulita del pacchetto smoke;
 - PHPStan livello 8;
-- PHPUnit completo.
+- PHPUnit completo;
+- benchmark isolato sui profili 30/200/600.
 
-## Contratto M9.2-A
+## Regressioni M9.2-H
 
-Il packaging deve:
+La suite verifica:
 
-- includere sorgenti, configurazioni distributive, lock file, migrazioni, test, script e documentazione;
-- escludere `.env.local` e ogni `.env.*.local`;
-- escludere `vendor`, `node_modules`, `public/vendor`, `var`, `backups`, `dist` e metadati degli IDE/VCS;
-- escludere database SQLite, sidecar, log, cache, ZIP annidati e file temporanei;
-- rifiutare nomi ZIP assoluti, ambigui, duplicati o contenenti traversal;
-- verificare la presenza dei file minimi richiesti;
-- non cancellare né modificare i dati della cartella di lavoro.
+- blocco del login dopo cinque fallimenti e rifiuto temporaneo anche della password corretta;
+- audit distinto tra fallimento e throttling;
+- assenza del nome utente e della motivazione tecnica nei fallimenti salvati;
+- impronte HMAC stabili e log senza valori personali o descrittivi;
+- CSP, HSTS su HTTPS, anti-frame, no-sniff, no-referrer e no-store;
+- skip link, landmark, pagina corrente e scope delle intestazioni tabella;
+- presenza dei quattro manuali e loro inclusione nel pacchetto.
 
-## Copertura funzionale preservata
+## Verifica manuale
 
-Restano in regressione:
-
-- login, ruoli, utenti e audit;
-- clienti, commesse, attività, ore e timer;
-- economia differenziata per ruolo e dovuti per cliente;
-- controllo, valutazione collaboratori e report mensile;
-- responsive, DataTables e form espliciti;
-- allegati protetti;
-- backup, verifica e ripristino coordinato;
-- fixtures 30/200/600 idempotenti.
-
-## M9.2-A Hotfix 1
-
-Corregge esclusivamente la sintassi PowerShell del ciclo ricorsivo in `package-release.ps1`; nessuna funzione applicativa è stata modificata. Gate: `M9.2-A HOTFIX 1 VALIDATION PASSED`.
+Eseguire la checklist in `docs/ACCESSIBILITY.md`, provare il login errato da una copia del database di test e controllare gli eventi Sicurezza nella pagina Audit. Non effettuare prove di blocco su account di produzione durante l’orario operativo.

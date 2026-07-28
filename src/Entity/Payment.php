@@ -13,6 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: PaymentRepository::class)]
 #[ORM\Table(name: 'payment')]
 #[ORM\Index(columns: ['project_id', 'paid_on'], name: 'idx_payment_project_date')]
+#[ORM\Index(columns: ['paid_on', 'project_id'], name: 'idx_payment_date_project')]
 class Payment
 {
     public const METHODS = ['Bonifico', 'Assegno', 'Contanti', 'Carta', 'Altro'];

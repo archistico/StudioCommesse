@@ -46,7 +46,7 @@
 <div class="card">
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
-            <thead><tr><th>Codice</th><th>Commessa</th><th>Cliente</th><th>Responsabile</th><th>Stato</th><th>Priorità</th><th>Scadenza</th></tr></thead>
+            <thead><tr><th scope="col">Codice</th><th scope="col">Commessa</th><th scope="col">Cliente</th><th scope="col">Responsabile</th><th scope="col">Stato</th><th scope="col">Priorità</th><th scope="col">Scadenza</th></tr></thead>
             <tbody>
             {% for project in projects %}
                 <tr class="{{ project.archived ? 'text-secondary' : '' }}">
@@ -55,7 +55,19 @@
                     <td><a href="{{ path('app_client_show', {id: project.client.id}) }}">{{ project.client.name }}</a></td>
                     <td>{{ project.responsible.displayName }}</td>
                     <td><span class="badge {{ project.status.badgeClass }}">{{ project.status.label }}</span></td>
-                    <td><span class="badge {{ project.priority.badgeClass }}">{{ project.priority.label }}</span></td>
+                    <td data-order="{{ project.priority.value }}" data-priority="{{ project.priority.value }}">
+                        <span class="badge {{ project.priority.badgeClass }} d-inline-flex align-items-center justify-content-center p-2" title="Priorità {{ project.priority.label }}" aria-label="Priorità {{ project.priority.label }}">
+                            {% if project.priority.value == 'low' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m18 13l-6 6l-6 -6"/></svg>
+                            {% elseif project.priority.value == 'normal' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>
+                            {% elseif project.priority.value == 'high' %}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="m6 11l6 -6l6 6"/></svg>
+                            {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4"/><path d="M12 17v.01"/><path d="M10.3 4.3l-7.3 12.7a2 2 0 0 0 1.7 3h14.6a2 2 0 0 0 1.7 -3l-7.3 -12.7a2 2 0 0 0 -3.4 0z"/></svg>
+                            {% endif %}
+                        </span>
+                    </td>
                     <td data-order="{{ project.dueDate ? project.dueDate|date('Y-m-d') : '9999-12-31' }}">
                         {% if project.dueDate %}
                             <span class="{{ project.overdue ? 'text-danger fw-semibold' : '' }}">{{ project.dueDate|date('d/m/Y') }}</span>

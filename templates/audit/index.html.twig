@@ -1,0 +1,98 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Audit operativo · {{ app_name }}{% endblock %}
+{% block page_title %}Audit operativo{% endblock %}
+{% block page_actions %}
+    <a class="btn btn-outline-primary" href="{{ path('app_audit_csv', export_query) }}">Esporta CSV</a>
+{% endblock %}
+
+{% block page_body %}
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" class="row g-3" data-audit-filter>
+            <div class="col-12 col-lg-4">
+                <label class="form-label" for="group">Gruppo</label>
+                <select class="form-select" id="group" name="group">
+                    <option value="">Tutti i gruppi</option>
+                    {% for group in groups %}<option value="{{ group }}" {{ criteria.group == group ? 'selected' : '' }}>{{ group }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-4">
+                <label class="form-label" for="action">Azione</label>
+                <select class="form-select" id="action" name="action">
+                    <option value="">Tutte le azioni</option>
+                    {% for action in actions %}<option value="{{ action.value }}" {{ criteria.action == action ? 'selected' : '' }}>{{ action.groupLabel }} · {{ action.label }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-lg-4">
+                <label class="form-label" for="actor">Attore</label>
+                <input class="form-control" id="actor" name="actor" value="{{ criteria.actor ?? '' }}" maxlength="120" placeholder="Nome utente">
+            </div>
+            <div class="col-12 col-lg-4">
+                <label class="form-label" for="request_id">Request ID</label>
+                <input class="form-control font-monospace" id="request_id" name="request_id" value="{{ criteria.requestId ?? '' }}" maxlength="64" placeholder="Identificativo richiesta">
+            </div>
+            <div class="col-12 col-lg-4">
+                <label class="form-label" for="from">Dal giorno</label>
+                <input class="form-control" type="date" id="from" name="from" value="{{ criteria.occurredFrom ? criteria.occurredFrom|date('Y-m-d') : '' }}">
+            </div>
+            <div class="col-12 col-lg-4">
+                <label class="form-label" for="to">Al giorno</label>
+                <input class="form-control" type="date" id="to" name="to" value="{{ criteria.occurredBefore ? criteria.occurredBefore|date_modify('-1 day')|date('Y-m-d') : '' }}">
+            </div>
+            <div class="col-12 d-flex gap-2">
+                <button class="btn btn-primary" type="submit">Applica filtri</button>
+                <a class="btn btn-outline-secondary" href="{{ path('app_audit_index') }}">Azzera</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row row-cards mb-3">
+    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Eventi trovati</div><div class="h2 mb-0">{{ audit_summary.totalEvents }}</div></div></div></div>
+    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Eventi sicurezza</div><div class="h2 mb-0">{{ audit_summary.securityEvents }}</div></div></div></div>
+    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Accessi falliti</div><div class="h2 mb-0">{{ audit_summary.failedLogins }}</div></div></div></div>
+    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Blocchi temporanei</div><div class="h2 mb-0">{{ audit_summary.blockedLogins }}</div></div></div></div>
+    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Attori distinti</div><div class="h2 mb-0">{{ audit_summary.actorCount }}</div></div></div></div>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-mode="server-page">
+            <thead><tr><th scope="col">Data e ora</th><th scope="col">Azione</th><th scope="col">Attore</th><th scope="col">Soggetto</th><th scope="col">Correlazione</th><th scope="col">Dettagli</th></tr></thead>
+            <tbody>
+            {% for entry in audit_page.items %}
+                <tr>
+                    <td class="text-nowrap" data-order="{{ entry.occurredAt|date('Y-m-d H:i:s') }}">{{ entry.occurredAt|date('d/m/Y H:i:s') }}</td>
+                    <td><span class="badge bg-azure-lt">{{ entry.action.groupLabel }}</span><div class="fw-semibold mt-1">{{ entry.action.label }}</div></td>
+                    <td><div>{{ entry.actorLabel }}</div><div class="small text-secondary">{{ entry.ipAddress ?? 'IP non disponibile' }}</div></td>
+                    <td>{{ entry.subjectLabel }}</td>
+                    <td>
+                        {% if entry.requestId %}<code class="d-block">{{ entry.requestId }}</code>{% else %}<span class="text-secondary">—</span>{% endif %}
+                        {% if entry.route or entry.httpMethod %}<span class="small text-secondary">{{ entry.httpMethod ?? '' }} {{ entry.route ?? '' }}</span>{% endif %}
+                    </td>
+                    <td>
+                        {% for key, value in entry.visibleDetails %}
+                            <div><span class="text-secondary">{{ key }}:</span> {{ value is same as(true) ? 'sì' : (value is same as(false) ? 'no' : (value ?? '—')) }}</div>
+                        {% else %}
+                            <span class="text-secondary">—</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6" class="text-center text-secondary py-5">Nessun evento corrisponde ai filtri.</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if audit_page.totalPages > 1 %}
+        <div class="card-footer d-flex align-items-center justify-content-between gap-3 flex-wrap">
+            <span class="text-secondary">Pagina {{ audit_page.page }} di {{ audit_page.totalPages }} · {{ audit_page.totalItems }} eventi</span>
+            <ul class="pagination m-0">
+                <li class="page-item {{ audit_page.page <= 1 ? 'disabled' : '' }}"><a class="page-link" href="{{ path('app_audit_index', pagination_query|merge({page: audit_page.page - 1})) }}">Precedente</a></li>
+                <li class="page-item {{ audit_page.page >= audit_page.totalPages ? 'disabled' : '' }}"><a class="page-link" href="{{ path('app_audit_index', pagination_query|merge({page: audit_page.page + 1})) }}">Successiva</a></li>
+            </ul>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

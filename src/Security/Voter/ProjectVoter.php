@@ -45,6 +45,12 @@ final class ProjectVoter extends Voter
             return true;
         }
 
+        if (self::VIEW_FINANCIAL === $attribute) {
+            $vote?->addReason('Tariffe e costi sono riservati ai soci.');
+
+            return false;
+        }
+
         $responsibleId = $subject->getResponsible()?->getId();
         $userId = $user->getId();
         if (null === $responsibleId || null === $userId || $responsibleId !== $userId) {

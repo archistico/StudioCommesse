@@ -7,11 +7,8 @@ command -v composer >/dev/null
 command -v node >/dev/null
 command -v npm >/dev/null
 
-php -r 'exit(PHP_VERSION_ID >= 80400 ? 0 : 1);'
+php scripts/php-runtime-contract.php
 node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 20 ? 0 : 1)'
-for extension in ctype fileinfo iconv mbstring pdo pdo_sqlite; do
-  php -r "exit(extension_loaded('$extension') ? 0 : 1);"
-done
 
 if [ ! -f .env.local ]; then
   secret="$(php -r 'echo bin2hex(random_bytes(32));')"

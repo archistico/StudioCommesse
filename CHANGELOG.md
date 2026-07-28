@@ -1,11 +1,239 @@
 # Changelog
 
-## 0.9.2-M9.2-A-HF1 — Candidate
+## 0.9.2-M9.2-H Fix 1 - PHPStan completeness
 
-- Corretto il parser PowerShell di `scripts/package-release.ps1`: il risultato di `Get-ChildItem` usato da `foreach` è ora racchiuso tra parentesi.
-- Aggiunti contratto CLI e test PHPUnit per impedire la regressione sintattica.
+- Rimossa la chiamata ridondante a `array_values()` su una lista già ordinata in `AuditPrivacyGuard`.
+- Aggiunta `AuditAction::LoginThrottled` alla classificazione esaustiva del report mensile.
+- Rafforzati i contratti M9.2-H per coprire entrambe le regressioni PHPStan.
+- Nessuna modifica funzionale, migrazione, rotta o dipendenza.
+- Candidate: `StudioCommesse_M9.2-H_Accessibility_Security_Manuals_Fix1.zip`.
+
+
+## 0.9.2-M9.2-H — Accessibilità, sicurezza login e manuali
+
+- Login protetto da throttling Symfony: 5 fallimenti per combinazione utenza/IP in un’ora, con limite globale IP.
+- Audit distinto dei blocchi temporanei e pseudonimizzazione dei nomi utente tentati.
+- Dopo un errore il form non ristampa l’identificativo inserito.
+- Log JSON minimizzati con impronte HMAC per attore e IP e senza valori descrittivi.
+- Intestazioni HTTP difensive, session cookie SameSite Strict e cache no-store.
+- Skip link, landmark, pagina corrente, focus visibile, tabelle accessibili e miglioramenti responsive.
+- Manuali utente, amministratore, sicurezza e accessibilità.
+- Nessuna migrazione, nuova rotta o dipendenza.
+- Candidate: `StudioCommesse_M9.2-H_Accessibility_Security_Manuals_Fix1.zip`.
+- Attesi 244 test e gate `M9.2-H VALIDATION PASSED`.
+
+## 0.9.2-M9.2-G Fix 3 — Allegati benchmark compatibili con backup
+
+- Corrette le chiavi `storage_key` degli allegati sintetici: ora rispettano il formato documentale reale `YYYY/MM/<32 caratteri esadecimali>.estensione` validato dal backup.
+- Il seeder continua a creare i file fisici nella directory allegati isolata e mantiene coerenti dimensione e SHA-256 con i metadati del database.
+- Rafforzati i contratti PHPUnit e CLI per vietare il precedente prefisso `benchmark/...` e richiedere file fisici e chiavi compatibili.
+- La candidate corrente è `StudioCommesse_M9.2-G_Performance_Capacity_Fix3.zip`.
+- Restano attesi 235 test e il gate `M9.2-G VALIDATION PASSED`; nessuna modifica funzionale, migrazione, rotta o dipendenza.
+
+## 0.9.2-M9.2-G Fix 2 — Bootstrap benchmark SQLite
+
+- Corretto `benchmark-capacity.ps1`: SQLite non usa più `doctrine:database:create`, operazione non supportata dalla piattaforma DBAL.
+- Dopo la pulizia del file temporaneo, `doctrine:migrations:migrate` apre e crea direttamente il database isolato del profilo.
+- Rafforzati i contratti PHPUnit e CLI per vietare il comando non supportato e richiedere il bootstrap tramite migrazioni.
+- La candidate corrente è `StudioCommesse_M9.2-G_Performance_Capacity_Fix2.zip`.
+- Restano attesi 235 test e il gate `M9.2-G VALIDATION PASSED`; nessuna modifica funzionale, migrazione, rotta o dipendenza.
+
+## 0.9.2-M9.2-G Fix 1 — Compatibilità PHPStan e DBAL 4
+
+- Corretti i tipi PHPStan del comando benchmark: collezioni attività, liste di identificativi e shape delle metriche.
+- Il seeder dei dataset usa ora prepared statement DBAL 4 con `bindValue()` e `executeStatement()` senza parametri.
+- Rafforzati i contratti statici per vietare `Statement::executeStatement([...])` e verificare i tipi del rapporto benchmark.
+- La candidate corrente è `StudioCommesse_M9.2-G_Performance_Capacity_Fix1.zip`.
+- Restano attesi 235 test e il gate `M9.2-G VALIDATION PASSED`; nessuna modifica funzionale, migrazione, rotta o dipendenza.
+
+## 0.9.2-M9.2-G — Prestazioni e capacità
+
+- M9.2-F.1 è stata validata con 230 test, PHPStan senza errori e gate `M9.2-F.1 VALIDATION PASSED`.
+- Consolidati i dieci indicatori numerici della dashboard in una sola query DBAL.
+- Aggiunta la migrazione `Version20260728160000` con indici mirati per dashboard, liste recenti, intervalli temporali, economia e audit.
+- Aggiunti dataset deterministici e isolati da 30, 200 e 600 commesse.
+- Aggiunto il benchmark di dashboard, commesse, attività, ore, controllo, economia, report mensile, audit, dettaglio commessa e backup-ripristino.
+- I rapporti JSON includono mediana, P95, picco memoria e violazioni dei budget.
+- Attesi 235 test; nessuna nuova rotta, dipendenza o modifica ai permessi.
+- Gate richiesto: `M9.2-G VALIDATION PASSED`.
+
+## 0.9.2-M9.2-F.1 Fix 2 — Update senza file obsoleti
+
+- Corretto `update.ps1` quando release e installazione hanno lo stesso inventario: una lista vuota di file obsoleti non viene più passata come argomento non valido.
+- `Remove-DeployableFiles` accetta esplicitamente collezioni vuote e termina senza effetti.
+- Rafforzati i contratti PowerShell/PHPUnit per coprire aggiornamenti senza file da eliminare.
+- Riallineati handoff, packaging, smoke e documentazione alla candidate `StudioCommesse_M9.2-F.1_Apache_Self_Staging_Fix2.zip`.
+- Nessuna modifica funzionale, migrazione, rotta o dipendenza.
+
+## 0.9.2-M9.2-F.1 — Candidate corretta (Fix 1)
+
+- Corretto il contratto documentale di packaging: la baseline autoritativa è M9.2-F e non M9.2-E.2.
+- Riallineati nome della candidate, handoff, packaging, checklist e contratti a `StudioCommesse_M9.2-F.1_Apache_Self_Staging_Fix1.zip`.
+- Nessuna modifica funzionale, migrazione, rotta o dipendenza.
+- Versione e gate restano `0.9.2-M9.2-F.1` e `M9.2-F.1 VALIDATION PASSED`.
+
+## 0.9.2-M9.2-F.1 — Apache e aggiornamento con staging automatico
+
+- M9.2-F è stata validata con gate `M9.2-F VALIDATION PASSED` e diventa la baseline autoritativa.
+- Aggiunta la dipendenza Composer ufficiale `symfony/apache-pack` e il file `public/.htaccess` della recipe Symfony.
+- Documentata la configurazione Apache con `DocumentRoot` su `public`, `mod_rewrite` e `AllowOverride All`.
+- `update.ps1` crea automaticamente una copia temporanea della release quando sorgente e destinazione coincidono.
+- Rafforzati preflight, packaging, contratti e test; nessuna migrazione o modifica funzionale.
+- Gate richiesto: `M9.2-G VALIDATION PASSED`.
+
+## 0.9.2-M9.2-F — Candidate corretta (Fix 1)
+
+- Corretta la sintassi di `scripts/update.ps1`: due messaggi racchiusi tra apici singoli contenevano un apostrofo tipografico, interpretato dal parser PowerShell come terminazione anomala della stringa.
+- I messaggi interessati usano ora stringhe con doppi apici e apostrofo ASCII.
+- Aggiunto un contratto che vieta virgolette e apostrofi tipografici in tutti gli script PowerShell distribuibili.
+- Documentato che `C:\Percorso\StudioCommesse` è un segnaposto da sostituire con il percorso reale dell'installazione.
+- Nessuna modifica funzionale, migrazione, rotta o dipendenza.
+- Versione e gate restano `0.9.2-M9.2-F` e `M9.2-F VALIDATION PASSED`, perché la prima candidate M9.2-F non è stata validata.
+
+## 0.9.2-M9.2-F — Candidate
+
+- Basata sulla M9.2-E.2 validata con 223 test e PHPStan senza errori.
+- Aggiunto preflight condiviso per installazione, aggiornamento e pacchetto pulito.
+- Aggiunto aggiornamento da release separata con backup dati verificato, snapshot del codice, manutenzione, rimozione dei file obsoleti e verifica finale.
+- Aggiunto rollback automatico di codice, database e allegati; la manutenzione resta attiva se il rollback non termina.
+- Aggiunto smoke test dello ZIP estratto e documentazione operativa `docs/INSTALL_UPDATE.md`.
+- Allineate le versioni applicative e degli asset.
+- Nessuna migrazione, nuova rotta o dipendenza.
+- Gate atteso: `M9.2-F VALIDATION PASSED`.
+
+## 0.9.2-M9.2-E.2 — Validata
+
+- Basata sulla M9.2-E.1 validata con 222 test e PHPStan senza errori.
+- Le card dashboard sono rinominate in “Commesse in attesa” e “Commesse in ritardo”.
+- Il totale “Ore effettuate” considera soltanto le registrazioni concluse iniziate nel mese corrente.
+- Valore e titolo “Ore effettuate” sono disposti sulla stessa riga, con “Registrazioni concluse” sulla seconda.
+- Rimossa la card “Ore pianificate” e il relativo aggregato repository non più utilizzato.
+- Aggiunta regressione sul confine mensile e contratto di packaging M9.2-E.2.
+- Nessuna migrazione, nuova rotta o dipendenza.
+- Validata dall’utente con `M9.2-E.2 VALIDATION PASSED`; diventa la baseline autoritativa per M9.2-F.
+
+## 0.9.2-M9.2-E.1 — Validata
+
+- Aggiunto al report mensile il riepilogo per utente con ore concluse, tariffa standard attuale, costo standard teorico, costo storico effettivo e scostamento.
+- Timer aperti esclusi; utenti disattivati inclusi quando hanno lavorato; tariffa standard zero mostrata come non impostata.
+- Aggiunta esportazione CSV separata e coerente con i filtri mese/commessa.
+- Matrice autorizzazioni estesa a 48 rotte; report ed export restano riservati ai Soci.
+- Nessuna migrazione o nuova dipendenza.
+- Validata dall’utente con `M9.2-E.1 VALIDATION PASSED`; diventa la baseline autoritativa per M9.2-E.2.
+
+## 0.9.2-M9.2-E — Validata (Fix 1)
+
+- Corretti i due errori Doctrine nei test end-to-end di archiviazione e ripristino.
+- Dopo ogni richiesta HTTP le entità vengono ricaricate tramite identificativo, senza richiamare `refresh()` su istanze detached dal reset dei servizi Doctrine.
+- Rafforzati il contratto PHPUnit e il contratto CLI M9.2-E per impedire la regressione.
+- Nessuna modifica funzionale, migrazione, rotta o dipendenza.
+- Validata dall’utente con `M9.2-E VALIDATION PASSED`; diventa la baseline autoritativa per M9.2-E.1.
+
+## 0.9.2-M9.2-E — Candidate
+
+- Aggiunti flussi end-to-end per chiusura completa e archiviazione della commessa.
+- Verificati creazione attività e registrazione ore da parte del Collaboratore senza esposizione dei dati economici riservati.
+- Contrattualizzata la rilevazione delle chiusure incoerenti e la sequenza di ripristino cliente/commessa.
+- Esteso il test di backup-ripristino a utenti, cliente, commessa, attività, ore, spesa, incasso, audit e allegato.
+- Aggiunti `scripts/m92e-end-to-end-contract.php`, `tests/Controller/EndToEndWorkflowTest.php`, `tests/Project/EndToEndWorkflowContractTest.php` e `docs/END_TO_END_FLOWS.md`.
+- Nessuna migrazione, nuova rotta o dipendenza.
+- Gate atteso: `M9.2-E VALIDATION PASSED`.
+
+## 0.9.2-M9.2-D — Candidate corretta (Fix 1)
+
+- Corretto il test del filtro audit: l'assenza di eventi esclusi viene verificata solo nelle righe risultato, senza confondere le opzioni del selettore azioni.
+- Riallineato il contratto di packaging alla baseline autoritativa M9.2-C Hotfix 4 e all'archivio corrente M9.2-D Fix 1.
+- Nessuna modifica funzionale, migrazione o nuova dipendenza.
+- Versione e gate restano `0.9.2-M9.2-D` e `M9.2-D VALIDATION PASSED`, perché la prima candidate M9.2-D non è stata validata.
+
+## 0.9.2-M9.2-D — Candidate
+
+- Basata esclusivamente sulla baseline validata M9.2-C Hotfix 4.
+- Aggiunta area Soci `Audit operativo` con filtri per gruppo, azione, attore, request ID e date.
+- Aggiunta paginazione server-side ed esportazione CSV UTF-8 con filtri coerenti.
+- Gli eventi audit acquisiscono automaticamente request ID, rotta, metodo HTTP e IP disponibile.
+- Aggiunti log JSON separati `security-audit.log` e `operations.log`.
+- Gli errori HTTP gestiti e le anomalie database registrano contesto di correlazione.
+- Matrice autorizzazioni estesa a 47 rotte; Collaboratori esclusi da consultazione ed export.
+- README mantenuto breve e senza cronologia milestone.
+- Nessuna migrazione e nessuna nuova dipendenza.
+- Gate atteso: `M9.2-D VALIDATION PASSED`.
+
+## 0.9.2-M9.2-C-HF4 — Validata (Fix 2)
+
+- Riallineato il contratto M6.3 alla semantica corrente del filtro attività: il controllo verifica controller, template e comportamento `assignee=me`, senza dipendere dalla forma interna di una vecchia asserzione PHPUnit.
+- Riscritto il README come introduzione breve e stabile al progetto, senza milestone, baseline o gate storici.
+- Conservate le informazioni essenziali su funzioni, requisiti, installazione, aggiornamento, avvio, validazione e script operativi.
+- Nessuna modifica a dominio, schema, migrazioni o dipendenze.
+- Validata dall’utente con `M9.2-C HOTFIX 4 VALIDATION PASSED`; diventa la baseline autoritativa per M9.2-D.
+
+## 0.9.2-M9.2-C-HF4 — Candidate corretta (Fix 1)
+
+- Corretti i quattro esiti negativi della prima candidate Hotfix 4 senza modificare schema, dipendenze o logica di dominio.
+- Il test del filtro `assignee=me` verifica ora il selettore auto-inviato e non cerca più il pulsante “Mostra”, intenzionalmente rimosso.
+- La spiegazione del filtro chiarisce che l’assegnatario è la persona responsabile dell’attività, non l’autore delle ore.
+- La tabella delle ore recenti mostra anche la descrizione della registrazione.
+- La seconda riga della dashboard usa colonne soltanto dal breakpoint `lg`, rispettando il contratto responsive.
+- Versione e gate restano quelli della Hotfix 4, che non era stata validata.
+- Gate atteso: `M9.2-C HOTFIX 4 VALIDATION PASSED`.
+
+## 0.9.2-M9.2-C-HF4 — Candidate iniziale
+
+- Basata esclusivamente sulla baseline M9.2-C Hotfix 3 validata con 203 test, 2.125 asserzioni e PHPStan senza errori.
+- Il quadro operativo della dashboard è stato spostato in una seconda riga di card.
+- Aggiunti i totali consolidati di ore effettuate e ore pianificate sulle attività ancora aperte.
+- Le tabelle di commesse, attività e registrazioni ore aggiornate di recente occupano ora l’intera larghezza.
+- `/attivita` mostra subito le attività dell’utente corrente e il cambio assegnatario invia automaticamente il filtro.
+- La priorità in `/commesse` è rappresentata da icone SVG con etichette accessibili.
+- Aggiunti test funzionali e contratto di packaging dedicati.
+- Nessuna migrazione e nessuna nuova dipendenza.
+- Gate atteso: `M9.2-C HOTFIX 4 VALIDATION PASSED`.
+
+## 0.9.2-M9.2-C-HF3 — Candidate
+
+- Corretto il contratto CLI della Hotfix 2, che dipendeva dalle terminazioni di riga della piattaforma e falliva su Windows pur in presenza del corretto `else { return; }`.
+- I contenuti letti dal contratto vengono normalizzati da CRLF a LF e il ritorno esplicito viene verificato strutturalmente con un’espressione regolare indipendente da indentazione e newline.
+- Aggiunti contratto CLI e test PHPUnit dedicati alla regressione CRLF/LF; entrambi sono obbligatori nel pacchetto di distribuzione.
+- Nessuna modifica al subscriber, alla logica applicativa, allo schema dati o alle dipendenze.
+- Gate atteso: `M9.2-C HOTFIX 3 VALIDATION PASSED`.
+
+
+## 0.9.2-M9.2-C-HF2 — Candidate
+
+- Corretti i tre errori PHPStan rilevati nella candidate M9.2-C Hotfix 1 senza ridurre il livello di analisi o aggiungere esclusioni.
+- `DatabaseExceptionSubscriber` usa rami completi con ritorno esplicito, eliminando il confronto impossibile fra `null` e template Twig già determinato.
+- `MaintenanceMode::isEnabled()` è dichiarato `@phpstan-impure`, perché legge un marker filesystem che può cambiare fra due chiamate consecutive.
+- `MonthlyReportService` gestisce esplicitamente `AuditAction::TimeEntryUpdated` nel riepilogo delle azioni del mese.
+- Aggiunti contratto CLI e test PHPUnit dedicati; i relativi file sono obbligatori nel pacchetto di distribuzione.
+- Nessuna migrazione, nuova dipendenza o modifica del modello funzionale.
+- Gate atteso: `M9.2-C HOTFIX 2 VALIDATION PASSED`.
+
+## 0.9.2-M9.2-C-HF1 — Candidate
+
+- Corretto il gate ambientale: `fileinfo` resta obbligatoria, ma viene verificata prima di Composer, npm e dei contratti applicativi.
+- Aggiunto `scripts/php-runtime-contract.php`, condiviso da setup, validazione e controllo storage.
+- In caso di estensione mancante vengono mostrati PHP CLI, `php.ini` caricato, `extension_dir`, presenza di `php_fileinfo.dll` e comandi di verifica Windows.
+- Aggiunti contratto e test di regressione; i nuovi file sono obbligatori nel pacchetto di distribuzione.
+- Candidate cumulativa costruita su M9.2-A Hotfix 2 e M9.2-B, entrambe ancora da validare; la baseline ufficiale resta M9.2-A Hotfix 1 corretta localmente.
+- Aggiunto `AuditedTransaction`: mutazione e record audit condividono la stessa transazione Doctrine; il mirror Monolog viene scritto soltanto dopo il commit.
+- I controller di commesse, attività, clienti, utenti, economia e ore non eseguono più flush autonomi prima dell’audit.
+- SQLite viene configurato nelle transazioni applicative con `busy_timeout = 5000` e chiavi esterne attive.
+- Inserimento/modifica ore e avvio/arresto timer condividono un lock esclusivo applicativo per evitare gare fra controlli e salvataggi.
+- L’eliminazione degli allegati usa quarantena, ripristino compensativo su rollback e purga post-commit fuori dallo storage attivo.
+- Le richieste durante manutenzione o lock esclusivo ricevono subito HTTP 503 senza attese indefinite.
+- Aggiunti `RequestIdSubscriber`, header `X-Request-ID`, gestione sicura dei conflitti 409 e dei lock database 503.
+- Aggiunte pagine dedicate 405, 409, 422, 500 e 503 senza dettagli tecnici.
+- Aggiunti test su transazione/audit, lock non bloccanti, quarantena allegati, request ID e pagina 405.
+- Aggiunti `docs/ROBUSTNESS.md` e `scripts/m92c-robustness-contract.php`.
+- Nessuna nuova dipendenza e nessuna modifica allo schema dati.
+- Gate atteso: `M9.2-C HOTFIX 1 VALIDATION PASSED`.
+
+## 0.9.2-M9.2-A-HF1 — Validata localmente dopo correzione
+
+- Corretto il parser PowerShell di `scripts/package-release.ps1`: nei due blocchi `if` gli operatori `-or` sono collocati alla fine della condizione precedente e non all’inizio della riga successiva.
+- Tutti gli script PowerShell hanno superato il parsing; PHPStan e PHPUnit sono risultati verdi con 174 test e 1.651 asserzioni; packaging smoke superato.
+- Le parentesi intorno a `Get-ChildItem` sono mantenute per leggibilità, ma non costituiscono la causa della correzione.
 - Nessuna modifica alle funzionalità applicative, allo schema Doctrine o alle dipendenze.
-- Gate atteso: `M9.2-A HOTFIX 1 VALIDATION PASSED`.
 
 ## 0.9.2-M9.2-A — Candidate iniziale non validata
 

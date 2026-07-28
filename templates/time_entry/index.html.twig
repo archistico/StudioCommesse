@@ -33,7 +33,7 @@
 <div class="card">
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
-            <thead><tr><th>Collaboratore</th><th>Inizio</th><th>Fine</th><th>Durata</th>{% if is_granted('PROJECT_VIEW_FINANCIAL', activity.project) %}<th>Tariffa</th><th>Costo</th>{% endif %}<th>Lavoro svolto</th></tr></thead>
+            <thead><tr><th scope="col">Collaboratore</th><th scope="col">Inizio</th><th scope="col">Fine</th><th scope="col">Durata</th>{% if is_granted('PROJECT_VIEW_FINANCIAL', activity.project) %}<th scope="col">Tariffa</th><th scope="col">Costo</th>{% endif %}<th scope="col">Lavoro svolto</th></tr></thead>
             <tbody>
             {% for entry in entries %}
                 <tr>
@@ -45,7 +45,7 @@
                         <td data-order="{{ entry.hourlyRateSnapshotCents }}">{{ entry.hourlyRateSnapshotCents|money_eur }}/h</td>
                         <td data-order="{{ entry.costSnapshotCents }}">{{ entry.costSnapshotCents|money_eur }}</td>
                     {% endif %}
-                    <td>{% if (is_granted('ROLE_PARTNER') or entry.user.id == app.user.id) and not entry.running %}<a href="{{ path('app_time_entry_edit', {id: entry.id}) }}">{{ entry.description ?: 'Modifica registrazione' }}</a>{% else %}{{ entry.description ?: '—' }}{% endif %}</td>
+                    <td>{% if not activity.project.archived and (is_granted('ROLE_PARTNER') or entry.user.id == app.user.id) and not entry.running %}<a href="{{ path('app_time_entry_edit', {id: entry.id}) }}">{{ entry.description ?: 'Modifica registrazione' }}</a>{% else %}{{ entry.description ?: '—' }}{% endif %}</td>
                 </tr>
             {% else %}
                 <tr><td colspan="{{ is_granted('PROJECT_VIEW_FINANCIAL', activity.project) ? 7 : 5 }}" class="text-center text-secondary py-4">Nessuna registrazione.</td></tr>

@@ -1,18 +1,11 @@
 # Avvio nuova chat
 
-Progetto: StudioCommesse.
+- baseline validata: M9.2-G `0.9.2-M9.2-G`;
+- archivio baseline: `StudioCommesse_M9.2-G_Performance_Capacity_Fix3.zip`;
+- candidate corrente: M9.2-H `0.9.2-M9.2-H`;
+- archivio: `StudioCommesse_M9.2-H_Accessibility_Security_Manuals_Fix1.zip`;
+- gate: `M9.2-H VALIDATION PASSED`;
+- test attesi: 244;
+- benchmark atteso: profili isolati 30/200/600 entro budget.
 
-- baseline validata: M9.1 Hotfix 3 corretta;
-- archivio baseline: `StudioCommesse_M9.1_Hotfix3_Corretto.zip`;
-- gate baseline: `M9.1 HOTFIX 2 VALIDATION PASSED`;
-- baseline testata con 171 test e 1.631 asserzioni;
-- candidate corrente: M9.2-A `0.9.2-M9.2-A-HF1`;
-- archivio candidate atteso: `StudioCommesse_M9.2-A_Hotfix1_PowerShell_Parser.zip`;
-- gate atteso: `M9.2-A HOTFIX 1 VALIDATION PASSED`;
-- prossimo passo dopo la validazione: M9.2-B audit autorizzazioni e riservatezza.
-
-M9.2-A non introduce funzioni di dominio. Riallinea tutti i riferimenti autoritativi e aggiunge un packaging ripetibile che esclude automaticamente configurazioni locali, database, allegati, backup, log, cache, dipendenze installate e asset generati.
-
-## M9.2-A Hotfix 1
-
-Corregge esclusivamente la sintassi PowerShell del ciclo ricorsivo in `package-release.ps1`; nessuna funzione applicativa è stata modificata. Gate: `M9.2-A HOTFIX 1 VALIDATION PASSED`.
+M9.2-H chiude l’hardening pre-RC con accessibilità, responsive, manuali e sicurezza login: 5 tentativi falliti per utenza/IP in un’ora, audit dei blocchi, pseudonimizzazione dei fallimenti, log minimizzati e intestazioni HTTP difensive. Dopo la validazione si procede con M9.3 Release Candidate 1.0.

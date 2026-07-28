@@ -1,7 +1,7 @@
 {
   "name": "studio-commesse-assets",
   "private": true,
-  "version": "0.9.2-m9.2-a-hf1",
+  "version": "0.9.2-m9.2-h",
   "description": "Asset locali Tabler e DataTables per StudioCommesse.",
   "scripts": {
     "assets:install": "node scripts/copy-tabler-assets.mjs",

@@ -2,11 +2,9 @@
 
 ## Obiettivo
 
-Il pacchetto di distribuzione contiene soltanto codice, configurazioni distribuibili, lock file, migrazioni, test, script e documentazione. Non deve contenere dati o segreti dell’installazione usata per costruirlo.
+Il pacchetto contiene codice, configurazioni distribuibili, lock file, migrazioni, test, script e documentazione. Non contiene dati, segreti o dipendenze installate della macchina usata per costruirlo.
 
 ## Creazione
-
-Dalla radice del progetto:
 
 ```powershell
 .\scripts\package-release.ps1
@@ -15,69 +13,73 @@ Dalla radice del progetto:
 Output predefinito:
 
 ```text
-dist/StudioCommesse_M9.2-A_Hotfix1_PowerShell_Parser.zip
+dist/StudioCommesse_M9.2-H_Accessibility_Security_Manuals_Fix1.zip
 ```
 
-Per scegliere un percorso diverso:
+Percorso personalizzato:
 
 ```powershell
-.\scripts\package-release.ps1 -OutputPath "E:\rilasci\StudioCommesse_M9.2-A.zip"
+.\scripts\package-release.ps1 `
+    -OutputPath "E:\rilasci\StudioCommesse_M9.2-H_Accessibility_Security_Manuals_Fix1.zip"
 ```
 
-Usare `-Force` soltanto per sostituire consapevolmente un archivio già esistente.
+Usare `-Force` soltanto per sostituire consapevolmente un archivio esistente.
+
+## Verifica ed estrazione pulita
+
+```powershell
+.\scripts\verify-release-package.ps1 `
+    -Archive ".\dist\StudioCommesse_M9.2-H_Accessibility_Security_Manuals_Fix1.zip"
+
+.\scripts\install-smoke.ps1 `
+    -Archive ".\dist\StudioCommesse_M9.2-H_Accessibility_Security_Manuals_Fix1.zip"
+```
+
+Il verificatore confronta inventario e contenuti con il sorgente distribuibile. Lo smoke test estrae il pacchetto in una cartella temporanea ed esegue il preflight `Package`.
+
+## Completezza obbligatoria
+
+Lo ZIP deve contenere, non vuoti, gli artefatti applicativi fondamentali e almeno un file per ciascuna famiglia:
+
+- entità e repository;
+- sicurezza e servizi;
+- template;
+- test;
+- migrazioni.
+
+Sono obbligatori anche gli script di setup, aggiornamento, preflight, backup, verifica ZIP e smoke installazione, oltre a `docs/INSTALL_UPDATE.md`.
+
+L’inventario deve coincidere esattamente con tutti i file distribuibili del sorgente. File mancanti, inattesi, vuoti o duplicati senza distinzione tra maiuscole e minuscole rendono il pacchetto non valido.
 
 ## Elementi esclusi
-
-Il comando esclude automaticamente:
 
 - `.env.local` e `.env.*.local`;
 - `vendor`, `node_modules` e `public/vendor`;
 - `var`, inclusi database, allegati, lock, cache e log;
 - `backups` e `dist`;
-- metadati `.git`, `.idea` e `.vscode`;
-- database SQLite e relativi sidecar;
-- log, cache, file temporanei, copie di sicurezza e ZIP annidati;
-- file tipici del sistema operativo come `Thumbs.db` e `.DS_Store`.
+- metadati Git, IDE e sistema operativo;
+- database SQLite e sidecar;
+- log, file temporanei, copie di sicurezza e ZIP annidati.
 
-`.env.local.dist` resta incluso perché è il modello usato dal setup per generare una configurazione locale nuova e un `APP_SECRET` casuale.
+`.env.local.dist` resta incluso perché il setup lo usa per generare una configurazione locale con `APP_SECRET` casuale.
 
-## Verifica automatica
+## Sicurezza dei nomi
 
-Prima di confermare il pacchetto, lo script riapre lo ZIP e controlla:
+Gli script rifiutano traversal, percorsi assoluti, backslash, flussi NTFS alternativi, segmenti ambigui, nomi riservati Windows e duplicati case-insensitive.
 
-- inventario minimo obbligatorio;
-- assenza dei percorsi vietati;
-- assenza di traversal, percorsi assoluti, backslash e flussi NTFS alternativi;
-- assenza di nomi duplicati senza distinzione tra maiuscole e minuscole;
-- presenza di almeno un file applicativo.
+## Gate
 
-Il gate `validate.ps1` esegue lo stesso flusso su uno ZIP temporaneo e lo elimina al termine.
+`validate.ps1`:
 
-## Aggiornamento
+1. analizza la sintassi degli script PowerShell;
+2. esegue i contratti di packaging e deployment;
+3. crea un pacchetto smoke;
+4. verifica inventario e contenuti;
+5. estrae il pacchetto e controlla l’assenza di stato locale;
+6. elimina il materiale temporaneo.
 
-Un pacchetto applicativo non contiene dati dell’installazione. Prima dell’aggiornamento preservare e non sovrascrivere:
+## Installazione e aggiornamento
 
-- `.env.local`;
-- il database configurato;
-- `var/storage/attachments`;
-- `backups`.
+Per una nuova installazione usare `setup.ps1`. Per aggiornare, estrarre la nuova release in una cartella separata e usare `update.ps1` con `-TargetDirectory` e `-Confirm UPDATE`.
 
-Dopo l’estrazione eseguire:
-
-```powershell
-.\scripts\setup.ps1 -SkipPartnerBootstrap
-.\scripts\validate.ps1
-```
-
-## Confine con i backup
-
-Il pacchetto di distribuzione e il backup operativo hanno scopi diversi:
-
-- il pacchetto distribuisce il software senza dati;
-- il backup salva database e allegati di un’installazione specifica.
-
-Non usare il pacchetto di distribuzione come sostituto del backup.
-
-## M9.2-A Hotfix 1
-
-Corregge esclusivamente la sintassi PowerShell del ciclo ricorsivo in `package-release.ps1`; nessuna funzione applicativa è stata modificata. Gate: `M9.2-A HOTFIX 1 VALIDATION PASSED`.
+La procedura completa, inclusi backup, manutenzione e rollback, è descritta in `docs/INSTALL_UPDATE.md`.

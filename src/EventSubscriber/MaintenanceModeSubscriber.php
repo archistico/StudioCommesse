@@ -14,6 +14,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Twig\Environment;
 
 final readonly class MaintenanceModeSubscriber implements EventSubscriberInterface
 {
@@ -22,6 +23,7 @@ final readonly class MaintenanceModeSubscriber implements EventSubscriberInterfa
     public function __construct(
         private MaintenanceMode $maintenanceMode,
         private RequestRuntimeLock $requestLock,
+        private Environment $twig,
     ) {
     }
 
@@ -40,26 +42,27 @@ final readonly class MaintenanceModeSubscriber implements EventSubscriberInterfa
             return;
         }
 
-        $lock = $this->requestLock->acquireShared();
         $request = $event->getRequest();
-        $request->attributes->set(self::REQUEST_LOCK_ATTRIBUTE, $lock);
+        if ($this->maintenanceMode->isEnabled()) {
+            $event->setResponse($this->maintenanceResponse($request));
 
-        if (!$this->maintenanceMode->isEnabled()) {
             return;
         }
 
-        $this->release($request);
-        $message = htmlspecialchars($this->maintenanceMode->message(), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $event->setResponse(new Response(
-            '<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Manutenzione</title></head>'
-            .'<body><main><h1>Applicazione temporaneamente non disponibile</h1><p>'.$message.'</p></main></body></html>',
-            Response::HTTP_SERVICE_UNAVAILABLE,
-            [
-                'Content-Type' => 'text/html; charset=UTF-8',
-                'Retry-After' => '60',
-                'Cache-Control' => 'no-store, private',
-            ],
-        ));
+        $lock = $this->requestLock->tryAcquireShared();
+        if (!$lock instanceof FileLock) {
+            $event->setResponse($this->maintenanceResponse($request));
+
+            return;
+        }
+
+        $request->attributes->set(self::REQUEST_LOCK_ATTRIBUTE, $lock);
+
+        // Chiude la piccola finestra di gara tra il controllo del marker e il lock condiviso.
+        if ($this->maintenanceMode->isEnabled()) {
+            $this->release($request);
+            $event->setResponse($this->maintenanceResponse($request));
+        }
     }
 
     public function onException(ExceptionEvent $event): void
@@ -74,6 +77,24 @@ final readonly class MaintenanceModeSubscriber implements EventSubscriberInterfa
         if ($event->isMainRequest()) {
             $this->release($event->getRequest());
         }
+    }
+
+    private function maintenanceResponse(Request $request): Response
+    {
+        $requestId = $request->attributes->get(RequestIdSubscriber::ATTRIBUTE);
+
+        return new Response(
+            $this->twig->render('bundles/TwigBundle/Exception/error503.html.twig', [
+                'status_code' => Response::HTTP_SERVICE_UNAVAILABLE,
+                'request_id' => is_string($requestId) ? $requestId : null,
+                'maintenance_message' => $this->maintenanceMode->message(),
+            ]),
+            Response::HTTP_SERVICE_UNAVAILABLE,
+            [
+                'Retry-After' => '60',
+                'Cache-Control' => 'no-store, private',
+            ],
+        );
     }
 
     private function release(Request $request): void

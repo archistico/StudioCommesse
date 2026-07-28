@@ -20,6 +20,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 #[ORM\Index(columns: ['due_date'], name: 'idx_project_due_date')]
 #[ORM\Index(columns: ['responsible_id'], name: 'idx_project_responsible')]
 #[ORM\Index(columns: ['client_id'], name: 'idx_project_client')]
+#[ORM\Index(columns: ['archived_at', 'due_date', 'code'], name: 'idx_project_active_due_code')]
+#[ORM\Index(columns: ['updated_at'], name: 'idx_project_updated_at')]
 #[ORM\HasLifecycleCallbacks]
 class Project
 {

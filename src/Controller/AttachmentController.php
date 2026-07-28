@@ -21,6 +21,7 @@ use App\Security\Voter\AttachmentVoter;
 use App\Service\AttachmentManager;
 use App\Service\AttachmentStorage;
 use App\Service\AuditLogger;
+use App\Service\AuditRecord;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -65,7 +66,6 @@ final class AttachmentController extends AbstractController
         AttachmentRepository $attachmentRepository,
         ActivityRepository $activityRepository,
         AttachmentManager $attachmentManager,
-        AuditLogger $auditLogger,
     ): Response {
         $activities = $activityRepository->findForProject($project);
         $selectedActivity = $this->activityFromList($request->query->get('activity'), $activities);
@@ -79,21 +79,26 @@ final class AttachmentController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             try {
-                $attachment = $attachmentManager->create($project, $this->requireCurrentUser(), $upload);
-                $auditLogger->log(
-                    AuditAction::AttachmentUploaded,
-                    $this->requireCurrentUser()->getUserIdentifier(),
-                    Attachment::class,
-                    $attachment->getId(),
-                    [
-                        'project_id' => $project->getId(),
-                        'activity_id' => $attachment->getActivity()?->getId(),
-                        'classification' => $attachment->getClassification()->value,
-                        'original_name' => $attachment->getOriginalName(),
-                        'size_bytes' => $attachment->getSizeBytes(),
-                        'sha256' => $attachment->getSha256(),
-                    ],
-                    $request->getClientIp(),
+                $user = $this->requireCurrentUser();
+                $attachment = $attachmentManager->create(
+                    $project,
+                    $user,
+                    $upload,
+                    static fn (Attachment $saved): AuditRecord => new AuditRecord(
+                        AuditAction::AttachmentUploaded,
+                        $user->getUserIdentifier(),
+                        Attachment::class,
+                        $saved->getId(),
+                        [
+                            'project_id' => $project->getId(),
+                            'activity_id' => $saved->getActivity()?->getId(),
+                            'classification' => $saved->getClassification()->value,
+                            'original_name' => $saved->getOriginalName(),
+                            'size_bytes' => $saved->getSizeBytes(),
+                            'sha256' => $saved->getSha256(),
+                        ],
+                        $request->getClientIp(),
+                    ),
                 );
                 $this->addFlash('success', 'Documento caricato correttamente.');
 
@@ -121,7 +126,6 @@ final class AttachmentController extends AbstractController
         Request $request,
         ActivityRepository $activityRepository,
         AttachmentManager $attachmentManager,
-        AuditLogger $auditLogger,
     ): Response {
         $this->denyAccessUnlessGranted(AttachmentVoter::VIEW, $attachment);
         $canManage = $this->isGranted(AttachmentVoter::MANAGE, $attachment);
@@ -140,19 +144,22 @@ final class AttachmentController extends AbstractController
 
             if ($form->isSubmitted() && $form->isValid()) {
                 try {
-                    $attachmentManager->updateMetadata($attachment);
-                    $auditLogger->log(
-                        AuditAction::AttachmentUpdated,
-                        $this->requireCurrentUser()->getUserIdentifier(),
-                        Attachment::class,
-                        $attachment->getId(),
-                        [
-                            'previous_classification' => $previous['classification'],
-                            'classification' => $attachment->getClassification()->value,
-                            'previous_activity_id' => $previous['activity_id'],
-                            'activity_id' => $attachment->getActivity()?->getId(),
-                        ],
-                        $request->getClientIp(),
+                    $user = $this->requireCurrentUser();
+                    $attachmentManager->updateMetadata(
+                        $attachment,
+                        static fn (Attachment $saved): AuditRecord => new AuditRecord(
+                            AuditAction::AttachmentUpdated,
+                            $user->getUserIdentifier(),
+                            Attachment::class,
+                            $saved->getId(),
+                            [
+                                'previous_classification' => $previous['classification'],
+                                'classification' => $saved->getClassification()->value,
+                                'previous_activity_id' => $previous['activity_id'],
+                                'activity_id' => $saved->getActivity()?->getId(),
+                            ],
+                            $request->getClientIp(),
+                        ),
                     );
                     $this->addFlash('success', 'Dati del documento aggiornati.');
 
@@ -203,7 +210,6 @@ final class AttachmentController extends AbstractController
         Attachment $attachment,
         Request $request,
         AttachmentManager $attachmentManager,
-        AuditLogger $auditLogger,
     ): Response {
         $this->denyAccessUnlessGranted(AttachmentVoter::MANAGE, $attachment);
         if (!$this->isCsrfTokenValid('delete_attachment_'.$attachment->getId(), (string) $request->request->get('_token', ''))) {
@@ -213,14 +219,17 @@ final class AttachmentController extends AbstractController
         $id = $attachment->getId();
         $projectId = $attachment->getProject()->getId();
         $name = $attachment->getOriginalName();
-        $attachmentManager->delete($attachment);
-        $auditLogger->log(
-            AuditAction::AttachmentDeleted,
-            $this->requireCurrentUser()->getUserIdentifier(),
-            Attachment::class,
-            $id,
-            ['project_id' => $projectId, 'original_name' => $name],
-            $request->getClientIp(),
+        $user = $this->requireCurrentUser();
+        $attachmentManager->delete(
+            $attachment,
+            static fn (Attachment $deleted): AuditRecord => new AuditRecord(
+                AuditAction::AttachmentDeleted,
+                $user->getUserIdentifier(),
+                Attachment::class,
+                $id,
+                ['project_id' => $projectId, 'original_name' => $name],
+                $request->getClientIp(),
+            ),
         );
         $this->addFlash('success', 'Documento eliminato.');
 

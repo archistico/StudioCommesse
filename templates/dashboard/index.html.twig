@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block page_body %}
-<div class="row row-deck row-cards">
+<div class="row row-deck row-cards mb-3">
     <div class="col-12 col-lg-6 col-xl-3">
         <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
             <div class="col-auto"><span class="bg-blue text-white avatar">{{ project_statistics.open }}</span></div>
@@ -19,13 +19,13 @@
     <div class="col-12 col-lg-6 col-xl-3">
         <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
             <div class="col-auto"><span class="bg-yellow text-white avatar">{{ project_statistics.waiting }}</span></div>
-            <div class="col"><div class="font-weight-medium">In attesa</div><div class="text-secondary">Richiedono attenzione</div></div>
+            <div class="col"><div class="font-weight-medium">Commesse in attesa</div><div class="text-secondary">Richiedono attenzione</div></div>
         </div></div></div>
     </div>
     <div class="col-12 col-lg-6 col-xl-3">
         <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
             <div class="col-auto"><span class="bg-red text-white avatar">{{ project_statistics.overdue }}</span></div>
-            <div class="col"><div class="font-weight-medium">In ritardo</div><div class="text-secondary">Fine prevista superata</div></div>
+            <div class="col"><div class="font-weight-medium">Commesse in ritardo</div><div class="text-secondary">Fine prevista superata</div></div>
         </div></div></div>
     </div>
     <div class="col-12 col-lg-6 col-xl-3">
@@ -34,16 +34,51 @@
             <div class="col"><div class="font-weight-medium">Utenti attivi</div><div class="text-secondary">{{ user_statistics.activePartners }} soci · {{ user_statistics.activeCollaborators }} collaboratori</div></div>
         </div></div></div>
     </div>
+</div>
 
-    <div class="col-12 col-lg-9">
-        <div class="card h-100">
+<div class="row row-deck row-cards mb-3" data-dashboard-operational-summary>
+    <div class="col-12 col-lg-6 col-xl-3">
+        <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
+            <div class="col-auto"><span class="bg-cyan text-white avatar">{{ project_statistics.clients }}</span></div>
+            <div class="col"><div class="font-weight-medium">Clienti attivi</div><div class="text-secondary">Con almeno una commessa attiva</div></div>
+        </div></div></div>
+    </div>
+    <div class="col-12 col-lg-6 col-xl-3">
+        <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
+            <div class="col-auto"><span class="bg-indigo text-white avatar">{{ project_statistics.openActivities }}</span></div>
+            <div class="col"><div class="font-weight-medium">Attività aperte</div><div class="text-secondary">Non completate o annullate</div></div>
+        </div></div></div>
+    </div>
+    <div class="col-12 col-lg-6 col-xl-3">
+        <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
+            <div class="col-auto"><span class="bg-red text-white avatar">{{ project_statistics.overdueActivities }}</span></div>
+            <div class="col"><div class="font-weight-medium">Attività in ritardo</div><div class="text-secondary">Scadenza già superata</div></div>
+        </div></div></div>
+    </div>
+    <div class="col-12 col-lg-6 col-xl-3">
+        <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
+            <div class="col-auto"><span class="bg-green text-white avatar" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3 2"/><path d="M12 21a9 9 0 1 0 0 -18a9 9 0 0 0 0 18"/></svg></span></div>
+            <div class="col">
+                <div class="d-flex flex-nowrap align-items-baseline gap-1 h3 mb-0" data-worked-minutes="{{ project_statistics.workedMinutes }}">
+                    <span>{{ project_statistics.workedMinutes|duration_hm }}</span>
+                    <span class="fs-4">Ore effettuate</span>
+                </div>
+                <div class="text-secondary">Registrazioni concluse</div>
+            </div>
+        </div></div></div>
+    </div>
+</div>
+
+<div class="row row-cards">
+    <div class="col-12">
+        <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Commesse aggiornate di recente</h3>
                 <a href="{{ path('app_project_index') }}" class="btn btn-sm btn-outline-primary ms-auto">Vedi tutte</a>
             </div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
-                    <thead><tr><th>Codice</th><th>Commessa</th><th>Responsabile</th><th>Stato</th><th>Fine prevista</th></tr></thead>
+                    <thead><tr><th scope="col">Codice</th><th scope="col">Commessa</th><th scope="col">Responsabile</th><th scope="col">Stato</th><th scope="col">Fine prevista</th><th scope="col">Aggiornata</th></tr></thead>
                     <tbody>
                     {% for project in recent_projects %}
                         <tr>
@@ -52,22 +87,73 @@
                             <td>{{ project.responsible.displayName }}</td>
                             <td><span class="badge {{ project.status.badgeClass }}">{{ project.status.label }}</span></td>
                             <td data-order="{{ project.dueDate ? project.dueDate|date('Y-m-d') : '9999-12-31' }}" class="{{ project.overdue ? 'text-danger fw-semibold' : '' }}">{{ project.dueDate ? project.dueDate|date('d/m/Y') : '—' }}</td>
+                            <td data-order="{{ project.updatedAt|date('Y-m-d H:i:s') }}">{{ project.updatedAt|date('d/m/Y H:i') }}</td>
                         </tr>
                     {% else %}
-                        <tr><td colspan="5" class="text-center text-secondary py-5">Nessuna commessa presente.</td></tr>
+                        <tr><td colspan="6" class="text-center text-secondary py-5">Nessuna commessa presente.</td></tr>
                     {% endfor %}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-    <div class="col-12 col-lg-3">
-        <div class="card h-100">
-            <div class="card-header"><h3 class="card-title">Quadro operativo</h3></div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between"><span>Clienti attivi</span><strong>{{ project_statistics.clients }}</strong></div>
-                <div class="d-flex justify-content-between mt-3"><span>Attività aperte</span><strong>{{ project_statistics.openActivities }}</strong></div>
-                <div class="d-flex justify-content-between mt-3"><span>Attività in ritardo</span><strong class="{{ project_statistics.overdueActivities > 0 ? 'text-danger' : '' }}">{{ project_statistics.overdueActivities }}</strong></div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Attività aggiornate di recente</h3>
+                <a href="{{ path('app_activity_index') }}" class="btn btn-sm btn-outline-primary ms-auto">Vedi tutte</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+                    <thead><tr><th scope="col">Commessa</th><th scope="col">Attività</th><th scope="col">Assegnatario</th><th scope="col">Stato</th><th scope="col">Priorità</th><th scope="col">Aggiornata</th></tr></thead>
+                    <tbody>
+                    {% for activity in recent_activities %}
+                        <tr>
+                            <td><a href="{{ path('app_project_show', {id: activity.project.id}) }}">{{ activity.project.code }}</a><div class="small text-secondary">{{ activity.project.name }}</div></td>
+                            <td><a class="fw-semibold" href="{{ path('app_activity_time', {id: activity.id}) }}">{{ activity.title }}</a></td>
+                            <td>{{ activity.assignee.displayName }}</td>
+                            <td><span class="badge {{ activity.status.badgeClass }}">{{ activity.status.label }}</span></td>
+                            <td><span class="badge {{ activity.priority.badgeClass }}">{{ activity.priority.label }}</span></td>
+                            <td data-order="{{ activity.updatedAt|date('Y-m-d H:i:s') }}">{{ activity.updatedAt|date('d/m/Y H:i') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="6" class="text-center text-secondary py-5">Nessuna attività presente.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Ore aggiornate di recente</h3>
+                <a href="{{ path('app_time_entry_index') }}" class="btn btn-sm btn-outline-primary ms-auto">Vedi tutte</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+                    <thead><tr><th scope="col">Collaboratore</th><th scope="col">Commessa</th><th scope="col">Attività</th><th scope="col">Descrizione</th><th scope="col">Intervallo</th><th scope="col">Durata</th><th scope="col">Aggiornata</th></tr></thead>
+                    <tbody>
+                    {% for entry in recent_time_entries %}
+                        <tr>
+                            <td>{{ entry.user.displayName }}</td>
+                            <td><a href="{{ path('app_project_show', {id: entry.activity.project.id}) }}">{{ entry.activity.project.code }}</a><div class="small text-secondary">{{ entry.activity.project.name }}</div></td>
+                            <td><a href="{{ path('app_activity_time', {id: entry.activity.id}) }}">{{ entry.activity.title }}</a></td>
+                            <td>{{ entry.description ?: '—' }}</td>
+                            <td data-order="{{ entry.startedAt|date('Y-m-d H:i:s') }}">
+                                {{ entry.startedAt|date('d/m/Y H:i') }}
+                                <div class="small text-secondary">{% if entry.endedAt %}fino alle {{ entry.endedAt|date('H:i') }}{% else %}Timer in corso{% endif %}</div>
+                            </td>
+                            <td data-order="{{ entry.durationMinutes }}" class="fw-semibold">{{ entry.durationMinutes|duration_hm }}</td>
+                            <td data-order="{{ entry.updatedAt|date('Y-m-d H:i:s') }}">{{ entry.updatedAt|date('d/m/Y H:i') }}</td>
+                        </tr>
+                    {% else %}
+                        <tr><td colspan="7" class="text-center text-secondary py-5">Nessuna registrazione ore presente.</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

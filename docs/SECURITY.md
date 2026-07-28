@@ -1,67 +1,70 @@
-# Sicurezza
+# Sicurezza applicativa
 
-## Fondazioni M1
+## Obiettivo
 
-- password hash gestito da Symfony;
-- CSRF su login, logout e form;
-- throttling accessi;
-- account disattivati bloccati;
-- gestione utenti riservata ai soci;
-- audit degli accessi e delle modifiche;
-- database fuori da `public/`;
-- asset Tabler locali;
-- gate con audit dipendenze.
-- nessuna credenziale predefinita: il primo socio viene creato in modo interattivo con password nascosta;
-- il bootstrap non crea account aggiuntivi quando esiste già un socio attivo.
+Studio Commesse contiene dati personali, operativi ed economici. L’accesso deve quindi avvenire soltanto da postazioni autorizzate, tramite HTTPS e con account individuali. Le password non devono essere condivise.
 
-## M2
+## Protezione del login
 
-- clienti e commesse sono leggibili dagli utenti autenticati;
-- creazione e archiviazione sono riservate ai soci;
-- `ProjectVoter` protegge modifica e nota riservata;
-- il responsabile non riceve nel form i campi cliente e responsabile;
-- archiviazione e ripristino richiedono POST e token CSRF;
-- nessuna cancellazione fisica;
-- un responsabile con commesse non archiviate non può essere disattivato;
-- le query non espongono endpoint economici, non ancora presenti.
+- Il login è protetto da token CSRF.
+- Dopo 5 tentativi falliti sulla stessa combinazione di nome utente e indirizzo IP, i nuovi tentativi vengono sospesi per un’ora.
+- Symfony applica anche un limite globale per indirizzo IP, utile contro tentativi eseguiti su molti nomi utente.
+- Un accesso riuscito azzera il contatore relativo alla combinazione interessata.
+- Il messaggio mostrato all’utente resta generico e non conferma se il nome utente esiste, è disattivato o è temporaneamente bloccato.
+- Dopo un errore il form non conserva né ristampa il nome utente digitato.
 
-## Distribuzione interna
+Il blocco non modifica l’anagrafica dell’utente e scade automaticamente. Non è necessario intervenire sul database.
 
-- document root esclusivamente su `public/`;
-- HTTPS anche in LAN quando possibile;
-- permessi filesystem limitati su `.env.local`, database e log;
-- backup consistente del file SQLite;
-- aggiornamenti periodici di PHP, Symfony e dipendenze;
-- nessuna pubblicazione di `.env*`, `var/`, sorgenti o database.
+## Audit degli accessi
 
+Il registro Audit, riservato ai Soci, distingue:
 
-## M7 documenti
+- accesso riuscito;
+- accesso non riuscito;
+- accesso temporaneamente bloccato.
 
-- i file sono conservati in `var/storage/attachments`, fuori da `public`;
-- i nomi fisici sono casuali e i nomi originali sono soltanto metadati;
-- ogni file registra MIME rilevato, dimensione e SHA-256;
-- limite massimo 10 MiB e allowlist di formati;
-- estensione, MIME e firma iniziale devono essere coerenti;
-- sono rifiutati file eseguibili e firma EICAR di test;
-- il download richiede autenticazione e voter, usa `Content-Disposition: attachment`, `nosniff` e `no-store`;
-- modifica ed eliminazione richiedono voter e CSRF;
-- caricamento, modifica, download ed eliminazione sono sottoposti ad audit;
-- `fileinfo` e scrivibilità dello storage sono controllati da setup e validazione;
-- database e spazio documentale devono essere salvati e ripristinati insieme.
+Per i tentativi falliti il nome utente digitato non viene salvato in chiaro. Viene registrata un’impronta non reversibile che consente di correlare tentativi ripetuti senza esporre l’identificativo. Password, token CSRF, cookie, session ID e contenuto delle richieste non vengono registrati.
 
-Il controllo integrato non sostituisce un antivirus di sistema. In ambienti esposti a file esterni è raccomandata una scansione antivirus della directory documentale.
+I file `security-audit.log` usano inoltre impronte per attore e indirizzo IP e riportano solo i nomi dei campi di dettaglio, non i loro valori. Il database audit conserva le informazioni operative necessarie ed è accessibile soltanto ai Soci.
 
+## Intestazioni HTTP
 
-## M9.1 backup e ripristino
+Le risposte dinamiche includono:
 
-- database e allegati vengono salvati come un’unica unità verificabile;
-- il database viene fotografato con `VACUUM INTO`, senza copia a caldo del solo file SQLite;
-- caricamenti ed eliminazioni di allegati sono coordinati tramite lock filesystem;
-- il manifest registra hash SHA-256, dimensione e inventario delle migrazioni, confrontato con il database;
-- la verifica esegue `PRAGMA integrity_check` e `PRAGMA foreign_key_check`;
-- l’estrazione ZIP rifiuta path traversal, collegamenti simbolici, flussi NTFS alternativi e nomi speciali Windows;
-- durante il ripristino le richieste ricevono HTTP 503 e non accedono ai file in sostituzione;
-- prima di sostituire lo stato corrente viene creato un backup automatico;
-- il ripristino richiede la conferma letterale `RESTORE`;
-- un errore di ripristino mantiene la modalità manutenzione fino allo sblocco esplicito `CLEAR`;
-- gli archivi non sono cifrati: protezione, copia esterna e retention restano responsabilità operativa dello studio.
+- divieto di incorporamento in frame;
+- blocco del MIME sniffing;
+- politica `no-referrer`;
+- Content Security Policy;
+- disabilitazione di fotocamera, microfono e geolocalizzazione;
+- isolamento della finestra principale;
+- cache privata `no-store`;
+- HSTS quando la richiesta usa HTTPS.
+
+## Configurazione Apache
+
+In produzione:
+
+1. usare HTTPS con un certificato valido;
+2. puntare il `DocumentRoot` esclusivamente a `public`;
+3. non rendere accessibili `var`, `.env.local`, `backups`, `config` e `vendor` come directory web;
+4. limitare l’accesso alla rete interna o a una VPN;
+5. proteggere i file di log e backup con permessi del filesystem;
+6. mantenere PHP, Composer e dipendenze aggiornati dopo validazione.
+
+La configurazione di base è descritta in `docs/APACHE.md`.
+
+## Risposta a un incidente
+
+In caso di tentativi anomali:
+
+1. consultare Audit filtrando il gruppo Sicurezza;
+2. cercare picchi di accessi falliti e blocchi temporanei;
+3. verificare gli indirizzi IP e i request ID interessati;
+4. disattivare l’account se si sospetta una compromissione;
+5. cambiare la password da una postazione affidabile;
+6. conservare una copia protetta dei log e del backup necessario all’analisi;
+7. non inviare log o backup tramite canali non cifrati.
+
+## Limiti
+
+Il rate limiting applicativo protegge il login ma non sostituisce firewall, restrizioni di rete, aggiornamenti del sistema operativo, HTTPS e monitoraggio del server Apache.

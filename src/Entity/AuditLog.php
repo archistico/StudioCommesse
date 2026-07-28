@@ -13,6 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'audit_log')]
 #[ORM\Index(columns: ['occurred_at'], name: 'idx_audit_occurred_at')]
 #[ORM\Index(columns: ['action'], name: 'idx_audit_action')]
+#[ORM\Index(columns: ['actor_identifier', 'occurred_at'], name: 'idx_audit_actor_occurred')]
+#[ORM\Index(columns: ['subject_type', 'subject_id', 'occurred_at'], name: 'idx_audit_subject_occurred')]
 class AuditLog
 {
     #[ORM\Id]
@@ -99,5 +101,58 @@ class AuditLog
     public function getOccurredAt(): DateTimeImmutable
     {
         return $this->occurredAt;
+    }
+
+    public function getRequestId(): ?string
+    {
+        return $this->detailString('request_id');
+    }
+
+    public function getRoute(): ?string
+    {
+        return $this->detailString('route');
+    }
+
+    public function getHttpMethod(): ?string
+    {
+        return $this->detailString('method');
+    }
+
+    /** @return array<string, bool|float|int|string|null> */
+    public function getVisibleDetails(): array
+    {
+        return array_diff_key($this->details, array_flip(['request_id', 'route', 'method']));
+    }
+
+
+    public function getActorLabel(): string
+    {
+        if (null !== $this->actorIdentifier && '' !== $this->actorIdentifier) {
+            return $this->actorIdentifier;
+        }
+
+        return match ($this->action) {
+            AuditAction::LoginFailed, AuditAction::LoginThrottled => 'Identificativo protetto',
+            default => 'Sistema',
+        };
+    }
+
+    public function getSubjectLabel(): string
+    {
+        if (null === $this->subjectType || '' === $this->subjectType) {
+            return '—';
+        }
+
+        $parts = explode('\\', $this->subjectType);
+        $label = (string) end($parts);
+
+        return null === $this->subjectId ? $label : $label.' #'.$this->subjectId;
+    }
+
+    private function detailString(string $key): ?string
+    {
+        $value = $this->details[$key] ?? null;
+
+        return is_string($value) && '' !== $value ? $value : null;
     }
 }
