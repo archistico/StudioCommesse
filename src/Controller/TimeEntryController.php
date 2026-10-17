@@ -21,6 +21,7 @@ use App\Service\AuditedTransaction;
 use App\Service\HourlyRateResolver;
 use App\Service\TimerMutationLock;
 use App\Service\TimerService;
+use App\Service\WorkDeletionService;
 use DateTimeImmutable;
 use DomainException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -321,10 +322,37 @@ final class TimeEntryController extends AbstractController
 
         return $this->render('time_entry/form.html.twig', [
             'form' => $form,
+            'entry' => $entry,
             'activity' => $entry->getActivity(),
             'page_title' => 'Modifica ore',
             'submit_label' => 'Salva',
         ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
+    }
+
+    #[Route('/{id}/elimina', name: 'app_time_entry_delete', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_PARTNER')]
+    public function delete(TimeEntry $entry, Request $request, WorkDeletionService $deletion): Response
+    {
+        if ($entry->getActivity()?->getProject()?->isArchived()) {
+            throw $this->createAccessDeniedException('La commessa è archiviata e le registrazioni ore sono in sola lettura.');
+        }
+        $entryId = $entry->getId();
+        $activityId = $entry->getActivity()?->getId();
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('delete_time_entry_'.$entryId, (string) $request->request->get('_token'))) {
+                throw $this->createAccessDeniedException();
+            }
+            try {
+                $deletion->deleteEntry($entry, $this->requireCurrentUser(), $request->getClientIp());
+                $this->addFlash('success', 'Registrazione ore eliminata.');
+            } catch (DomainException $exception) {
+                $this->addFlash('danger', $exception->getMessage());
+            }
+
+            return $this->redirectToRoute('app_activity_time', ['id' => $activityId]);
+        }
+
+        return $this->render('time_entry/delete.html.twig', ['entry' => $entry]);
     }
 
     private function findProjectFilter(Request $request, ProjectRepository $repository): ?Project

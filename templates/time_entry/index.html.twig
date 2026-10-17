@@ -65,7 +65,14 @@
                         <td data-order="{{ entry.hourlyRateSnapshotCents }}">{{ entry.hourlyRateSnapshotCents|money_eur }}/h</td>
                         <td data-order="{{ entry.costSnapshotCents }}">{{ entry.costSnapshotCents|money_eur }}</td>
                     {% endif %}
-                    <td>{% if not activity.project.archived and (is_granted('ROLE_PARTNER') or entry.user.id == app.user.id) and not entry.running %}<a href="{{ path('app_time_entry_edit', {id: entry.id}) }}">{{ entry.description ?: 'Modifica registrazione' }}</a>{% else %}{{ entry.description ?: '—' }}{% endif %}</td>
+                    <td>
+                        {% if not activity.project.archived and is_granted('ROLE_PARTNER') and entry.running %}
+                            {% if entry.description %}<div>{{ entry.description }}</div>{% endif %}
+                            <a href="{{ path('app_time_entry_delete', {id: entry.id}) }}">Gestisci timer attivo</a>
+                        {% elseif not activity.project.archived and (is_granted('ROLE_PARTNER') or entry.user.id == app.user.id) and not entry.running %}
+                            <a href="{{ path('app_time_entry_edit', {id: entry.id}) }}">{{ entry.description ?: 'Modifica registrazione' }}</a>
+                        {% else %}{{ entry.description ?: '—' }}{% endif %}
+                    </td>
                 </tr>
             {% else %}
                 <tr><td colspan="{{ is_granted('PROJECT_VIEW_FINANCIAL', activity.project) ? 7 : 5 }}" class="text-center text-secondary py-4">Nessuna registrazione.</td></tr>

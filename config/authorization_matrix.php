@@ -45,6 +45,7 @@ return [
     'app_activity_choose_project' => ['methods' => ['GET'], 'access' => 'collaborator', 'ownership' => 'current user', 'archive' => 'deny_write', 'data' => 'active project selection'],
     'app_activity_new' => ['methods' => ['GET', 'POST'], 'access' => 'collaborator', 'ownership' => 'current user becomes creator', 'archive' => 'deny_write', 'data' => 'financial override partner only'],
     'app_activity_edit' => ['methods' => ['GET', 'POST'], 'access' => 'activity_editor_or_partner', 'ownership' => 'assignee, creator or project responsible', 'archive' => 'deny_write', 'data' => 'financial override partner only'],
+    'app_activity_delete' => ['methods' => ['GET', 'POST'], 'access' => 'partner', 'ownership' => 'any activity; linked hours of all users', 'archive' => 'deny_write', 'data' => 'GET confirms; POST with CSRF deletes activity and hours; preserve expenses and documents'],
 
     'app_time_entry_index' => ['methods' => ['GET'], 'access' => 'collaborator', 'ownership' => 'none', 'archive' => 'read', 'data' => 'no rates or costs'],
     'app_time_entry_choose_activity' => ['methods' => ['GET'], 'access' => 'collaborator', 'ownership' => 'current user', 'archive' => 'deny_write', 'data' => 'active project and activity selection'],
@@ -53,6 +54,7 @@ return [
     'app_timer_start' => ['methods' => ['POST'], 'access' => 'collaborator', 'ownership' => 'current user only', 'archive' => 'deny_write', 'data' => 'CSRF protected'],
     'app_timer_stop' => ['methods' => ['POST'], 'access' => 'collaborator', 'ownership' => 'current user running timer; cancellation bound to confirmed entry id', 'archive' => 'deny_write', 'data' => 'stop or explicitly cancel; separate CSRF tokens'],
     'app_time_entry_edit' => ['methods' => ['GET', 'POST'], 'access' => 'owner_or_partner', 'ownership' => 'entry owner or partner', 'archive' => 'deny_write', 'data' => 'owner cannot change user or rate snapshot'],
+    'app_time_entry_delete' => ['methods' => ['GET', 'POST'], 'access' => 'partner', 'ownership' => 'any entry including active timers', 'archive' => 'deny_write', 'data' => 'GET confirms; POST with CSRF deletes one entry'],
 
     'app_economics_index' => ['methods' => ['GET'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'read', 'data' => 'full economic'],
     'app_economics_project' => ['methods' => ['GET'], 'access' => 'collaborator', 'ownership' => 'collaborator sees own expenses only', 'archive' => 'read', 'data' => 'full economic partner only'],

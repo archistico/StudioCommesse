@@ -21,8 +21,10 @@ enum AuditAction: string
     case ProjectRestored = 'project.restored';
     case ActivityCreated = 'activity.created';
     case ActivityUpdated = 'activity.updated';
+    case ActivityDeleted = 'activity.deleted';
     case TimeEntryCreated = 'time_entry.created';
     case TimeEntryUpdated = 'time_entry.updated';
+    case TimeEntryDeleted = 'time_entry.deleted';
     case TimerStarted = 'timer.started';
     case TimerStopped = 'timer.stopped';
     case TimerCancelled = 'timer.cancelled';
@@ -56,8 +58,10 @@ enum AuditAction: string
             self::ProjectRestored => 'Commessa ripristinata',
             self::ActivityCreated => 'Attività creata',
             self::ActivityUpdated => 'Attività aggiornata',
+            self::ActivityDeleted => 'Attività e ore collegate eliminate',
             self::TimeEntryCreated => 'Ore registrate',
             self::TimeEntryUpdated => 'Registrazione ore aggiornata',
+            self::TimeEntryDeleted => 'Registrazione ore eliminata',
             self::TimerStarted => 'Timer avviato',
             self::TimerStopped => 'Timer fermato',
             self::TimerCancelled => 'Registrazione timer annullata',
@@ -82,8 +86,8 @@ enum AuditAction: string
             self::UserCreated, self::UserUpdated => 'Utenti',
             self::ClientCreated, self::ClientUpdated, self::ClientArchived, self::ClientRestored => 'Clienti',
             self::ProjectCreated, self::ProjectUpdated, self::ProjectArchived, self::ProjectRestored => 'Commesse',
-            self::ActivityCreated, self::ActivityUpdated => 'Attività',
-            self::TimeEntryCreated, self::TimeEntryUpdated, self::TimerStarted, self::TimerStopped, self::TimerCancelled => 'Ore',
+            self::ActivityCreated, self::ActivityUpdated, self::ActivityDeleted => 'Attività',
+            self::TimeEntryCreated, self::TimeEntryUpdated, self::TimeEntryDeleted, self::TimerStarted, self::TimerStopped, self::TimerCancelled => 'Ore',
             self::ExpenseCreated, self::ExpenseUpdated, self::ExpenseDeleted,
             self::PaymentCreated, self::PaymentUpdated, self::PaymentDeleted => 'Economia',
             self::AttachmentUploaded, self::AttachmentUpdated, self::AttachmentDownloaded, self::AttachmentDeleted => 'Documenti',

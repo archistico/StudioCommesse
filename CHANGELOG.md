@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased - Eliminazione attività e ore riservata ai soci
+
+- I soci possono eliminare singole registrazioni ore di qualunque utente, compresi i timer attivi, dopo una pagina di conferma.
+- Dalla modifica di un'attività i soci possono verificare il riepilogo ed eliminare l'attività insieme a tutte le ore e i timer collegati, di tutti gli utenti.
+- Spese e documenti restano nella commessa e perdono soltanto il collegamento all'attività eliminata.
+- Conferma tramite POST e token CSRF legato al record; commesse archiviate in sola lettura. Eliminazione e audit avvengono nella stessa transazione, con esclusione reciproca rispetto alle modifiche dei timer.
+- Aggiunti test su permessi, conferme, cancellazione collegata, conservazione dei dati, timer e rollback in caso di errore dell'audit.
+
 ## Unreleased - Azioni rapide e annullamento timer
 
 - Le azioni comuni riempiono la larghezza della riga, con pulsanti alti almeno 48 px, un massimo di sei per riga e righe successive bilanciate al ridimensionamento.

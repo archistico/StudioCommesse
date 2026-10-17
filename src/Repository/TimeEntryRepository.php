@@ -83,6 +83,28 @@ SQL,
         return $this->findOneBy(['user' => $user, 'endedAt' => null], ['startedAt' => 'DESC']);
     }
 
+    /** @return array{entry_count: int, running_count: int, total_minutes: int, total_cost_cents: int} */
+    public function deletionImpactForActivity(Activity $activity): array
+    {
+        $row = $this->getEntityManager()->getConnection()->fetchAssociative(
+            <<<'SQL'
+SELECT COUNT(*) AS entry_count,
+       COALESCE(SUM(CASE WHEN ended_at IS NULL THEN 1 ELSE 0 END), 0) AS running_count,
+       COALESCE(SUM(CASE WHEN ended_at IS NULL THEN 0 ELSE MAX(0, CAST((strftime('%s', ended_at) - strftime('%s', started_at)) / 60 AS INTEGER)) END), 0) AS total_minutes,
+       COALESCE(SUM(CASE WHEN ended_at IS NULL THEN 0 ELSE cost_snapshot_cents END), 0) AS total_cost_cents
+FROM time_entry WHERE activity_id = :activity_id
+SQL,
+            ['activity_id' => $activity->getId()],
+        );
+
+        return [
+            'entry_count' => (int) ($row['entry_count'] ?? 0),
+            'running_count' => (int) ($row['running_count'] ?? 0),
+            'total_minutes' => (int) ($row['total_minutes'] ?? 0),
+            'total_cost_cents' => (int) ($row['total_cost_cents'] ?? 0),
+        ];
+    }
+
     /** @return list<TimeEntry> */
     public function findForActivity(Activity $activity): array
     {

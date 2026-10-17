@@ -219,8 +219,8 @@ final readonly class MonthlyReportService
 
         return match ($action) {
             AuditAction::ProjectCreated, AuditAction::ProjectUpdated, AuditAction::ProjectArchived, AuditAction::ProjectRestored => $project ?? $name ?? 'Commessa',
-            AuditAction::ActivityCreated, AuditAction::ActivityUpdated => trim(($project ? $project.' · ' : '').($title ?? 'Attività')),
-            AuditAction::TimeEntryCreated, AuditAction::TimeEntryUpdated, AuditAction::TimerStarted => $title ?? 'Registrazione ore',
+            AuditAction::ActivityCreated, AuditAction::ActivityUpdated, AuditAction::ActivityDeleted => trim(($project ? $project.' · ' : '').($title ?? 'Attività')),
+            AuditAction::TimeEntryCreated, AuditAction::TimeEntryUpdated, AuditAction::TimerStarted, AuditAction::TimeEntryDeleted => $title ?? 'Registrazione ore',
             AuditAction::TimerStopped => 'Timer'.$minutes,
             AuditAction::TimerCancelled => 'Registrazione timer annullata',
             AuditAction::ExpenseCreated, AuditAction::ExpenseUpdated, AuditAction::ExpenseDeleted => ($project ?? 'Commessa').$amount,

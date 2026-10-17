@@ -1,6 +1,6 @@
 # Matrice autorizzazioni e riservatezza
 
-Questa matrice descrive la politica server-side delle 54 rotte applicative. La versione verificabile è `config/authorization_matrix.php`; una nuova rotta deve essere aggiunta alla matrice prima che il gate possa passare.
+Questa matrice descrive la politica server-side delle 56 rotte applicative. La versione verificabile è `config/authorization_matrix.php`; una nuova rotta deve essere aggiunta alla matrice prima che il gate possa passare.
 
 ## Livelli di accesso
 
@@ -44,6 +44,8 @@ Le richieste POST costruite manualmente non possono assegnare campi amministrati
 | Registrare ore proprie | Sì | Sì |
 | Modificare ore proprie | Sì | Sì |
 | Modificare ore altrui | Sì | No |
+| Eliminare una registrazione ore o un timer di qualunque utente | Sì | No |
+| Eliminare un'attività e tutte le ore collegate | Sì | No |
 | Avviare o fermare il proprio timer | Sì | Sì |
 | Annullare il proprio timer con conferma esplicita | Sì | Sì |
 
@@ -89,3 +91,7 @@ M9.2-B verifica:
 5. impossibilità di modificare risorse altrui;
 6. assenza di dati economici nel markup consegnato ai Collaboratori;
 7. rifiuto dei campi amministrativi/finanziari aggiunti manualmente ai POST.
+
+## Eliminazioni di attività e ore
+
+Le rotte app_activity_delete e app_time_entry_delete richiedono ROLE_PARTNER per GET e POST. Il GET mostra soltanto il riepilogo; il POST verifica il CSRF specifico del record prima di cancellare. I soci possono intervenire sui dati di qualsiasi utente e anche sui timer attivi; le commesse archiviate restano in sola lettura. L'eliminazione dell'attività include tutte le sue registrazioni ore, mentre spese e documenti vengono conservati nella commessa senza il collegamento all'attività. Eliminazione e audit sono atomici e condividono il lock delle mutazioni dei timer.

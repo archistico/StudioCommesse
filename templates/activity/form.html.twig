@@ -44,6 +44,15 @@
             </div>
             {{ form_end(form, {render_rest: false}) }}
         </div>
+        {% if activity.id and is_granted('ROLE_PARTNER') %}
+            <div class="card mt-3 border-danger">
+                <div class="card-body">
+                    <h3 class="card-title text-danger">Elimina attività</h3>
+                    <p class="text-secondary">Elimina definitivamente questa attività e tutte le registrazioni ore collegate, anche di altri utenti. Potrai verificare il riepilogo prima di confermare.</p>
+                    <a class="btn btn-outline-danger" href="{{ path('app_activity_delete', {id: activity.id}) }}">Elimina attività e ore</a>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -119,7 +119,14 @@
                     </td>
                     <td data-order="{{ entry.durationMinutes }}" class="fw-semibold">{{ entry.durationMinutes|duration_hm }}</td>
                     <td data-order="{{ entry.billable ? 1 : 0 }}"><span class="badge {{ entry.billable ? 'bg-green-lt' : 'bg-secondary-lt' }}">{{ entry.billable ? 'Sì' : 'No' }}</span></td>
-                    <td>{% if not entry.activity.project.archived and (is_granted('ROLE_PARTNER') or entry.user.id == app.user.id) and not entry.running %}<a href="{{ path('app_time_entry_edit', {id: entry.id}) }}">{{ entry.description ?: 'Modifica registrazione' }}</a>{% else %}{{ entry.description ?: '—' }}{% endif %}</td>
+                    <td>
+                        {% if not entry.activity.project.archived and is_granted('ROLE_PARTNER') and entry.running %}
+                            {% if entry.description %}<div>{{ entry.description }}</div>{% endif %}
+                            <a href="{{ path('app_time_entry_delete', {id: entry.id}) }}">Gestisci timer attivo</a>
+                        {% elseif not entry.activity.project.archived and (is_granted('ROLE_PARTNER') or entry.user.id == app.user.id) and not entry.running %}
+                            <a href="{{ path('app_time_entry_edit', {id: entry.id}) }}">{{ entry.description ?: 'Modifica registrazione' }}</a>
+                        {% else %}{{ entry.description ?: '—' }}{% endif %}
+                    </td>
                 </tr>
             {% else %}
                 <tr><td colspan="8" class="text-center text-secondary py-4">Nessuna registrazione corrisponde ai filtri.</td></tr>

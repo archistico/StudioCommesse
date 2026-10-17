@@ -1,0 +1,32 @@
+{% extends 'layout/app.html.twig' %}
+{% block title %}Elimina registrazione ore · {{ app_name }}{% endblock %}
+{% block page_title %}Elimina registrazione ore{% endblock %}
+{% block page_body %}
+<div class="form-page">
+    <div class="card border-danger">
+        <div class="card-header"><h3 class="card-title">{{ entry.activity.title }}</h3></div>
+        <div class="card-body">
+            <p class="text-secondary">{{ entry.activity.project.code }} · {{ entry.activity.project.name }}</p>
+            <dl class="row detail-list">
+                <dt class="col-12 col-md-6">Persona</dt><dd class="col-12 col-md-6">{{ entry.user.displayName }}</dd>
+                <dt class="col-12 col-md-6">Inizio</dt><dd class="col-12 col-md-6">{{ entry.startedAt|date('d/m/Y H:i:s') }}</dd>
+                <dt class="col-12 col-md-6">Fine</dt><dd class="col-12 col-md-6">{{ entry.endedAt ? entry.endedAt|date('d/m/Y H:i:s') : 'Timer in corso' }}</dd>
+                {% if not entry.running %}
+                    <dt class="col-12 col-md-6">Durata</dt><dd class="col-12 col-md-6">{{ entry.durationMinutes|duration_hm }}</dd>
+                    <dt class="col-12 col-md-6">Costo</dt><dd class="col-12 col-md-6">{{ entry.costSnapshotCents|money_eur }}</dd>
+                {% endif %}
+            </dl>
+            {% if entry.description %}<p>{{ entry.description|nl2br }}</p>{% endif %}
+            {% if entry.running %}<div class="alert alert-warning">Il timer attivo verrà eliminato senza salvare ulteriori ore.</div>{% endif %}
+            <p class="text-secondary mb-0">Verrà eliminata soltanto questa registrazione. L’attività e le altre ore resteranno disponibili. L’operazione non è annullabile.</p>
+        </div>
+        <form method="post" action="{{ path('app_time_entry_delete', {id: entry.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_time_entry_' ~ entry.id) }}">
+            <div class="card-footer form-actions confirmation-actions">
+                <a class="btn btn-outline-secondary" href="{{ entry.running ? path('app_activity_time', {id: entry.activity.id}) : path('app_time_entry_edit', {id: entry.id}) }}">Annulla</a>
+                <button class="btn btn-danger" type="submit">Elimina registrazione ore</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -24,6 +24,15 @@
             </div>
             {{ form_end(form, {render_rest: false}) }}
         </div>
+        {% if entry is defined and is_granted('ROLE_PARTNER') %}
+            <div class="card mt-3 border-danger">
+                <div class="card-body">
+                    <h3 class="card-title text-danger">Elimina registrazione</h3>
+                    <p class="text-secondary">La registrazione sarà eliminata definitivamente. Potrai verificarne i dati prima di confermare.</p>
+                    <a class="btn btn-outline-danger" href="{{ path('app_time_entry_delete', {id: entry.id}) }}">Elimina registrazione ore</a>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

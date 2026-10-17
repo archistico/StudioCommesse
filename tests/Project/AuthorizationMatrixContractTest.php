@@ -38,7 +38,7 @@ final class AuthorizationMatrixContractTest extends TestCase
         $matrixRoutes = array_keys($matrix);
         sort($matrixRoutes);
 
-        self::assertCount(54, $routes);
+        self::assertCount(56, $routes);
         self::assertSame(array_keys($routes), $matrixRoutes);
         foreach ($routes as $route => $methods) {
             self::assertArrayHasKey($route, $matrix);
@@ -56,6 +56,8 @@ final class AuthorizationMatrixContractTest extends TestCase
 
         foreach ([
             'app_user_index',
+            'app_activity_delete',
+            'app_time_entry_delete',
             'app_user_new',
             'app_user_edit',
             'app_economics_index',

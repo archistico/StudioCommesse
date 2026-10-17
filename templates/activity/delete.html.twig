@@ -1,0 +1,27 @@
+{% extends 'layout/app.html.twig' %}
+{% block title %}Elimina attività · {{ app_name }}{% endblock %}
+{% block page_title %}Elimina attività e ore collegate{% endblock %}
+{% block page_body %}
+<div class="form-page">
+    <div class="card border-danger">
+        <div class="card-header"><h3 class="card-title">{{ activity.title }}</h3></div>
+        <div class="card-body">
+            <p class="text-secondary">{{ activity.project.code }} · {{ activity.project.name }}</p>
+            <p>Verranno eliminati definitivamente l’attività e <strong>{{ impact.entry_count }} {{ impact.entry_count == 1 ? 'registrazione ore' : 'registrazioni ore' }}</strong>, di tutti gli utenti.</p>
+            <dl class="row detail-list">
+                <dt class="col-12 col-md-6">Ore consuntivate da eliminare</dt><dd class="col-12 col-md-6">{{ impact.total_minutes|duration_hm }}</dd>
+                <dt class="col-12 col-md-6">Costo delle ore da eliminare</dt><dd class="col-12 col-md-6">{{ impact.total_cost_cents|money_eur }}</dd>
+            </dl>
+            {% if impact.running_count > 0 %}<div class="alert alert-warning">{{ impact.running_count }} {{ impact.running_count == 1 ? 'timer attivo verrà eliminato' : 'timer attivi verranno eliminati' }} senza salvare ulteriori ore.</div>{% endif %}
+            <p class="text-secondary mb-0">{{ impact.expense_count }} {{ impact.expense_count == 1 ? 'spesa' : 'spese' }} e {{ impact.attachment_count }} {{ impact.attachment_count == 1 ? 'documento' : 'documenti' }} collegati resteranno nella commessa, con il collegamento all’attività rimosso. L’operazione non è annullabile.</p>
+        </div>
+        <form method="post" action="{{ path('app_activity_delete', {id: activity.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_activity_' ~ activity.id) }}">
+            <div class="card-footer form-actions confirmation-actions">
+                <a class="btn btn-outline-secondary" href="{{ path('app_activity_edit', {id: activity.id}) }}">Annulla</a>
+                <button class="btn btn-danger" type="submit">Elimina attività e tutte le ore</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

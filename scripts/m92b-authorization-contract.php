@@ -98,7 +98,7 @@ $checks = [
     [str_contains($files['projectVoter'], 'if (self::VIEW_FINANCIAL === $attribute)') && str_contains($files['projectVoter'], 'Tariffe e costi sono riservati ai soci.'), 'dati finanziari negati ai responsabili collaboratori'],
     [str_contains($files['expenseVoter'], 'getRecordedBy()?->getId() === $userId'), 'spese proprie per collaboratore'],
     [str_contains($files['permissions'], 'La responsabilità della commessa non attribuisce una visibilità economica aggiuntiva'), 'permessi economici documentati'],
-    [str_contains($files['authorizationDocs'], '54 rotte applicative'), 'matrice umana completa'],
+    [str_contains($files['authorizationDocs'], '56 rotte applicative'), 'matrice umana completa'],
     [str_contains($files['validation'], 'scripts/m92b-authorization-contract.php'), 'contratto M9.2-B nel gate'],
     [str_contains($files['validation'], 'M9.2-H VALIDATION PASSED'), 'gate M9.2-B'],
     [str_contains($files['services'], "app.version: '0.9.2-M9.2-H'"), 'versione M9.2-B'],

@@ -16,6 +16,8 @@ use App\Repository\UserRepository;
 use App\Security\Voter\ActivityVoter;
 use App\Service\AuditRecord;
 use App\Service\AuditedTransaction;
+use App\Service\WorkDeletionService;
+use DomainException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -154,6 +156,35 @@ final class ActivityController extends AbstractController
             'submit_label' => 'Salva',
             'attachment_count' => $attachmentRepository->countForActivity($activity),
         ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
+    }
+
+    #[Route('/{id}/elimina', name: 'app_activity_delete', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_PARTNER')]
+    public function delete(Activity $activity, Request $request, WorkDeletionService $deletion): Response
+    {
+        if ($activity->getProject()?->isArchived()) {
+            throw $this->createAccessDeniedException('La commessa è archiviata e le attività sono in sola lettura.');
+        }
+        $activityId = $activity->getId();
+        $projectId = $activity->getProject()?->getId();
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('delete_activity_'.$activityId, (string) $request->request->get('_token'))) {
+                throw $this->createAccessDeniedException();
+            }
+            try {
+                $deletion->deleteActivity($activity, $this->requireCurrentUser(), $request->getClientIp());
+                $this->addFlash('success', 'Attività e registrazioni ore collegate eliminate.');
+            } catch (DomainException $exception) {
+                $this->addFlash('danger', $exception->getMessage());
+            }
+
+            return $this->redirectToRoute('app_project_show', ['id' => $projectId]);
+        }
+
+        return $this->render('activity/delete.html.twig', [
+            'activity' => $activity,
+            'impact' => $deletion->activityImpact($activity),
+        ]);
     }
 
     private function requireCurrentUser(): User
