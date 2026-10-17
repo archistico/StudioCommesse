@@ -15,6 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
 #[AsCommand(
     name: 'app:user:create',
@@ -118,6 +119,12 @@ final class CreateUserCommand extends Command
         $password = $io->askHidden('Password (almeno 12 caratteri)');
         if (!is_string($password) || mb_strlen($password) < 12) {
             $io->error('La password deve contenere almeno 12 caratteri.');
+
+            return Command::INVALID;
+        }
+
+        if (strlen($password) > PasswordHasherInterface::MAX_PASSWORD_LENGTH) {
+            $io->error(sprintf('La password non può superare %d byte.', PasswordHasherInterface::MAX_PASSWORD_LENGTH));
 
             return Command::INVALID;
         }

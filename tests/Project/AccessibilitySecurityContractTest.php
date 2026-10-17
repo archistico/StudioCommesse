@@ -12,6 +12,7 @@ final class AccessibilitySecurityContractTest extends TestCase
     {
         $root = dirname(__DIR__, 2);
         $security = (string) file_get_contents($root.'/config/packages/security.yaml');
+        $limiter = (string) file_get_contents($root.'/src/Security/LoginRateLimiter.php');
         $services = (string) file_get_contents($root.'/config/services.yaml');
         $subscriber = (string) file_get_contents($root.'/src/EventSubscriber/SecurityAuditSubscriber.php');
         $headers = (string) file_get_contents($root.'/src/EventSubscriber/SecurityHeadersSubscriber.php');
@@ -21,9 +22,10 @@ final class AccessibilitySecurityContractTest extends TestCase
 
         self::assertStringContainsString("app.login_max_attempts: 5", $services);
         self::assertStringContainsString("app.login_lockout_interval: '1 hour'", $services);
-        self::assertStringContainsString("max_attempts: '%app.login_max_attempts%'", $security);
-        self::assertStringContainsString("interval: '%app.login_lockout_interval%'", $security);
-        self::assertStringContainsString("cache_pool: 'cache.rate_limiter'", $security);
+        self::assertStringContainsString('limiter: App\\Security\\LoginRateLimiter', $security);
+        self::assertStringContainsString("Autowire('%app.login_max_attempts%')", $limiter);
+        self::assertStringContainsString("Autowire('%app.login_lockout_interval%')", $limiter);
+        self::assertStringContainsString("service: 'cache.rate_limiter'", $limiter);
         self::assertStringContainsString('TooManyLoginAttemptsAuthenticationException', $subscriber);
         self::assertStringContainsString('AuditAction::LoginThrottled', $subscriber);
         self::assertStringContainsString("'identifier_fingerprint'", $subscriber);

@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased - Correzioni utenti, login e autorizzazione
+
+- Le sessioni degli account disattivati vengono revocate alla richiesta successiva, mantenendo i controlli Symfony su cambi di password, username e ruolo.
+- Il login normalizza il nome utente come la creazione account e azzera i fallimenti locali dopo un accesso riuscito senza azzerare il limite globale IP.
+- Le modifiche non valide del proprio username non alterano l'identità conservata nella sessione.
+- Tariffe utente vuote e ruoli mancanti non causano più errori 500; le tariffe negative vengono rifiutate anziché azzerate.
+- La lunghezza massima della password viene controllata in byte prima dell'hashing, nei form e nel comando di creazione utenti.
+- Aggiunti test su sessioni, scritture dopo disattivazione, CSRF, cambio credenziali, rehash, contatori login e validazione utenti.
+
 ## Unreleased - Correzioni clienti
 
 - La ricerca trova anche ragioni sociali e referenti con lettere accentate maiuscole, grazie alla normalizzazione Unicode di LOWER sulle connessioni SQLite.

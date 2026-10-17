@@ -9,6 +9,7 @@ use App\Enum\UserRole;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Command\Command;
@@ -65,6 +66,31 @@ final class CreateUserCommandTest extends KernelTestCase
         self::assertSame(Command::SUCCESS, $secondStatus);
         self::assertStringContainsString('già presente almeno un socio attivo', $secondRun->getDisplay());
         self::assertSame(1, $repository->countActiveByRole(UserRole::Partner));
+    }
+
+    #[DataProvider('oversizedPasswords')]
+    public function testOversizedPasswordsAreRejectedWithoutCreatingAnAccount(string $password): void
+    {
+        $application = new Application(self::$kernel);
+        $tester = new CommandTester($application->find('app:user:create'));
+        $tester->setInputs([$password]);
+
+        $status = $tester->execute([
+            'username' => 'password-lunga-cli',
+            'display-name' => 'Utente CLI',
+            '--role' => 'collaborator',
+        ]);
+
+        self::assertSame(Command::INVALID, $status);
+        self::assertStringContainsString('4096', $tester->getDisplay());
+        self::assertSame(0, $this->entityManager->getRepository(User::class)->count([]));
+    }
+
+    /** @return iterable<string, array{string}> */
+    public static function oversizedPasswords(): iterable
+    {
+        yield 'ASCII' => [str_repeat('a', 4_097)];
+        yield 'multibyte' => [str_repeat('é', 2_049)];
     }
 
     protected function tearDown(): void

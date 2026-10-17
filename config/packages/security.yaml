@@ -7,9 +7,7 @@ security:
 
   providers:
     app_user_provider:
-      entity:
-        class: App\Entity\User
-        property: username
+      id: App\Security\UserProvider
 
   firewalls:
     dev:
@@ -27,9 +25,7 @@ security:
         csrf_token_id: authenticate
         default_target_path: app_dashboard
       login_throttling:
-        max_attempts: '%app.login_max_attempts%'
-        interval: '%app.login_lockout_interval%'
-        cache_pool: 'cache.rate_limiter'
+        limiter: App\Security\LoginRateLimiter
       logout:
         path: app_logout
         target: app_login

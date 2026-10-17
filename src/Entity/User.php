@@ -140,7 +140,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     public function getDefaultHourlyRateCents(): int { return $this->defaultHourlyRateCents; }
-    public function setDefaultHourlyRateCents(int $value): self { $this->defaultHourlyRateCents = max(0, $value); return $this; }
+    public function setDefaultHourlyRateCents(int $value): self { $this->defaultHourlyRateCents = $value; return $this; }
 
     public function isActive(): bool
     {

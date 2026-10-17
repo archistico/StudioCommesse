@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__);
 $files = [
+    'login_limiter' => (string) file_get_contents($root.'/src/Security/LoginRateLimiter.php'),
     'services' => (string) file_get_contents($root.'/config/services.yaml'),
     'security' => (string) file_get_contents($root.'/config/packages/security.yaml'),
     'framework' => (string) file_get_contents($root.'/config/packages/framework.yaml'),
@@ -24,7 +25,7 @@ $files = [
 $checks = [
     [str_contains($files['services'], "app.version: '0.9.2-M9.2-H'"), 'versione M9.2-H'],
     [str_contains($files['services'], 'app.login_max_attempts: 5') && str_contains($files['services'], "app.login_lockout_interval: '1 hour'"), 'soglia login'],
-    [str_contains($files['security'], "max_attempts: '%app.login_max_attempts%'") && str_contains($files['security'], "interval: '%app.login_lockout_interval%'") && str_contains($files['security'], "cache_pool: 'cache.rate_limiter'"), 'rate limiter Symfony'],
+    [str_contains($files['security'], 'limiter: App\\Security\\LoginRateLimiter') && str_contains($files['login_limiter'], "Autowire('%app.login_max_attempts%')") && str_contains($files['login_limiter'], "Autowire('%app.login_lockout_interval%')") && str_contains($files['login_limiter'], "service: 'cache.rate_limiter'"), 'rate limiter Symfony con reset locale'],
     [str_contains($files['framework'], 'cookie_httponly: true') && str_contains($files['framework'], 'cookie_samesite: strict'), 'cookie sessione'],
     [str_contains($files['audit_action'], "security.login_throttled") && str_contains($files['audit_action'], 'Accesso temporaneamente bloccato'), 'azione audit blocco'],
     [str_contains($files['security_audit'], 'TooManyLoginAttemptsAuthenticationException') && str_contains($files['security_audit'], 'AuditAction::LoginThrottled'), 'audit throttling'],

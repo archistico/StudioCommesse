@@ -7,6 +7,8 @@ namespace App\Form;
 use App\Entity\User;
 use App\Enum\UserRole;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
@@ -14,6 +16,7 @@ use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -24,7 +27,14 @@ final class UserType extends AbstractType
     {
         $passwordRequired = (bool) $options['password_required'];
 
-        $passwordConstraints = [new Length(min: 12, max: 4096, minMessage: 'La password deve contenere almeno {{ limit }} caratteri.')];
+        $passwordConstraints = [
+            new Length(min: 12, minMessage: 'La password deve contenere almeno {{ limit }} caratteri.'),
+            new Length(
+                max: PasswordHasherInterface::MAX_PASSWORD_LENGTH,
+                countUnit: Length::COUNT_BYTES,
+                maxMessage: 'La password non può superare {{ limit }} byte.',
+            ),
+        ];
         if ($passwordRequired) {
             array_unshift($passwordConstraints, new NotBlank(message: 'La password è obbligatoria.'));
         }
@@ -50,6 +60,7 @@ final class UserType extends AbstractType
                 'divisor' => 100,
                 'scale' => 2,
                 'required' => false,
+                'empty_data' => '0',
             ])
             ->add('plainPassword', PasswordType::class, [
                 'label' => $passwordRequired ? 'Password' : 'Nuova password',
@@ -65,6 +76,13 @@ final class UserType extends AbstractType
                 'label' => 'Account attivo',
                 'required' => false,
             ]);
+
+        $builder->get('role')->addModelTransformer(new CallbackTransformer(
+            static fn (UserRole $value): UserRole => $value,
+            static fn (?UserRole $value): UserRole => $value ?? throw new TransformationFailedException(
+                invalidMessage: 'Il ruolo è obbligatorio.',
+            ),
+        ));
     }
 
     public function configureOptions(OptionsResolver $resolver): void

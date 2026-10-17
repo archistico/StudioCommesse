@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/utenti')]
@@ -95,10 +96,13 @@ final class UserController extends AbstractController
         UserPasswordHasherInterface $passwordHasher,
         UserAccountGuard $guard,
         AuditedTransaction $transaction,
+        TokenStorageInterface $tokenStorage,
     ): Response {
         $previousRole = $user->getRole();
         $previouslyActive = $user->isActive();
         $previousUsername = $user->getUsername();
+        $sessionUser = $this->requireCurrentUser();
+        $originalSessionUser = $sessionUser->getId() === $user->getId() ? clone $sessionUser : null;
 
         $form = $this->createForm(UserType::class, $user, ['password_required' => false]);
         $form->handleRequest($request);
@@ -152,6 +156,10 @@ final class UserController extends AbstractController
 
                 return $this->redirectToRoute('app_user_index');
             }
+        }
+
+        if ($form->isSubmitted() && null !== $originalSessionUser) {
+            $tokenStorage->getToken()?->setUser($originalSessionUser);
         }
 
         $status = $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK;

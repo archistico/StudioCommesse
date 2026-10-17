@@ -15,6 +15,15 @@ Studio Commesse contiene dati personali, operativi ed economici. L’accesso dev
 
 Il blocco non modifica l’anagrafica dell’utente e scade automaticamente. Non è necessario intervenire sul database.
 
+## Account e sessioni
+
+- Il login normalizza il nome utente come la gestione account: spazi esterni rimossi e lettere minuscole.
+- La disattivazione di un account blocca anche le sessioni già aperte alla richiesta successiva, prima di consentire letture o scritture protette.
+- Cambio password, ruolo o nome utente richiedono una nuova autenticazione alle altre sessioni già aperte.
+- Una modifica del proprio profilo rifiutata dalla validazione non altera l'identità conservata nella sessione.
+- Password e token CSRF non vengono ristampati nei form dopo errori. Il limite massimo della password è quello dell'hasher, 4096 byte, anche per testo multibyte e creazione da console.
+- L'accesso riuscito azzera soltanto il contatore dell'utenza/IP interessata e conserva il limite globale per IP.
+
 ## Audit degli accessi
 
 Il registro Audit, riservato ai Soci, distingue:
