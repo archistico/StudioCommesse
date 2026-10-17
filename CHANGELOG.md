@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased - Correzioni ore
+
+- Inizio e fine sono obbligatori nel form manuale: i valori vuoti producono errori di validazione, senza errore 500 o riapertura involontaria di registrazioni concluse.
+- Il form conserva i secondi dei timer, evitando variazioni di durata e costo quando si modifica soltanto la descrizione.
+- La modifica usa sempre la tariffa storica, anche quando lo snapshot è zero.
+- L'avvio del timer verifica le sovrapposizioni con registrazioni concluse e blocca commesse archiviate anche nel servizio.
+- Il report Ore non mostra link di modifica per registrazioni di commesse archiviate.
+- Aggiunti test HTTP e di servizio per intervalli incompleti, storico, precisione, sovrapposizioni, timer e archivio.
+
 ## Unreleased - Correzioni attività
 
 - Ripristinato il filtro automatico assegnatario tramite JavaScript esterno compatibile con CSP e aggiunto il pulsante Filtra.

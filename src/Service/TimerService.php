@@ -28,14 +28,23 @@ final readonly class TimerService
         try {
             return $this->transaction->execute(
                 function () use ($activity, $user, $at): TimeEntry {
+                    if ($activity->getProject()?->isArchived()) {
+                        throw new DomainException('La commessa è archiviata.');
+                    }
+
                     if (null !== $this->entries->findRunningForUser($user)) {
                         throw new DomainException('Esiste già un timer attivo.');
+                    }
+
+                    $startedAt = $at ?? new DateTimeImmutable();
+                    if ($this->entries->overlaps($user, $startedAt, null)) {
+                        throw new DomainException('L’intervallo si sovrappone a un’altra registrazione.');
                     }
 
                     $entry = (new TimeEntry())
                         ->setActivity($activity)
                         ->setUser($user)
-                        ->setStartedAt($at ?? new DateTimeImmutable())
+                        ->setStartedAt($startedAt)
                         ->applyRateSnapshot($this->hourlyRateResolver->resolve($activity, $user));
 
                     $this->entries->save($entry, false);

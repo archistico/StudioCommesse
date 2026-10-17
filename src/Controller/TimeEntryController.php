@@ -231,7 +231,6 @@ final class TimeEntryController extends AbstractController
         TimeEntry $entry,
         Request $request,
         TimeEntryRepository $repository,
-        HourlyRateResolver $rateResolver,
         AuditedTransaction $transaction,
         TimerMutationLock $mutationLock,
     ): Response
@@ -260,12 +259,7 @@ final class TimeEntryController extends AbstractController
                 if ($repository->overlaps($owner, $entry->getStartedAt(), $entry->getEndedAt(), $entry->getId())) {
                     $form->addError(new FormError('L’intervallo si sovrappone a un’altra registrazione.'));
                 } else {
-                    $activity = $entry->getActivity();
-                    if (0 === $entry->getHourlyRateSnapshotCents() && $activity instanceof Activity) {
-                        $entry->applyRateSnapshot($rateResolver->resolve($activity, $owner));
-                    } else {
-                        $entry->recalculateCostFromSnapshot();
-                    }
+                    $entry->recalculateCostFromSnapshot();
                     $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
                     $transaction->execute(
                         static function () use ($repository, $entry): TimeEntry {
