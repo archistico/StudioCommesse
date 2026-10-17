@@ -160,6 +160,10 @@ final class ClientController extends AbstractController
     ): Response {
         $this->validateCsrf('archive_client_'.$client->getId(), $request);
 
+        if ($client->isArchived()) {
+            return $this->redirectToRoute('app_client_show', ['id' => $client->getId()]);
+        }
+
         $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
         try {
             $transaction->execute(
@@ -199,6 +203,9 @@ final class ClientController extends AbstractController
         AuditedTransaction $transaction,
     ): Response {
         $this->validateCsrf('restore_client_'.$client->getId(), $request);
+        if (!$client->isArchived()) {
+            return $this->redirectToRoute('app_client_show', ['id' => $client->getId()]);
+        }
         $actorIdentifier = $this->requireCurrentUser()->getUserIdentifier();
         $transaction->execute(
             static function () use ($client, $clientRepository): Client {

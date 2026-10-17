@@ -46,7 +46,7 @@
             <div class="card-header d-flex align-items-center">
                 <h3 class="card-title">Commesse</h3>
                 {% if is_granted('ROLE_PARTNER') and not client.archived %}
-                    <a href="{{ path('app_project_new') }}" class="btn btn-sm btn-primary ms-auto">Nuova commessa</a>
+                    <a href="{{ path('app_project_new', {client: client.id}) }}" class="btn btn-sm btn-primary ms-auto">Nuova commessa</a>
                 {% endif %}
             </div>
             <div class="table-responsive">

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased - Correzioni clienti
+
+- La ricerca trova anche ragioni sociali e referenti con lettere accentate maiuscole, grazie alla normalizzazione Unicode di LOWER sulle connessioni SQLite.
+- La ricerca clienti tratta percentuali e underscore come testo letterale.
+- Archiviazione e ripristino ripetuti non duplicano gli eventi audit né modificano nuovamente lo stato; resta obbligatorio il token CSRF.
+- Nuova commessa dalla scheda cliente preseleziona il cliente corretto e rifiuta contesti inesistenti o archiviati.
+- Aggiunti test su ricerca, visibilità degli archivi, comandi ripetuti, contesto della nuova commessa e riconnessione SQLite.
+
 ## Unreleased - Correzioni ore
 
 - Inizio e fine sono obbligatori nel form manuale: i valori vuoti producono errori di validazione, senza errore 500 o riapertura involontaria di registrazioni concluse.

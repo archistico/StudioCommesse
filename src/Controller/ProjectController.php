@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Activity;
+use App\Entity\Client;
 use App\Entity\Project;
 use App\Entity\User;
 use App\Enum\AuditAction;
@@ -14,6 +15,7 @@ use App\Form\ProjectType;
 use App\Query\ProjectSearchCriteria;
 use App\Repository\ActivityRepository;
 use App\Repository\AttachmentRepository;
+use App\Repository\ClientRepository;
 use App\Repository\ProjectRepository;
 use App\Repository\TimeEntryRepository;
 use App\Repository\UserRepository;
@@ -65,10 +67,23 @@ final class ProjectController extends AbstractController
     #[IsGranted('ROLE_PARTNER')]
     public function new(
         Request $request,
+        ClientRepository $clientRepository,
         ProjectCreator $projectCreator,
         AuditedTransaction $transaction,
     ): Response {
         $project = new Project();
+        if ($request->query->has('client')) {
+            $clientId = $request->query->getInt('client');
+            $client = $clientId > 0 ? $clientRepository->find($clientId) : null;
+            if (!$client instanceof Client) {
+                throw $this->createNotFoundException('Cliente non trovato.');
+            }
+            if ($client->isArchived()) {
+                throw $this->createAccessDeniedException('Ripristinare il cliente prima di creare una commessa.');
+            }
+            $project->setClient($client);
+        }
+
         $form = $this->createForm(ProjectType::class, $project, ['allow_administration' => true]);
         $form->handleRequest($request);
 

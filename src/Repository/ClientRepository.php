@@ -40,8 +40,8 @@ final class ClientRepository extends ServiceEntityRepository
         $normalizedQuery = null === $query ? '' : trim($query);
         if ('' !== $normalizedQuery) {
             $builder
-                ->andWhere('LOWER(client.name) LIKE :query OR LOWER(client.contactPerson) LIKE :query OR LOWER(client.email) LIKE :query')
-                ->setParameter('query', '%'.mb_strtolower($normalizedQuery).'%');
+                ->andWhere("LOWER(client.name) LIKE :query ESCAPE '!' OR LOWER(client.contactPerson) LIKE :query ESCAPE '!' OR LOWER(client.email) LIKE :query ESCAPE '!'")
+                ->setParameter('query', '%'.strtr(mb_strtolower($normalizedQuery, 'UTF-8'), ['!' => '!!', '%' => '!%', '_' => '!_']).'%');
         }
 
         $result = $builder->getQuery()->getResult();
