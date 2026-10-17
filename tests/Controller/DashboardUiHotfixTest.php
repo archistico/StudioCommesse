@@ -88,7 +88,8 @@ final class DashboardUiHotfixTest extends DatabaseWebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('table', 'Attività personale visibile');
         self::assertStringNotContainsString('Attività altrui nascosta', (string) $this->client->getResponse()->getContent());
-        self::assertSelectorExists('select[name="assignee"][onchange="this.form.requestSubmit()"]');
+        self::assertSelectorExists('select[name="assignee"][data-auto-submit]');
+        self::assertSelectorNotExists('select[onchange]');
         self::assertSelectorExists('option[value="me"][selected]');
         self::assertSelectorTextContains('#assignee-help', 'mostrate subito le tue attività');
     }

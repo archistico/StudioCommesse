@@ -13,6 +13,7 @@ use App\Repository\ActivityRepository;
 use App\Repository\AttachmentRepository;
 use App\Repository\TimeEntryRepository;
 use App\Repository\UserRepository;
+use App\Security\Voter\ActivityVoter;
 use App\Service\AuditRecord;
 use App\Service\AuditedTransaction;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -119,9 +120,7 @@ final class ActivityController extends AbstractController
         if ($activity->getProject()?->isArchived()) {
             throw $this->createAccessDeniedException('La commessa è archiviata e le attività sono in sola lettura.');
         }
-        if (!$this->canEdit($activity)) {
-            throw $this->createAccessDeniedException();
-        }
+        $this->denyAccessUnlessGranted(ActivityVoter::EDIT, $activity);
 
         $form = $this->createForm(ActivityType::class, $activity, ['allow_financial' => $this->isGranted('ROLE_PARTNER')]);
         $form->handleRequest($request);
@@ -155,16 +154,6 @@ final class ActivityController extends AbstractController
             'submit_label' => 'Salva',
             'attachment_count' => $attachmentRepository->countForActivity($activity),
         ], new Response(status: $form->isSubmitted() ? Response::HTTP_UNPROCESSABLE_ENTITY : Response::HTTP_OK));
-    }
-
-    private function canEdit(Activity $activity): bool
-    {
-        $user = $this->requireCurrentUser();
-
-        return $this->isGranted('ROLE_PARTNER')
-            || $activity->getAssignee()?->getId() === $user->getId()
-            || $activity->getCreatedBy()?->getId() === $user->getId()
-            || $activity->getProject()?->getResponsible()?->getId() === $user->getId();
     }
 
     private function requireCurrentUser(): User

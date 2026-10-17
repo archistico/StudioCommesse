@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased - Correzioni attività
+
+- Ripristinato il filtro automatico assegnatario tramite JavaScript esterno compatibile con CSP e aggiunto il pulsante Filtra.
+- La validazione delle date considera l'inizio automatico delle attività in corso prima del salvataggio.
+- Avanzamento fuori intervallo e tariffe negative vengono rifiutati senza sovrascrivere i valori precedenti.
+- L'avanzamento vuoto produce un errore di validazione anziché un errore 500.
+- I link delle attività rispettano i permessi di modifica e lo stato di archivio; per la sola consultazione aprono le ore dell'attività.
+- Aggiunti test HTTP e JavaScript di regressione; allineati i contratti del filtro assegnatario.
+
+## Unreleased - Correzioni commesse
+
+- I campi facoltativi preventivo e tariffa della commessa accettano valori vuoti e li salvano come zero, senza errore 500.
+- Gli importi negativi vengono rifiutati dalla validazione anziché azzerare silenziosamente il valore precedente.
+- La validazione delle date considera l'inizio automatico delle commesse in corso e l'assenza di inizio per quelle non iniziate, prima del salvataggio.
+- Aggiunti test HTTP di regressione su creazione, modifica, date operative e importi in centesimi.
+- Isolata la cache del rate limiter nei test di sicurezza del login, per consentire esecuzioni ripetute senza ereditare blocchi precedenti.
+
 ## 0.9.2-M9.2-H Fix 1 - PHPStan completeness
 
 - Rimossa la chiamata ridondante a `array_values()` su una lista già ordinata in `AuditPrivacyGuard`.

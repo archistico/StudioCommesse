@@ -12,6 +12,8 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\Exception\TransformationFailedException;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -91,6 +93,13 @@ final class ActivityType extends AbstractType
                 'required' => false,
                 'attr' => ['rows' => 5],
             ]);
+
+        $builder->get('progressPercent')->addModelTransformer(new CallbackTransformer(
+            static fn (int $value): int => $value,
+            static fn (?int $value): int => $value ?? throw new TransformationFailedException(
+                invalidMessage: 'L’avanzamento è obbligatorio.',
+            ),
+        ));
     }
 
     public function configureOptions(OptionsResolver $resolver): void

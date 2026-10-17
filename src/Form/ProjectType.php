@@ -96,6 +96,7 @@ final class ProjectType extends AbstractType
                     'divisor' => 100,
                     'scale' => 2,
                     'required' => false,
+                    'empty_data' => '0',
                     'help' => 'Importo a corpo preventivato per la commessa.',
                 ])
                 ->add('defaultHourlyRateCents', MoneyType::class, [
@@ -104,6 +105,7 @@ final class ProjectType extends AbstractType
                     'divisor' => 100,
                     'scale' => 2,
                     'required' => false,
+                    'empty_data' => '0',
                     'help' => 'Usata quando l’attività non ha una tariffa più specifica.',
                 ]);
         }

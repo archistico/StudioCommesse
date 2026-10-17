@@ -8,9 +8,19 @@ use App\Entity\AuditLog;
 use App\Enum\AuditAction;
 use App\Tests\DatabaseWebTestCase;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Cache\CacheItemPoolInterface;
 
 final class LoginSecurityHardeningTest extends DatabaseWebTestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $rateLimiterCache = self::getContainer()->get('cache.rate_limiter');
+        self::assertInstanceOf(CacheItemPoolInterface::class, $rateLimiterCache);
+        $rateLimiterCache->clear();
+    }
+
     public function testFiveFailuresTemporarilyBlockAValidPasswordAndAreAudited(): void
     {
         $username = 'utente-blocco-login';

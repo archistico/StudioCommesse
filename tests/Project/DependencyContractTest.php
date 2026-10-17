@@ -637,7 +637,8 @@ final class DependencyContractTest extends TestCase
         self::assertStringContainsString('findForAssignee($targetUser)', $activityController);
         self::assertStringContainsString('option value="me"', $activityIndex);
         self::assertStringContainsString('selected_assignee_id is null', $activityIndex);
-        self::assertStringContainsString('onchange="this.form.requestSubmit()"', $activityIndex);
+        self::assertStringContainsString('data-auto-submit', $activityIndex);
+        self::assertStringNotContainsString('onchange=', $activityIndex);
         self::assertStringContainsString("request('GET', '/attivita?assignee=me')", $reportingTest);
         self::assertStringContainsString('option[value="me"][selected]', $reportingTest);
     }

@@ -256,9 +256,9 @@ class Project
     }
 
     public function getEstimatedAmountCents(): int { return $this->estimatedAmountCents; }
-    public function setEstimatedAmountCents(int $value): self { $this->estimatedAmountCents = max(0, $value); return $this; }
+    public function setEstimatedAmountCents(int $value): self { $this->estimatedAmountCents = $value; return $this; }
     public function getDefaultHourlyRateCents(): int { return $this->defaultHourlyRateCents; }
-    public function setDefaultHourlyRateCents(int $value): self { $this->defaultHourlyRateCents = max(0, $value); return $this; }
+    public function setDefaultHourlyRateCents(int $value): self { $this->defaultHourlyRateCents = $value; return $this; }
 
     public function getCompletedAt(): ?DateTimeImmutable
     {
@@ -319,7 +319,14 @@ class Project
     #[Assert\Callback]
     public function validateDates(ExecutionContextInterface $context): void
     {
-        if (null !== $this->startDate && null !== $this->dueDate && $this->dueDate < $this->startDate) {
+        // Validate the start date that normalizeWorkflow() will actually persist.
+        $startDate = match ($this->status) {
+            ProjectStatus::NotStarted => null,
+            ProjectStatus::InProgress => $this->startDate ?? new DateTimeImmutable('today'),
+            default => $this->startDate,
+        };
+
+        if (null !== $startDate && null !== $this->dueDate && $this->dueDate < $startDate) {
             $context->buildViolation('La data prevista di fine non può precedere la data di inizio.')
                 ->atPath('dueDate')
                 ->addViolation();

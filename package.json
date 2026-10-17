@@ -6,7 +6,7 @@
   "scripts": {
     "assets:install": "node scripts/copy-tabler-assets.mjs",
     "build": "npm run assets:install",
-    "test": "node scripts/check-assets.mjs"
+    "test": "node scripts/check-assets.mjs && node --test tests/Frontend/activity-filter.test.mjs"
   },
   "devDependencies": {
     "@tabler/core": "1.4.0",

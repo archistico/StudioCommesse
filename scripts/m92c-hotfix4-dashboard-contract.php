@@ -50,7 +50,7 @@ $checks = [
     [!str_contains($contents['dashboard'], 'Ore pianificate'), 'card ore pianificate rimossa'],
     [!preg_match('/\bcol-(?:sm|md)-\d+\b/', $contents['dashboard']), 'breakpoint responsive da lg'],
     [!str_contains($contents['dashboard'], 'Quadro operativo'), 'rimozione vecchio riquadro laterale'],
-    [str_contains($contents['activities'], 'onchange="this.form.requestSubmit()"'), 'filtro assegnatario automatico'],
+    [str_contains($contents['activities'], 'data-auto-submit') && !str_contains($contents['activities'], 'onchange='), 'filtro assegnatario automatico compatibile con CSP'],
     [str_contains($contents['activities'], 'mostrate subito le tue attività'), 'comportamento predefinito documentato'],
     [str_contains($contents['projects'], 'data-priority="{{ project.priority.value }}"'), 'priorità iconiche identificabili'],
     [str_contains($contents['projects'], 'aria-label="Priorità {{ project.priority.label }}"'), 'icone priorità accessibili'],

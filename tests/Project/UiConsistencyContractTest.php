@@ -118,7 +118,8 @@ final class UiConsistencyContractTest extends TestCase
         self::assertStringContainsString("path('app_client_show'", $clientIndex);
         self::assertStringContainsString("path('app_project_show'", $projectIndex);
         self::assertStringContainsString("path('app_user_edit'", $userIndex);
-        self::assertStringContainsString("path('app_activity_edit'", $activityIndex);
+        self::assertStringContainsString("path(is_granted('ACTIVITY_EDIT', activity)", $activityIndex);
+        self::assertStringContainsString("'app_activity_edit' : 'app_activity_time'", $activityIndex);
         foreach ([$clientIndex, $projectIndex, $userIndex, $activityIndex] as $template) {
             self::assertStringNotContainsString('<th>Azioni</th>', $template);
             self::assertStringNotContainsString('<th>Apri</th>', $template);

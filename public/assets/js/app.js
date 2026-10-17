@@ -1,6 +1,10 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('select[data-auto-submit]').forEach((select) => {
+        select.addEventListener('change', () => select.form.requestSubmit());
+    });
+
     document.querySelectorAll('form[data-confirm]').forEach((form) => {
         form.addEventListener('submit', (event) => {
             const message = form.getAttribute('data-confirm') ?? 'Confermare l’operazione?';

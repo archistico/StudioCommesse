@@ -61,13 +61,13 @@ class Activity
     public function getPriority(): ActivityPriority { return $this->priority; }
     public function setPriority(ActivityPriority $v): self { $this->priority=$v; return $this; }
     public function getProgressPercent(): int { return $this->progressPercent; }
-    public function setProgressPercent(int $v): self { $this->progressPercent=max(0,min(100,$v)); return $this; }
+    public function setProgressPercent(int $v): self { $this->progressPercent=$v; return $this; }
     public function getInitialEstimatedMinutes(): ?int { return $this->initialEstimatedMinutes; }
     public function setInitialEstimatedMinutes(?int $v): self { $this->initialEstimatedMinutes=$v; return $this; }
     public function getRemainingEstimatedMinutes(): ?int { return $this->remainingEstimatedMinutes; }
     public function setRemainingEstimatedMinutes(?int $v): self { $this->remainingEstimatedMinutes=$v; return $this; }
     public function getHourlyRateOverrideCents(): ?int { return $this->hourlyRateOverrideCents; }
-    public function setHourlyRateOverrideCents(?int $value): self { $this->hourlyRateOverrideCents = null === $value ? null : max(0, $value); return $this; }
+    public function setHourlyRateOverrideCents(?int $value): self { $this->hourlyRateOverrideCents = $value; return $this; }
 
     public function getStartAt(): ?DateTimeImmutable { return $this->startAt; }
     public function setStartAt(?DateTimeImmutable $v): self { $this->startAt=$v; return $this; }
@@ -77,7 +77,20 @@ class Activity
     public function getCreatedAt(): DateTimeImmutable { return $this->createdAt; }
     public function getUpdatedAt(): DateTimeImmutable { return $this->updatedAt; }
     public function isOverdue(?DateTimeImmutable $now=null): bool { return null!==$this->dueAt && !$this->status->isClosed() && $this->dueAt < ($now??new DateTimeImmutable()); }
-    #[Assert\Callback] public function validateDates(ExecutionContextInterface $c): void { if(null!==$this->startAt && null!==$this->dueAt && $this->dueAt<$this->startAt){$c->buildViolation('La scadenza non può precedere l’inizio.')->atPath('dueAt')->addViolation();} }
+    #[Assert\Callback]
+    public function validateDates(ExecutionContextInterface $context): void
+    {
+        $startAt = $this->startAt;
+        if (ActivityStatus::InProgress === $this->status) {
+            $startAt ??= new DateTimeImmutable();
+        }
+
+        if (null !== $startAt && null !== $this->dueAt && $this->dueAt < $startAt) {
+            $context->buildViolation('La scadenza non può precedere l’inizio.')
+                ->atPath('dueAt')
+                ->addViolation();
+        }
+    }
     #[ORM\PrePersist, ORM\PreUpdate] public function normalizeWorkflow(): void { $this->applyWorkflow(); $this->updatedAt=new DateTimeImmutable(); }
     private function applyWorkflow(): void { if(ActivityStatus::InProgress===$this->status){$this->startAt??=new DateTimeImmutable();} if(ActivityStatus::Completed===$this->status){$this->completedAt??=new DateTimeImmutable();$this->progressPercent=100;$this->remainingEstimatedMinutes=0;} elseif(ActivityStatus::Cancelled===$this->status){$this->completedAt=null;} else {$this->completedAt=null;if($this->progressPercent===100){$this->progressPercent=99;}} }
     private static function nullable(?string $v): ?string { if(null===$v)return null; $v=trim($v); return ''===$v?null:$v; }
