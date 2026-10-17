@@ -1,0 +1,4 @@
+Tabler 1.4.0
+Copyright (c) Paweł Kuna and Tabler contributors.
+Licensed under the MIT License.
+See THIRD_PARTY_NOTICES.md in the project root.

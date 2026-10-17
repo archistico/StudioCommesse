@@ -6,7 +6,6 @@
 /.phpstan.cache/
 /vendor/
 /node_modules/
-/public/vendor/tabler/
 /var/*
 !/var/.gitkeep
 
