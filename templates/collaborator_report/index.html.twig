@@ -1,0 +1,51 @@
+{% extends 'layout/app.html.twig' %}
+{% block title %}Report collaboratori · {{ app_name }}{% endblock %}
+{% block page_title %}Report collaboratori{% endblock %}
+
+{% block page_summary %}
+<h2 class="d-none d-print-block">Report collaboratori</h2>
+{% include 'collaborator_report/_filters.html.twig' %}
+<div class="row row-cards mb-3 report-metrics">
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary">Ore registrate nel periodo</div><div class="h1 mb-0">{{ totals.minutes|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary">Collaboratori con registrazioni</div><div class="h1 mb-0">{{ totals.contributors }} <span class="text-secondary fs-4">su {{ people|length }}</span></div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary">Attività scadute · situazione attuale</div><div class="h1 mb-0 {{ totals.overdue > 0 ? 'text-danger' : '' }}">{{ totals.overdue }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary">Attività in attesa · situazione attuale</div><div class="h1 mb-0">{{ totals.waiting }}</div></div></div></div>
+</div>
+{% endblock %}
+
+{% block page_actions %}
+<a class="btn btn-outline-success" href="{{ path('app_collaborator_report_csv', current_query) }}">CSV riepilogo</a>
+<a class="btn btn-outline-success" href="{{ path('app_collaborator_report_entries_csv', current_query) }}">CSV registrazioni</a>
+<button type="button" class="btn btn-outline-primary" data-print>Stampa report</button>
+{% endblock %}
+
+{% block page_body %}
+<div class="card collaborator-report">
+    <div class="card-header"><div><h3 class="card-title">Panoramica collaboratori</h3><div class="text-secondary">Apri un nome per vedere attività, lavoro svolto e giornate. Le situazioni da verificare compaiono per prime.</div></div></div>
+    <div class="table-responsive">
+        <table class="table card-table w-100" data-datatable data-datatable-compact="true">
+            <thead><tr><th scope="col">Collaboratore</th><th scope="col">Lavoro attuale / ultimo registrato</th><th scope="col" data-priority="2">Ore nel periodo</th><th scope="col">Attività aperte oggi</th><th scope="col" data-priority="3">Segnalazioni</th></tr></thead>
+            <tbody>
+                {% for person in people %}
+                    {% set detail_url = path('app_collaborator_report_show', current_query|merge({id: person.id, user: null})) %}
+                    <tr>
+                        <td><a class="fw-bold" href="{{ detail_url }}">{{ person.name }}</a>{% if not person.active %}<div class="badge bg-secondary-lt mt-1">Disattivato</div>{% endif %}</td>
+                        <td>
+                            {% if person.timers is not empty %}
+                                {% for timer in person.timers %}<div class="report-current-work"><span class="badge bg-blue-lt">Timer aperto</span> <a href="{{ path('app_activity_time', {id: timer.activityId}) }}">{{ timer.activityTitle }}</a><div class="text-secondary"><a href="{{ path('app_project_show', {id: timer.projectId}) }}">{{ timer.projectCode }} · {{ timer.projectName }}</a><br>Avviato il {{ timer.startedAt|date('d/m/Y H:i') }}</div></div>{% endfor %}
+                            {% elseif person.lastEntry %}
+                                <a href="{{ path('app_activity_time', {id: person.lastEntry.activityId}) }}">{{ person.lastEntry.activityTitle }}</a>
+                                <div><a href="{{ path('app_project_show', {id: person.lastEntry.projectId}) }}">{{ person.lastEntry.projectCode }} · {{ person.lastEntry.projectName }}</a></div>
+                                <div class="text-secondary">Ultima registrazione: {{ person.lastEntry.startedAt|date('d/m/Y H:i') }}</div>
+                            {% else %}<span class="text-secondary">Nessuna registrazione</span>{% endif %}
+                        </td>
+                        <td data-order="{{ person.minutes }}"><strong class="report-hours">{{ person.minutes|duration_hm }}</strong><div class="text-secondary">{{ person.entries|length }} {{ person.entries|length == 1 ? 'registrazione conclusa' : 'registrazioni concluse' }}</div></td>
+                        <td data-order="{{ person.openActivities|length }}"><a class="fw-semibold" href="{{ detail_url }}#situazione">{{ person.openActivities|length }} {{ person.openActivities|length == 1 ? 'aperta' : 'aperte' }}</a><div class="text-secondary">{{ person.completedActivities|length }} {{ person.completedActivities|length == 1 ? 'completata' : 'completate' }} nel periodo</div></td>
+                        <td>{% include 'collaborator_report/_signals.html.twig' %}</td>
+                    </tr>
+                {% else %}<tr><td colspan="5" class="text-center text-secondary py-4">Nessun collaboratore disponibile con questi filtri.</td></tr>{% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -193,13 +193,19 @@ final class AuthorizationHardeningTest extends DatabaseWebTestCase
         $this->client->loginUser($responsible);
         $this->client->request('GET', '/commesse/'.$project->getId());
         self::assertResponseIsSuccessful();
-        self::assertStringContainsString('SEGRETO-M9-2-B', (string) $this->client->getResponse()->getContent());
+        self::assertStringNotContainsString('SEGRETO-M9-2-B', (string) $this->client->getResponse()->getContent());
         self::assertStringNotContainsString('Margine corrente', (string) $this->client->getResponse()->getContent());
+        $this->client->request('GET', '/commesse/'.$project->getId().'/modifica');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('textarea[name="project[privateNote]"]', 'SEGRETO-M9-2-B');
 
         $this->client->loginUser($partner);
         $this->client->request('GET', '/commesse/'.$project->getId());
         self::assertResponseIsSuccessful();
-        self::assertStringContainsString('SEGRETO-M9-2-B', (string) $this->client->getResponse()->getContent());
+        self::assertStringNotContainsString('SEGRETO-M9-2-B', (string) $this->client->getResponse()->getContent());
         self::assertStringContainsString('Margine corrente', (string) $this->client->getResponse()->getContent());
+        $this->client->request('GET', '/commesse/'.$project->getId().'/modifica');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('textarea[name="project[privateNote]"]', 'SEGRETO-M9-2-B');
     }
 }

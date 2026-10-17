@@ -1,0 +1,38 @@
+{% if date_error %}<div class="alert alert-warning" role="alert">{{ date_error }}</div>{% endif %}
+<div class="report-period mb-3">
+    <div><strong>Periodo:</strong> {{ criteria.from|date('d/m/Y') }} – {{ criteria.to|date('d/m/Y') }}{% if criteria.projectId %}{% for project in projects_filter %}{% if project.id == criteria.projectId %} · {{ project.code }} · {{ project.name }}{% endif %}{% endfor %}{% endif %}</div>
+    <div class="text-secondary">Ore attribuite alla persona che le ha registrate, comprese quelle su commesse archiviate. I timer aperti sono esclusi dai totali.</div>
+</div>
+<div class="card mb-3 d-print-none report-filters">
+    <div class="card-body">
+        <nav class="report-quick-periods mb-3" aria-label="Periodo del report">
+            {% for value, label in {today: 'Oggi', week: 'Questa settimana', month: 'Questo mese'} %}
+                <a href="{{ path(app.request.attributes.get('_route'), filter_query|merge({period: value})|merge(person is defined ? {id: person.id} : {})) }}" class="btn {{ period == value ? 'btn-primary' : 'btn-outline-secondary' }}" aria-current="{{ period == value ? 'true' : 'false' }}">{{ label }}</a>
+            {% endfor %}
+            <a href="#report-from" class="btn {{ period == 'custom' ? 'btn-primary' : 'btn-outline-secondary' }}" aria-current="{{ period == 'custom' ? 'true' : 'false' }}">Periodo personalizzato</a>
+        </nav>
+        <form method="get" class="row g-3 align-items-end">
+            <input type="hidden" name="period" value="custom">
+            {% if person is not defined %}
+                <div class="col-12 col-lg-6 col-xl-3">
+                    <label for="report-user" class="form-label">Collaboratore</label>
+                    <select id="report-user" name="user" class="form-select">
+                        <option value="">Tutti i collaboratori</option>
+                        {% for user in users_filter %}<option value="{{ user.id }}" {{ criteria.userId == user.id ? 'selected' : '' }}>{{ user.displayName }}{{ user.active ? '' : ' (disattivato)' }}</option>{% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+            <div class="col-12 col-lg-6 col-xl-3">
+                <label for="report-project" class="form-label">Commessa</label>
+                <select id="report-project" name="project" class="form-select">
+                    <option value="">Tutte le commesse</option>
+                    {% for project in projects_filter %}<option value="{{ project.id }}" {{ criteria.projectId == project.id ? 'selected' : '' }}>{{ project.code }} · {{ project.name }}{{ project.archived ? ' (archiviata)' : '' }}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2"><label for="report-from" class="form-label">Dal</label><input id="report-from" type="date" name="from" class="form-control" value="{{ criteria.from|date('Y-m-d') }}" required></div>
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2"><label for="report-to" class="form-label">Al</label><input id="report-to" type="date" name="to" class="form-control" value="{{ criteria.to|date('Y-m-d') }}" required></div>
+            <div class="col-12 col-lg-auto"><button type="submit" class="btn btn-primary">Mostra report</button></div>
+            <div class="col-12 col-lg-auto"><a class="btn btn-outline-secondary" href="{{ path(app.request.attributes.get('_route'), person is defined ? {id: person.id} : {}) }}">Azzera</a></div>
+        </form>
+    </div>
+</div>

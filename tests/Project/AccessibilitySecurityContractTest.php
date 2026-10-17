@@ -66,7 +66,7 @@ final class AccessibilitySecurityContractTest extends TestCase
             }
             $contents = (string) file_get_contents($template->getPathname());
             preg_match_all('/<th(?:\s|>)/', $contents, $allHeaders);
-            preg_match_all('/<th\s+scope="col"(?:\s|>)/', $contents, $scopedHeaders);
+            preg_match_all('/<th\s+scope="(?:col|row)"(?:\s|>)/', $contents, $scopedHeaders);
             self::assertSame(count($allHeaders[0]), count($scopedHeaders[0]), $template->getPathname());
         }
     }

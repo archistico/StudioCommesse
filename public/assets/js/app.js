@@ -1,6 +1,10 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-print]').forEach((button) => {
+        button.addEventListener('click', () => window.print());
+    });
+
     document.querySelectorAll('.section-actions').forEach((bar) => {
         const actions = [...bar.children].flatMap((child) =>
             child.classList.contains('btn-list') ? [...child.children] : [child]

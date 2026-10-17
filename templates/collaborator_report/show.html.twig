@@ -1,0 +1,97 @@
+{% extends 'layout/app.html.twig' %}
+{% block title %}Report di {{ person.name }} · {{ app_name }}{% endblock %}
+{% block page_title %}Report collaboratore · {{ person.name }}{% endblock %}
+
+{% block page_summary %}
+<h2 class="d-none d-print-block">Report collaboratore · {{ person.name }}</h2>
+{% if not person.active %}<div class="alert alert-secondary">Collaboratore disattivato. Lo storico resta consultabile.</div>{% endif %}
+{% include 'collaborator_report/_filters.html.twig' %}
+<div class="row row-cards mb-3 report-metrics">
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary">Ore registrate nel periodo</div><div class="h1 mb-0">{{ person.minutes|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary">Ore fatturabili nel periodo</div><div class="h1 mb-0">{{ person.billableMinutes|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary">Attività assegnate aperte oggi</div><div class="h1 mb-0">{{ person.openActivities|length }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary">Attività completate nel periodo</div><div class="h1 mb-0">{{ person.completedActivities|length }}</div></div></div></div>
+</div>
+{% endblock %}
+
+{% block page_actions %}
+<a class="btn btn-outline-secondary" href="{{ path('app_collaborator_report_index', current_query|merge({user: null})) }}">Tutti i collaboratori</a>
+<a class="btn btn-outline-success" href="{{ path('app_collaborator_report_entries_csv', current_query) }}">CSV registrazioni</a>
+<a class="btn btn-outline-primary" href="{{ path('app_time_entry_index', {user: person.id, project: criteria.projectId, from: criteria.from|date('Y-m-d'), to: criteria.to|date('Y-m-d')}) }}">Apri registrazioni ore</a>
+<button type="button" class="btn btn-outline-primary" data-print>Stampa report</button>
+{% endblock %}
+
+{% block page_body %}
+{% set detail_url = '' %}
+<div class="mb-3">{% include 'collaborator_report/_signals.html.twig' %}</div>
+
+{% if person.timers is not empty %}
+<section class="card mb-3 collaborator-report" id="timer-aperti" aria-labelledby="timers-title">
+    <div class="card-header"><h3 id="timers-title" class="card-title">Timer attualmente aperti</h3><div class="text-secondary">Separati dalle ore consuntivate, anche se avviati prima del periodo selezionato.</div></div>
+    <div class="list-group list-group-flush">
+        {% for timer in person.timers %}<div class="list-group-item"><a class="fw-semibold" href="{{ path('app_activity_time', {id: timer.activityId}) }}">{{ timer.activityTitle }}</a> · <a href="{{ path('app_project_show', {id: timer.projectId}) }}">{{ timer.projectCode }} · {{ timer.projectName }}</a><div>Avviato il {{ timer.startedAt|date('d/m/Y H:i') }}{% if timer.startedAt|date('Y-m-d') < 'now'|date('Y-m-d') %} <span class="badge bg-orange-lt">Aperto da prima di oggi</span>{% endif %}</div></div>{% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section class="card mb-3 collaborator-report" id="situazione" aria-labelledby="current-title">
+    <div class="card-header"><div><h3 id="current-title" class="card-title">Situazione attuale</h3><div class="text-secondary">Attività assegnate a {{ person.name }}, indipendentemente dal periodo. Il consuntivo dell’attività comprende le ore di tutte le persone.</div></div></div>
+    <div class="table-responsive">
+        <table class="table card-table w-100" data-datatable data-datatable-compact="true">
+            <thead><tr><th scope="col">Attività e commessa</th><th scope="col">Stato e avanzamento</th><th scope="col">Scadenza</th><th scope="col">Ore dell’attività</th><th scope="col">Segnalazioni</th></tr></thead>
+            <tbody>{% for activity in person.openActivities %}
+                <tr id="report-activity-{{ activity.id }}">
+                    <td><a class="fw-semibold" href="{{ path('app_activity_time', {id: activity.id}) }}">{{ activity.title }}</a><div><a href="{{ path('app_project_show', {id: activity.projectId}) }}">{{ activity.projectCode }} · {{ activity.projectName }}</a></div></td>
+                    <td data-order="{{ activity.progress }}"><span class="badge {{ activity.status.badgeClass }}">{{ activity.status.label }}</span><div class="activity-progress report-activity-progress mt-2"><div class="activity-progress-label"><span>Avanzamento</span><strong>{{ activity.progress }}%</strong></div><progress class="activity-progress-bar" value="{{ activity.progress }}" max="100" aria-label="Avanzamento di {{ activity.title }}">{{ activity.progress }}%</progress></div></td>
+                    <td data-order="{{ activity.dueAt ? activity.dueAt|date('Y-m-d H:i') : '' }}" class="{{ activity.overdue ? 'text-danger fw-semibold' : '' }}">{{ activity.dueAt ? activity.dueAt|date('d/m/Y H:i') : 'Non impostata' }}</td>
+                    <td><div>Stima iniziale: <strong>{{ activity.estimatedMinutes is null ? 'Non impostata' : activity.estimatedMinutes|duration_hm }}</strong></div><div>Consuntivo: <strong>{{ activity.actualMinutes|duration_hm }}</strong></div><div>Residuo stimato: <strong>{{ activity.remainingMinutes is null ? 'Non impostato' : activity.remainingMinutes|duration_hm }}</strong></div></td>
+                    <td><div class="report-signals">{% if activity.overdue %}<a class="badge bg-red-lt" href="{{ path('app_activity_time', {id: activity.id}) }}">Scaduta</a>{% endif %}{% if activity.status.value == 'waiting' %}<span class="badge bg-yellow-lt">In attesa</span>{% endif %}{% if activity.missingEstimate %}<span class="badge bg-yellow-lt">Stima incompleta</span>{% endif %}{% if not activity.overdue and activity.status.value != 'waiting' and not activity.missingEstimate %}<span class="text-secondary">—</span>{% endif %}</div></td>
+                </tr>
+            {% else %}<tr><td colspan="5" class="text-center text-secondary py-4">Nessuna attività aperta assegnata con questi filtri.</td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+</section>
+
+<section class="card mb-3 collaborator-report" aria-labelledby="work-title">
+    <div class="card-header"><div><h3 class="card-title" id="work-title">Lavoro registrato nel periodo</h3><div class="text-secondary">Ore di {{ person.name }}, anche su attività assegnate ad altre persone.</div></div></div>
+    <div class="table-responsive">
+        <table class="table card-table w-100" data-datatable data-datatable-compact="true">
+            <thead><tr><th scope="col">Commessa e attività</th><th scope="col">Ore personali nel periodo</th><th scope="col">Di cui fatturabili</th></tr></thead>
+            <tbody>{% for group in person.workGroups %}<tr><td><a href="{{ path('app_activity_time', {id: group.activityId}) }}" class="fw-semibold">{{ group.activityTitle }}</a><div><a href="{{ path('app_project_show', {id: group.projectId}) }}">{{ group.projectCode }} · {{ group.projectName }}</a></div></td><td data-order="{{ group.minutes }}" class="report-hours fw-semibold">{{ group.minutes|duration_hm }}</td><td data-order="{{ group.billableMinutes }}">{{ group.billableMinutes|duration_hm }}</td></tr>{% else %}<tr><td colspan="3" class="text-center text-secondary py-4">Nessuna registrazione conclusa nel periodo selezionato.</td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+</section>
+
+<section class="card mb-3 collaborator-report" aria-labelledby="completed-title">
+    <div class="card-header"><div><h3 class="card-title" id="completed-title">Attività completate nel periodo</h3><div class="text-secondary">Assegnate a {{ person.name }} e attualmente completate.</div></div></div>
+    <div class="table-responsive">
+        <table class="table card-table w-100" data-datatable data-datatable-compact="true">
+            <thead><tr><th scope="col">Attività e commessa</th><th scope="col">Completata il</th><th scope="col">Consuntivo attività · tutte le persone</th></tr></thead>
+            <tbody>{% for activity in person.completedActivities %}<tr><td><a class="fw-semibold" href="{{ path('app_activity_time', {id: activity.id}) }}">{{ activity.title }}</a><div><a href="{{ path('app_project_show', {id: activity.projectId}) }}">{{ activity.projectCode }} · {{ activity.projectName }}</a></div></td><td data-order="{{ activity.completedAt|date('Y-m-d H:i') }}">{{ activity.completedAt|date('d/m/Y H:i') }}</td><td data-order="{{ activity.actualMinutes }}">{{ activity.actualMinutes|duration_hm }}</td></tr>{% else %}<tr><td colspan="3" class="text-center text-secondary py-4">Nessuna attività completata nel periodo selezionato.</td></tr>{% endfor %}</tbody>
+        </table>
+    </div>
+</section>
+
+<section id="registrazioni" aria-labelledby="days-title">
+    <h3 id="days-title">Registro giornaliero · periodo selezionato</h3>
+    {% for day in person.days %}
+        <div class="card mb-3 collaborator-report">
+            <div class="card-header"><h4 class="card-title">{{ day.date|date('d/m/Y') }}</h4><div class="ms-auto">Totale giorno: <strong class="report-hours">{{ day.minutes|duration_hm }}</strong></div></div>
+            <div class="table-responsive">
+                <table class="table card-table w-100" data-datatable data-datatable-compact="true">
+                    <thead><tr><th scope="col">Intervallo</th><th scope="col">Commessa e attività</th><th scope="col">Lavoro svolto</th><th scope="col">Durata</th><th scope="col">Fatturabile</th></tr></thead>
+                    <tbody>{% for entry in day.entries %}<tr><td data-order="{{ entry.startedAt|date('H:i:s') }}">{{ entry.startedAt|date('H:i') }}–{{ entry.endedAt|date('H:i') }}</td><td><a class="fw-semibold" href="{{ path('app_activity_time', {id: entry.activityId}) }}">{{ entry.activityTitle }}</a><div><a href="{{ path('app_project_show', {id: entry.projectId}) }}">{{ entry.projectCode }} · {{ entry.projectName }}</a>{% if entry.archived %} <span class="badge bg-secondary-lt">Archiviata</span>{% endif %}</div></td><td>{{ entry.description ?: 'Descrizione non inserita' }}</td><td data-order="{{ entry.minutes }}" class="fw-semibold">{{ entry.minutes|duration_hm }}</td><td data-order="{{ entry.billable ? 1 : 0 }}">{{ entry.billable ? 'Sì' : 'No' }}</td></tr>{% endfor %}</tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}<div class="card mb-3"><div class="card-body text-secondary">Nessuna registrazione conclusa nel periodo selezionato.</div></div>{% endfor %}
+</section>
+
+<section class="card collaborator-report" aria-labelledby="cost-title">
+    <div class="card-header"><h3 class="card-title" id="cost-title">Riepilogo economico · periodo selezionato</h3></div>
+    <div class="card-body">
+        <div class="report-economics"><div><div class="text-secondary">Ore fatturabili</div><strong class="report-hours">{{ person.billableMinutes|duration_hm }}</strong></div><div><div class="text-secondary">Ore non fatturabili</div><strong class="report-hours">{{ (person.minutes - person.billableMinutes)|duration_hm }}</strong></div><div><div class="text-secondary">Costo storico registrato</div><strong class="report-hours">{{ person.costCents|money_eur }}</strong></div></div>
+        <div class="text-secondary mt-3">Il costo usa le tariffe salvate sulle registrazioni concluse. Le tariffe attuali non modificano lo storico.</div>
+    </div>
+</section>
+{% endblock %}

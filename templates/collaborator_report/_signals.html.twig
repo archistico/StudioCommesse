@@ -1,0 +1,8 @@
+<div class="report-signals">
+    {% if person.overdueCount > 0 %}<a class="badge bg-red-lt" href="{{ detail_url }}#situazione">{{ person.overdueCount }} {{ person.overdueCount == 1 ? 'attività scaduta' : 'attività scadute' }}</a>{% endif %}
+    {% if person.waitingCount > 0 %}<a class="badge bg-yellow-lt" href="{{ detail_url }}#situazione">{{ person.waitingCount }} in attesa</a>{% endif %}
+    {% if person.oldTimerCount > 0 %}<a class="badge bg-orange-lt" href="{{ detail_url }}#timer-aperti">{{ person.oldTimerCount }} {{ person.oldTimerCount == 1 ? 'timer aperto da prima di oggi' : 'timer aperti da prima di oggi' }}</a>{% endif %}
+    {% if person.missingEstimateCount > 0 %}<a class="badge bg-yellow-lt" href="{{ detail_url }}#situazione">{{ person.missingEstimateCount }} {{ person.missingEstimateCount == 1 ? 'stima incompleta' : 'stime incomplete' }}</a>{% endif %}
+    {% if person.missingDescriptionCount > 0 %}<a class="badge bg-secondary-lt" href="{{ detail_url }}#registrazioni">{{ person.missingDescriptionCount }} {{ person.missingDescriptionCount == 1 ? 'registrazione senza descrizione' : 'registrazioni senza descrizione' }}</a>{% endif %}
+    {% if person.attentionCount == 0 and person.missingDescriptionCount == 0 %}<span class="text-secondary">Nessuna segnalazione</span>{% endif %}
+</div>

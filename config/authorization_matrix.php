@@ -80,6 +80,10 @@ return [
     'app_monthly_report' => ['methods' => ['GET'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'read', 'data' => 'operational and economic'],
     'app_monthly_report_csv' => ['methods' => ['GET'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'read', 'data' => 'operational and economic CSV'],
     'app_monthly_report_users_csv' => ['methods' => ['GET'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'read', 'data' => 'aggregated user cost CSV'],
+    'app_collaborator_report_index' => ['methods' => ['GET'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'read', 'data' => 'collaborator workload and personal hours'],
+    'app_collaborator_report_show' => ['methods' => ['GET'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'read', 'data' => 'collaborator work, daily entries and historical cost'],
+    'app_collaborator_report_csv' => ['methods' => ['GET'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'read', 'data' => 'filtered collaborator summary CSV'],
+    'app_collaborator_report_entries_csv' => ['methods' => ['GET'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'read', 'data' => 'filtered personal work entries and historical cost CSV'],
 
     'app_audit_index' => ['methods' => ['GET'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'read', 'data' => 'security and operational audit'],
     'app_audit_csv' => ['methods' => ['GET'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'read', 'data' => 'security and operational audit CSV'],

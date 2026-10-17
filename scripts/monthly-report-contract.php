@@ -34,8 +34,6 @@ $expectations = [
     [$template, 'Andamento per commessa'],
     [$template, 'Registrazioni ore del mese'],
     [$template, 'Riepilogo ore e costi per utente'],
-    [$template, 'Totali per azione'],
-    [$template, 'Cronologia delle azioni'],
     [$economics, 'findForProjectAndRecorder'],
     [$economics, "'payments' => \$isPartner ? \$paymentRepository->findForProject(\$project) : []"],
     [$voter, "public const MANAGE = 'EXPENSE_MANAGE'"],

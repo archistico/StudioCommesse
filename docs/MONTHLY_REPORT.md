@@ -8,7 +8,7 @@ L’area Soci `/report/mensile` riunisce lavoro, costi e movimenti del mese sele
 - andamento delle commesse con attività, avanzamento, residuo, costi e incassi;
 - riepilogo aggregato per utente;
 - dettaglio cronologico delle registrazioni ore;
-- conteggio e cronologia delle azioni audit;
+- conteggio sintetico delle azioni registrate;
 - CSV separati per dettaglio ore e riepilogo utenti.
 
 ## Riepilogo ore e costi per utente

@@ -68,8 +68,8 @@ final class EndToEndWorkflowTest extends DatabaseWebTestCase
         self::assertSelectorTextContains('body', 'Chiusa operativamente');
         self::assertSelectorTextContains('body', 'Incassata');
         self::assertSelectorTextContains('body', 'Chiusa completamente');
-        self::assertSelectorTextContains('body', 'Nessuna criticità rilevata');
         self::assertSelectorTextContains('body', '2:00 / 2:00');
+        self::assertSelectorNotExists('details');
 
         $crawler = $this->client->request('GET', '/commesse/'.$projectId.'/modifica');
         $this->client->submit($crawler->selectButton('Archivia commessa')->form());
@@ -165,6 +165,8 @@ final class EndToEndWorkflowTest extends DatabaseWebTestCase
         self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Stato incoerente');
         self::assertSelectorTextContains('body', 'Richiede attenzione');
+        $this->client->request('GET', '/controllo');
+        self::assertResponseIsSuccessful();
         self::assertSelectorTextContains('body', 'Stato chiuso con attività o timer ancora aperti');
     }
 

@@ -50,7 +50,7 @@
     <div class="card-header"><h3 class="card-title">Andamento per commessa</h3><div class="small text-secondary ms-auto">Lo stato e l’avanzamento sono quelli correnti; ore e movimenti appartengono al mese selezionato.</div></div>
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-page-length="25">
-            <thead><tr><th scope="col">Commessa</th><th scope="col">Stato corrente</th><th scope="col">Attività</th><th scope="col">Ore mese</th><th scope="col">Movimenti</th><th scope="col">Economia mese</th><th scope="col">Ultimo movimento</th></tr></thead>
+            <thead><tr><th scope="col">Commessa</th><th scope="col">Stato corrente</th><th scope="col">Attività</th><th scope="col">Ore mese</th><th scope="col">Movimenti</th><th scope="col">Economia mese</th></tr></thead>
             <tbody>
             {% for row in report.projects %}
                 <tr class="{{ row.hasMovement ? '' : 'text-secondary' }}">
@@ -60,10 +60,9 @@
                     <td data-order="{{ row.workedMinutes }}"><strong>{{ row.workedMinutes|duration_hm }}</strong><div class="small text-secondary">{{ row.timeEntryCount }} registrazioni · {{ row.contributorCount }} persone · {{ row.billableMinutes|duration_hm }} fatturabili</div></td>
                     <td data-order="{{ row.movementCount }}">{{ row.movementCount }}<div class="small text-secondary">{{ row.expenseCount }} spese · {{ row.paymentCount }} incassi · {{ row.attachmentCount }} documenti</div></td>
                     <td data-order="{{ row.paymentCents - row.expenseCents - row.labourCostCents }}"><div class="text-danger">Costi {{ (row.labourCostCents + row.expenseCents)|money_eur }}</div><div class="text-success">Incassi {{ row.paymentCents|money_eur }}</div></td>
-                    <td data-order="{{ row.lastMovementAt ? row.lastMovementAt|date('Y-m-d H:i:s') : '' }}">{{ row.lastMovementAt ? row.lastMovementAt|date('d/m/Y H:i') : 'Nessun movimento' }}</td>
                 </tr>
             {% else %}
-                <tr><td colspan="7" class="text-center text-secondary py-4">Nessuna commessa disponibile.</td></tr>
+                <tr><td colspan="6" class="text-center text-secondary py-4">Nessuna commessa disponibile.</td></tr>
             {% endfor %}
             </tbody>
         </table>
@@ -124,28 +123,4 @@
     </div>
 </div>
 
-<div class="row row-cards">
-    <div class="col-12">
-        <div class="card h-100">
-            <div class="card-header"><h3 class="card-title">Totali per azione</h3></div>
-            <div class="table-responsive">
-                <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-compact="true">
-                    <thead><tr><th scope="col">Area</th><th scope="col">Azione</th><th scope="col">Totale</th></tr></thead>
-                    <tbody>{% for row in report.actions %}<tr><td>{{ row.action.groupLabel }}</td><td>{{ row.action.label }}</td><td data-order="{{ row.count }}">{{ row.count }}</td></tr>{% else %}<tr><td colspan="3" class="text-center text-secondary py-4">Nessuna azione.</td></tr>{% endfor %}</tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    <div class="col-12">
-        <div class="card h-100">
-            <div class="card-header"><h3 class="card-title">Cronologia delle azioni</h3></div>
-            <div class="table-responsive">
-                <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-page-length="25">
-                    <thead><tr><th scope="col">Data</th><th scope="col">Area</th><th scope="col">Azione</th><th scope="col">Utente</th><th scope="col">Dettaglio</th></tr></thead>
-                    <tbody>{% for event in report.events %}<tr><td data-order="{{ event.occurredAt|date('Y-m-d H:i:s') }}">{{ event.occurredAt|date('d/m/Y H:i') }}</td><td>{{ event.action.groupLabel }}</td><td>{{ event.action.label }}</td><td>{{ event.actor }}</td><td>{{ event.summary }}</td></tr>{% else %}<tr><td colspan="5" class="text-center text-secondary py-4">Nessuna azione registrata.</td></tr>{% endfor %}</tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}

@@ -67,6 +67,14 @@
                     </li>
                     {% if is_granted('ROLE_PARTNER') %}
                         <li class="nav-item">
+                            <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_collaborator_report_' ? 'active' : '' }}" href="{{ path('app_collaborator_report_index') }}" aria-current="{{ app.request.attributes.get('_route') starts with 'app_collaborator_report_' ? 'page' : 'false' }}">
+                                <span class="nav-link-icon d-md-none d-lg-inline-block" aria-hidden="true">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="7" r="3"/><path d="M2 21v-3a5 5 0 0 1 10 0v3M16 4h6M16 9h6M16 14h6M16 19h6"/></svg>
+                                </span>
+                                <span class="nav-link-title">Report collaboratori</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_monthly_report' ? 'active' : '' }}" href="{{ path('app_monthly_report') }}" aria-current="{{ app.request.attributes.get('_route') starts with 'app_monthly_report' ? 'page' : 'false' }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="M8 2v4"/><path d="M16 2v4"/><path d="M4 9h16"/><path d="M8 13h2"/><path d="M14 13h2"/><path d="M8 17h2"/></svg></span>
                                 <span class="nav-link-title">Report mensile</span>

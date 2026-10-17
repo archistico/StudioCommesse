@@ -14,7 +14,7 @@ use DateTimeImmutable;
 
 final class MonthlyReportTest extends DatabaseWebTestCase
 {
-    public function testPartnerSeesMonthlyWorkProjectAndActionSummaries(): void
+    public function testPartnerSeesMonthlyWorkAndProjectSummaries(): void
     {
         $month = new DateTimeImmutable('first day of this month midnight');
         $partner = $this->createUser('socio-report-mensile', UserRole::Partner);
@@ -71,7 +71,7 @@ final class MonthlyReportTest extends DatabaseWebTestCase
         self::assertSelectorTextContains('body', '2:30');
         self::assertSelectorTextContains('body', '150,00');
         self::assertSelectorTextContains('body', '600,00');
-        self::assertSelectorTextContains('body', 'Attività aggiornata');
+        self::assertSelectorTextNotContains('body', 'Attività aggiornata');
         self::assertSelectorExists('a[href*="/report/mensile/csv"]');
     }
 

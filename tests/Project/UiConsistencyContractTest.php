@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 final class UiConsistencyContractTest extends TestCase
 {
-    public function testAllApplicationTablesUseDataTablesAndNoGenericActionColumn(): void
+    public function testApplicationListsUseDataTablesAndCompactSummariesUsePlainTables(): void
     {
         $templateRoot = dirname(__DIR__, 2).'/templates';
         $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($templateRoot));
@@ -22,7 +22,7 @@ final class UiConsistencyContractTest extends TestCase
             $contents = (string) file_get_contents($file->getPathname());
             $tableCount += substr_count($contents, '<table ');
             if (str_contains($contents, '<table ')) {
-                preg_match_all('/\bdata-datatable(?=[\s>])/', $contents, $matches);
+                preg_match_all('/\b(?:data-datatable|data-summary-table)(?=[\s>])/', $contents, $matches);
                 self::assertSame(substr_count($contents, '<table '), count($matches[0]), $file->getPathname());
             }
             self::assertStringNotContainsString('visually-hidden">Azioni', $contents, $file->getPathname());

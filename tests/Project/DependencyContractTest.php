@@ -423,7 +423,7 @@ final class DependencyContractTest extends TestCase
         self::assertStringContainsString('CREATE TABLE expense', $migration);
         self::assertStringContainsString('CREATE TABLE payment', $migration);
         self::assertStringContainsString('estimatedAmountCents', $project);
-        self::assertStringContainsString('col-12 d-flex', $show);
+        self::assertStringContainsString('project-activities', $show);
         self::assertStringContainsString('activity_time', $show);
         self::assertStringContainsString('col-xl-3', $dashboard);
         self::assertStringNotContainsString('Milestone M2', $dashboard);
@@ -458,9 +458,11 @@ final class DependencyContractTest extends TestCase
         self::assertStringContainsString('col-12 col-lg-6 col-xl-3', $dashboard);
         self::assertStringContainsString('Utenti attivi', $dashboard);
         self::assertStringNotContainsString('Milestone', $dashboard);
-        self::assertStringContainsString('col-12 d-flex flex-column gap-3', $project);
-        self::assertStringContainsString('col-12 d-flex', $project);
-        self::assertLessThan(strpos($project, 'Nota riservata'), strpos($project, 'Riferimenti'));
+        self::assertStringContainsString('Dettagli della commessa', $project);
+        self::assertStringContainsString('project-details-grid', $project);
+        self::assertStringContainsString('project-activities', $project);
+        self::assertStringNotContainsString('<details', $project);
+        self::assertStringNotContainsString('Nota riservata', $project);
         self::assertStringContainsString('activity_time[activity.id]', $project);
         self::assertStringContainsString('|duration_hm', $project);
     }
@@ -562,7 +564,7 @@ final class DependencyContractTest extends TestCase
         self::assertStringContainsString('Chiusura operativa', $control);
         self::assertStringContainsString('Carico per persona', $control);
         self::assertStringContainsString('Filtri persistenti', $control);
-        self::assertStringContainsString('Controllo chiusura', $project);
+        self::assertStringContainsString('closure_control.operationalStatus', $project);
         self::assertStringContainsString('nav-link-title">Controllo', $layout);
         self::assertFileDoesNotExist(dirname(__DIR__, 2).'/migrations/Version20260728000000.php');
     }
@@ -723,7 +725,7 @@ final class DependencyContractTest extends TestCase
         self::assertStringContainsString('Andamento per commessa', $template);
         self::assertStringContainsString('Registrazioni ore del mese', $template);
         self::assertStringContainsString('Riepilogo ore e costi per utente', $template);
-        self::assertStringContainsString('Totali per azione', $template);
+        self::assertStringNotContainsString('Totali per azione', $template);
         self::assertStringContainsString('nav-link-title">Report mensile', $layout);
         self::assertStringContainsString('@("scripts/monthly-report-contract.php")', $validation);
         self::assertStringContainsString('M9.2-H VALIDATION PASSED', $validation);

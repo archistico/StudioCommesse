@@ -67,7 +67,11 @@ final class ProjectManagementTest extends DatabaseWebTestCase
         $this->client->loginUser($responsible);
         $this->client->request('GET', '/commesse/'.$project->getId());
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'SEGRETO-COMMESSA');
+        self::assertStringNotContainsString('SEGRETO-COMMESSA', (string) $this->client->getResponse()->getContent());
+
+        $this->client->request('GET', '/commesse/'.$project->getId().'/modifica');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('textarea[name="project[privateNote]"]', 'SEGRETO-COMMESSA');
     }
 
     public function testResponsibleCanEditOwnProjectButCannotReassignIt(): void

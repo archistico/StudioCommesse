@@ -88,7 +88,7 @@ final class ControlDashboardTest extends DatabaseWebTestCase
         $this->client->loginUser($partner);
         $this->client->request('GET', '/commesse/'.$project->getId());
         self::assertResponseIsSuccessful();
-        self::assertSelectorTextContains('body', 'Controllo chiusura');
+        self::assertSelectorTextContains('body', 'Dettagli della commessa');
         self::assertSelectorTextContains('body', 'Preventivo mancante');
     }
 

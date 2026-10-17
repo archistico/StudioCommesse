@@ -1,6 +1,6 @@
 # Matrice autorizzazioni e riservatezza
 
-Questa matrice descrive la politica server-side delle 56 rotte applicative. La versione verificabile è `config/authorization_matrix.php`; una nuova rotta deve essere aggiunta alla matrice prima che il gate possa passare.
+Questa matrice descrive la politica server-side delle 60 rotte applicative. La versione verificabile è `config/authorization_matrix.php`; una nuova rotta deve essere aggiunta alla matrice prima che il gate possa passare.
 
 ## Livelli di accesso
 
@@ -78,7 +78,9 @@ Anche app_expense_choose_project e app_payment_choose_project selezionano soltan
 
 ## Amministrazione
 
-Tutte le rotte `/admin/utenti`, `/controllo`, `/report/mensile` e `/audit`, incluse le esportazioni CSV, richiedono `ROLE_PARTNER` lato server. Il registro audit contiene dati di sicurezza e correlazione tecnica e non viene mai esposto ai Collaboratori.
+Tutte le rotte `/admin/utenti`, `/controllo`, `/report/mensile`, `/report/collaboratori` e `/audit`, incluse le esportazioni CSV, richiedono `ROLE_PARTNER` lato server. Il registro audit contiene dati di sicurezza e correlazione tecnica e non viene mai esposto ai Collaboratori.
+
+Il Report collaboratori comprende panoramica, dettaglio personale, CSV riepilogo e CSV registrazioni. Sono tutte consultazioni GET riservate ai Soci; lo storico include anche le commesse archiviate e non abilita scritture. Le ore sono attribuite all’autore della registrazione, le attività all’assegnatario attuale. Il dettaglio economico usa i costi storici consolidati.
 
 ## Controlli del gate
 
