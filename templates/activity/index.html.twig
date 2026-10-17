@@ -3,6 +3,10 @@
 {% block title %}Attività · {{ app_name }}{% endblock %}
 {% block page_title %}Attività{% endblock %}
 
+{% block page_actions %}
+{% if is_granted('ROLE_COLLABORATOR') %}<a class="btn btn-primary" href="{{ path('app_activity_choose_project') }}">Nuova attività</a>{% endif %}
+{% endblock %}
+
 {% block page_body %}
 <div class="card mb-3">
     <div class="card-body">
@@ -20,7 +24,7 @@
                 <button class="btn btn-primary" type="submit">Filtra</button>
             </div>
             <div class="col-12">
-                <p id="assignee-help" class="filter-explanation text-secondary mb-0">All’apertura vengono mostrate subito le tue attività. Il filtro considera la persona responsabile dell’attività, non chi ha registrato le ore. Cambiando assegnatario, l’elenco si aggiorna automaticamente.</p>
+                <p id="assignee-help" class="filter-explanation text-secondary mb-0">All’apertura vengono mostrate subito le tue attività. Il filtro usa la persona responsabile dell’attività e si aggiorna automaticamente.</p>
             </div>
         </form>
     </div>

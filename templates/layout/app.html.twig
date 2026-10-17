@@ -106,8 +106,8 @@
         </div>
     </aside>
 
-    <header class="navbar navbar-expand-md d-none d-lg-flex d-print-none">
-        <div class="container-xl">
+    <header class="navbar navbar-expand-md d-print-none">
+        <div class="container-fluid">
             <div class="navbar-nav flex-row order-md-last ms-auto">
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Apri menu utente">
@@ -118,6 +118,7 @@
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                        <div class="dropdown-header">{{ app.user.displayName }} · {{ app.user.role.label }}</div>
                         <form action="{{ path('app_logout') }}" method="post">
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
                             <button type="submit" class="dropdown-item">Esci</button>
@@ -130,28 +131,33 @@
 
     <main class="page-wrapper" id="main-content" tabindex="-1">
         <div class="page-header d-print-none">
-            <div class="container-xl">
+            <div class="container-fluid">
                 <div class="row g-2 align-items-center">
                     <div class="col">
                         <div class="page-pretitle">{{ app_name }}</div>
                         <h2 class="page-title">{% block page_title %}Dashboard{% endblock %}</h2>
-                    </div>
-                    <div class="col-auto ms-auto d-print-none">
-                        {% block page_actions %}{% endblock %}
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="page-body">
-            <div class="container-xl">
+            <div class="container-fluid">
                 {% include 'components/flash_messages.html.twig' %}
+                {% set page_summary_content = block('page_summary') %}
+                {% if page_summary_content|trim %}
+                    <section class="page-summary" aria-label="Riepilogo">{{ page_summary_content|raw }}</section>
+                {% endif %}
+                {% set page_actions_content = block('page_actions') %}
+                {% if page_actions_content|trim %}
+                    <nav class="section-actions d-print-none" aria-label="Azioni della sezione">{{ page_actions_content|raw }}</nav>
+                {% endif %}
                 {% block page_body %}{% endblock %}
             </div>
         </div>
 
         <footer class="footer footer-transparent d-print-none">
-            <div class="container-xl">
+            <div class="container-fluid">
                 <div class="row text-center align-items-center flex-row-reverse">
                     <div class="col-12 col-lg-auto mt-3 mt-lg-0">
                         <span class="text-secondary">{{ app_name }} · {{ app_version }}</span>
@@ -162,3 +168,6 @@
     </main>
 </div>
 {% endblock %}
+
+{% block page_actions %}{% endblock %}
+{% block page_summary %}{% endblock %}

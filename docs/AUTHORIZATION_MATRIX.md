@@ -1,6 +1,6 @@
 # Matrice autorizzazioni e riservatezza
 
-Questa matrice descrive la politica server-side delle 48 rotte applicative. La versione verificabile è `config/authorization_matrix.php`; una nuova rotta deve essere aggiunta alla matrice prima che il gate possa passare.
+Questa matrice descrive la politica server-side delle 54 rotte applicative. La versione verificabile è `config/authorization_matrix.php`; una nuova rotta deve essere aggiunta alla matrice prima che il gate possa passare.
 
 ## Livelli di accesso
 
@@ -45,8 +45,11 @@ Le richieste POST costruite manualmente non possono assegnare campi amministrati
 | Modificare ore proprie | Sì | Sì |
 | Modificare ore altrui | Sì | No |
 | Avviare o fermare il proprio timer | Sì | Sì |
+| Annullare il proprio timer con conferma esplicita | Sì | Sì |
 
 Le registrazioni associate a commesse archiviate sono consultabili ma non modificabili.
+
+L'annullamento usa app_timer_stop con intent=cancel, un token CSRF dedicato all'identificativo della registrazione e una verifica server-side del timer attivo dell'utente. Una conferma rimasta aperta non può annullare una registrazione diversa o già conclusa. L'operazione e il relativo audit sono atomici.
 
 ## Economia
 
@@ -66,6 +69,10 @@ La responsabilità della commessa non attribuisce privilegi economici aggiuntivi
 ## Documenti
 
 Tutti gli autenticati possono consultare e scaricare documenti. La modifica o eliminazione richiede il voter documentale. Su commesse archiviate il download resta consentito, mentre upload, metadati ed eliminazione sono bloccati anche tramite URL diretto.
+
+I percorsi di scelta app_activity_choose_project, app_attachment_choose_project e app_time_entry_choose_activity richiedono un account attivo e mostrano soltanto commesse non archiviate. La registrazione ore verifica anche che l'attività appartenga alla commessa scelta. Queste rotte GET non salvano dati: indirizzano ai form esistenti, che mantengono i controlli di autorizzazione e CSRF. app_attachment_new separa il caricamento dall'archivio della commessa e nega anche il GET su commesse archiviate; il precedente POST sull'archivio resta compatibile.
+
+Anche app_expense_choose_project e app_payment_choose_project selezionano soltanto commesse attive. Il primo mantiene l'accesso collaboratore per le spese proprie; il secondo richiede ROLE_PARTNER prima di caricare l'elenco. Entrambi indirizzano ai form economici esistenti.
 
 ## Amministrazione
 

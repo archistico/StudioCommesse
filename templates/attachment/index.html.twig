@@ -3,8 +3,19 @@
 {% block title %}Documenti · {{ app_name }}{% endblock %}
 {% block page_title %}Documenti{% endblock %}
 
+{% block page_actions %}
+{% if is_granted('ROLE_COLLABORATOR') %}
+    {% set creation_project = selected_activity ? selected_activity.project : selected_project %}
+    {% if creation_project and not creation_project.archived %}
+        <a class="btn btn-primary" href="{{ path('app_attachment_new', {id: creation_project.id, activity: selected_activity ? selected_activity.id : null}) }}">Carica documento</a>
+    {% else %}
+        <a class="btn btn-primary" href="{{ path('app_attachment_choose_project') }}">Carica documento</a>
+    {% endif %}
+{% endif %}
+{% endblock %}
+
 {% block page_body %}
-<div class="card mb-3">
+<details class="card mb-3 section-filters"><summary>Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
             <div class="col-12 col-lg-3">
@@ -32,14 +43,14 @@
                 <label class="form-label" for="document-query">Ricerca</label>
                 <input class="form-control" id="document-query" name="q" value="{{ query }}" placeholder="Nome, descrizione, commessa">
             </div>
-            <div class="col-12"><button class="btn btn-primary w-100" type="submit">Mostra</button></div>
+            <div class="col-12"><button class="btn btn-outline-primary" type="submit">Mostra</button></div>
         </form>
     </div>
-</div>
+</details>
 
 <div class="card">
     <div class="table-responsive">
-        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100 document-table" data-datatable>
             <thead><tr><th scope="col">Documento</th><th scope="col">Commessa</th><th scope="col">Attività</th><th scope="col">Classificazione</th><th scope="col">Caricato da</th><th scope="col">Data</th><th scope="col">Dimensione</th></tr></thead>
             <tbody>
             {% for attachment in attachments %}

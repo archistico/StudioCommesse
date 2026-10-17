@@ -6,15 +6,15 @@
 <div class="btn-list">
     <a href="{{ path('app_project_show', {id: project.id}) }}" class="btn btn-outline-secondary">Torna alla commessa</a>
     {% if not project.archived %}
-        <a href="{{ path('app_expense_new', {id: project.id}) }}" class="btn btn-outline-danger">Nuova spesa</a>
+        <a href="{{ path('app_expense_new', {id: project.id}) }}" class="btn btn-outline-primary">Nuova spesa</a>
     {% endif %}
     {% if is_partner_view and not project.archived %}
-        <a href="{{ path('app_payment_new', {id: project.id}) }}" class="btn btn-success">Nuovo incasso</a>
+        <a href="{{ path('app_payment_new', {id: project.id}) }}" class="btn btn-primary">Nuovo incasso</a>
     {% endif %}
 </div>
 {% endblock %}
 
-{% block page_body %}
+{% block page_summary %}
 {% if is_partner_view %}
     <div class="row row-deck row-cards mb-3">
         <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Preventivo</div><div class="h2">{{ summary.estimatedAmountCents|money_eur }}</div><div class="small text-secondary">Tariffa commessa: {{ project.defaultHourlyRateCents|money_eur }}/h</div></div></div></div>
@@ -38,8 +38,11 @@
     </div>
 {% endif %}
 
+{% endblock %}
+
+{% block page_body %}
 <div class="row row-cards">
-    <div class="col-12 {{ is_partner_view ? 'col-lg-6' : '' }}">
+    <div class="col-12">
         <div class="card h-100">
             <div class="card-header"><h3 class="card-title">{{ is_partner_view ? 'Spese' : 'Le mie spese' }}</h3></div>
             <div class="table-responsive">
@@ -65,7 +68,7 @@
         </div>
     </div>
     {% if is_partner_view %}
-        <div class="col-12 col-lg-6">
+        <div class="col-12">
             <div class="card h-100">
                 <div class="card-header"><h3 class="card-title">Incassi</h3></div>
                 <div class="table-responsive">

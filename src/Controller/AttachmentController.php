@@ -59,6 +59,7 @@ final class AttachmentController extends AbstractController
         ]);
     }
 
+    #[Route('/commesse/{id}/documenti/nuovo', name: 'app_attachment_new', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
     #[Route('/commesse/{id}/documenti', name: 'app_attachment_project', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
     public function project(
         Project $project,
@@ -67,6 +68,9 @@ final class AttachmentController extends AbstractController
         ActivityRepository $activityRepository,
         AttachmentManager $attachmentManager,
     ): Response {
+        if ('app_attachment_new' === $request->attributes->get('_route') && $project->isArchived()) {
+            throw $this->createAccessDeniedException('La commessa è archiviata.');
+        }
         $activities = $activityRepository->findForProject($project);
         $selectedActivity = $this->activityFromList($request->query->get('activity'), $activities);
         $classificationValue = trim((string) $request->query->get('classification', ''));
@@ -108,7 +112,9 @@ final class AttachmentController extends AbstractController
             }
         }
 
-        return $this->render('attachment/project.html.twig', [
+        $uploadMode = 'app_attachment_new' === $request->attributes->get('_route') || $form->isSubmitted();
+
+        return $this->render($uploadMode ? 'attachment/upload.html.twig' : 'attachment/project.html.twig', [
             'project' => $project,
             'attachments' => $attachmentRepository->findFiltered($project, $selectedActivity, $classification, $query),
             'activities' => $activities,

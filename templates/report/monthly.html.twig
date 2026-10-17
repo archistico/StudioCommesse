@@ -6,13 +6,26 @@
 <div class="btn-list">
     <a class="btn btn-outline-secondary" href="{{ path('app_monthly_report', {month: previous_month, project: selected_project ? selected_project.id : null}) }}">Mese precedente</a>
     <a class="btn btn-outline-secondary" href="{{ path('app_monthly_report', {month: next_month, project: selected_project ? selected_project.id : null}) }}">Mese successivo</a>
-    <a class="btn btn-outline-success" href="{{ path('app_monthly_report_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">CSV dettaglio ore</a>
+    <a class="btn btn-outline-secondary" href="{{ path('app_monthly_report_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">CSV dettaglio ore</a>
     <a class="btn btn-success" href="{{ path('app_monthly_report_users_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">CSV riepilogo utenti</a>
 </div>
 {% endblock %}
 
+{% block page_summary %}
+<div class="row row-deck row-cards mb-3">
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Ore registrate</div><div class="h2">{{ report.workedMinutes|duration_hm }}</div><div class="small text-secondary">{{ report.timeEntryCount }} registrazioni · {{ report.contributorCount }} persone</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Ore fatturabili</div><div class="h2">{{ report.billableMinutes|duration_hm }}</div><div class="small text-secondary">{{ report.workedMinutes > 0 ? ((report.billableMinutes * 100 / report.workedMinutes)|round) : 0 }}% del totale</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Commesse movimentate</div><div class="h2">{{ report.movedProjectCount }}</div><div class="small text-secondary">{{ report.inactiveProjectCount }} senza movimenti</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Azioni registrate</div><div class="h2">{{ report.actionCount }}</div><div class="small text-secondary">{{ report.attachmentCount }} documenti caricati</div></div></div></div>
+</div>
+<div class="row row-cards mb-3">
+    <div class="col-12 col-lg-6"><div class="card"><div class="card-body"><div class="text-secondary">Spese del mese</div><div class="h2 text-danger">{{ report.expenseCents|money_eur }}</div></div></div></div>
+    <div class="col-12 col-lg-6"><div class="card"><div class="card-body"><div class="text-secondary">Incassi del mese</div><div class="h2 text-success">{{ report.paymentCents|money_eur }}</div></div></div></div>
+</div>
+{% endblock %}
+
 {% block page_body %}
-<div class="card mb-3 d-print-none">
+<details class="card mb-3 d-print-none section-filters"><summary>Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
             <div class="col-12 col-lg-6">
@@ -28,22 +41,10 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-12"><button class="btn btn-primary w-100" type="submit">Mostra report</button></div>
+            <div class="col-12"><button class="btn btn-outline-primary" type="submit">Mostra report</button></div>
         </form>
     </div>
-</div>
-
-<div class="row row-deck row-cards mb-3">
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Ore registrate</div><div class="h2">{{ report.workedMinutes|duration_hm }}</div><div class="small text-secondary">{{ report.timeEntryCount }} registrazioni · {{ report.contributorCount }} persone</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Ore fatturabili</div><div class="h2">{{ report.billableMinutes|duration_hm }}</div><div class="small text-secondary">{{ report.workedMinutes > 0 ? ((report.billableMinutes * 100 / report.workedMinutes)|round) : 0 }}% del totale</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Commesse movimentate</div><div class="h2">{{ report.movedProjectCount }}</div><div class="small text-secondary">{{ report.inactiveProjectCount }} senza movimenti</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Azioni registrate</div><div class="h2">{{ report.actionCount }}</div><div class="small text-secondary">{{ report.attachmentCount }} documenti caricati</div></div></div></div>
-</div>
-
-<div class="row row-cards mb-3">
-    <div class="col-12 col-lg-6"><div class="card"><div class="card-body"><div class="text-secondary">Spese del mese</div><div class="h2 text-danger">{{ report.expenseCents|money_eur }}</div></div></div></div>
-    <div class="col-12 col-lg-6"><div class="card"><div class="card-body"><div class="text-secondary">Incassi del mese</div><div class="h2 text-success">{{ report.paymentCents|money_eur }}</div></div></div></div>
-</div>
+</details>
 
 <div class="card mb-3">
     <div class="card-header"><h3 class="card-title">Andamento per commessa</h3><div class="small text-secondary ms-auto">Lo stato e l’avanzamento sono quelli correnti; ore e movimenti appartengono al mese selezionato.</div></div>
@@ -124,7 +125,7 @@
 </div>
 
 <div class="row row-cards">
-    <div class="col-12 col-lg-5">
+    <div class="col-12">
         <div class="card h-100">
             <div class="card-header"><h3 class="card-title">Totali per azione</h3></div>
             <div class="table-responsive">
@@ -135,7 +136,7 @@
             </div>
         </div>
     </div>
-    <div class="col-12 col-lg-7">
+    <div class="col-12">
         <div class="card h-100">
             <div class="card-header"><h3 class="card-title">Cronologia delle azioni</h3></div>
             <div class="table-responsive">

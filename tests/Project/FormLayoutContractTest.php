@@ -14,7 +14,7 @@ final class FormLayoutContractTest extends TestCase
      */
     public static function formProvider(): iterable
     {
-        yield 'allegato' => ['AttachmentUploadType.php', 'attachment/project.html.twig', ['file', 'description']];
+        yield 'allegato' => ['AttachmentUploadType.php', 'attachment/upload.html.twig', ['file', 'description']];
         yield 'metadati allegato' => ['AttachmentMetadataType.php', 'attachment/show.html.twig', ['description']];
         yield 'attività' => ['ActivityType.php', 'activity/form.html.twig', ['description']];
         yield 'cliente' => ['ClientType.php', 'client/form.html.twig', ['address', 'notes']];
@@ -27,7 +27,7 @@ final class FormLayoutContractTest extends TestCase
 
     /** @param list<string> $fullWidthFields */
     #[DataProvider('formProvider')]
-    public function testEveryConfiguredFieldIsRenderedExplicitlyBeforeTheFullWidthSubmitButton(
+    public function testEveryConfiguredFieldPrecedesTheCancelAndSaveFooter(
         string $formTypeFile,
         string $templateFile,
         array $fullWidthFields,
@@ -41,7 +41,9 @@ final class FormLayoutContractTest extends TestCase
         self::assertDoesNotMatchRegularExpression('/form_widget\(\s*form\s*\)/', $template);
         self::assertStringContainsString('form_rest(form)', $template);
         self::assertStringContainsString('form_end(form, {render_rest: false})', $template);
-        self::assertMatchesRegularExpression('/<button[^>]*class="[^"]*btn-primary[^"]*w-100[^"]*"[^>]*type="submit"|<button[^>]*type="submit"[^>]*class="[^"]*btn-primary[^"]*w-100[^"]*"/', $template);
+        self::assertStringContainsString('card-footer form-actions', $template);
+        self::assertStringContainsString('>Annulla</a>', $template);
+        self::assertStringNotContainsString('btn btn-primary w-100', $template);
 
         preg_match_all("/->add\(\s*'([A-Za-z][A-Za-z0-9]*)'/", $formType, $matches);
         $configuredFields = array_values(array_unique($matches[1] ?? []));
@@ -73,7 +75,7 @@ final class FormLayoutContractTest extends TestCase
     public static function responsiveTemplateProvider(): iterable
     {
         foreach ([
-            'attachment/project.html.twig',
+            'attachment/upload.html.twig',
             'attachment/show.html.twig',
             'activity/form.html.twig',
             'client/form.html.twig',
@@ -87,12 +89,11 @@ final class FormLayoutContractTest extends TestCase
     }
 
     #[DataProvider('responsiveTemplateProvider')]
-    public function testCompactFieldsSplitOnlyOnLargeScreens(string $templateFile): void
+    public function testCompactFieldsShareARowOnTabletsAndStackOnPhones(string $templateFile): void
     {
         $template = file_get_contents(dirname(__DIR__, 2).'/templates/'.$templateFile);
 
         self::assertIsString($template);
-        self::assertStringContainsString('col-12 col-lg-6', $template);
-        self::assertStringNotContainsString('col-md-', $template);
+        self::assertStringContainsString('col-12 col-md-6', $template);
     }
 }

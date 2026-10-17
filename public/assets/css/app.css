@@ -56,7 +56,260 @@ table.dataTable > tbody > tr.child ul.dtr-details {
 }
 
 table.dataTable > tbody > tr.child span.dtr-title {
-    min-width: 10rem;
+    min-width: min(10rem, 100%);
+}
+
+/* One content rhythm across summaries, lists and forms. */
+.page-body .container-fluid,
+.page-header .container-fluid,
+.footer .container-fluid {
+    padding-inline: clamp(.875rem, 2vw, 2rem);
+}
+
+.page-wrapper,
+.page-body .row > *,
+.card,
+.dt-container,
+.form-control,
+.form-select {
+    min-width: 0;
+}
+
+.page-title,
+.card-title,
+.list-group-item,
+.detail-list dd {
+    overflow-wrap: anywhere;
+}
+
+.section-actions,
+.section-actions .btn-list,
+.section-actions .action-row {
+    align-items: stretch;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.section-actions {
+    margin-bottom: 1rem;
+}
+
+.section-actions .btn-list {
+    margin: 0;
+    width: 100%;
+}
+
+.section-actions .action-row {
+    width: 100%;
+}
+
+.section-actions > .btn,
+.section-actions > form,
+.section-actions .btn-list > *,
+.section-actions .action-row > * {
+    flex: var(--action-weight, 1) 1 calc((100% - 2.5rem) / 6);
+    margin: 0 !important;
+    min-width: min(100%, 9rem);
+    order: 0;
+}
+
+.section-actions .action-row > * {
+    flex-basis: 0;
+    min-width: 0;
+}
+
+.section-actions .btn-primary {
+    --action-weight: 2;
+}
+
+.section-actions [data-action-priority="3"] {
+    --action-weight: 3;
+}
+
+.section-actions [data-action-priority="1"] {
+    --action-weight: 1;
+}
+
+.section-actions .btn {
+    height: 100%;
+    min-height: 3rem;
+    padding: .75rem;
+    white-space: normal;
+    width: 100%;
+}
+
+.section-actions form {
+    display: flex;
+}
+
+.form-page {
+    margin-inline: auto;
+    max-width: 72rem;
+    width: 100%;
+}
+
+.form-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    justify-content: space-between;
+}
+
+.form-actions > .btn-primary {
+    margin-left: auto;
+}
+
+.form-actions > .btn-outline-secondary {
+    background-color: #f1f3f5;
+}
+
+.timer-decision-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.timer-decision-actions form {
+    display: flex;
+    min-width: 0;
+}
+
+.timer-decision-actions .btn {
+    height: 100%;
+    min-height: 3rem;
+    white-space: normal;
+    width: 100%;
+}
+
+.section-filters > summary,
+.section-help > summary,
+details.card > summary {
+    cursor: pointer;
+    font-weight: 600;
+    min-height: 2.75rem;
+    padding: .875rem 1.25rem;
+}
+
+details.card > summary {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+    display: none;
+}
+
+details.card > summary::before,
+.section-help > summary::before {
+    content: "+";
+    color: var(--studio-brand);
+    flex: 0 0 1rem;
+}
+
+details[open] > summary::before {
+    content: "−";
+}
+
+details:not([open]) > summary {
+    border-bottom: 0;
+}
+
+details.card > summary .card-title {
+    margin: 0;
+}
+
+.section-help > summary {
+    padding-inline: 0;
+}
+
+.table-responsive,
+table[data-datatable] {
+    width: 100%;
+}
+
+table.dataTable.nowrap > tbody > tr > td,
+table[data-datatable] > tbody > tr > td {
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+table.dataTable > tbody > tr:not(.child) > td {
+    min-width: 6rem;
+}
+
+table.dataTable > tbody > tr:not(.child) > td:first-child {
+    min-width: 9rem;
+}
+
+table.dataTable.document-table > tbody > tr:not(.child) > td:first-child {
+    min-width: 14rem;
+}
+
+.dropdown-menu {
+    max-width: calc(100vw - 1.75rem);
+}
+
+.dropdown-header {
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+table.dataTable > tbody > tr.child .dtr-data {
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+/* Bootstrap's DataTables adapter uses Bootstrap rows rather than dt-layout rows. */
+@media (max-width: 767.98px) {
+    .dt-container .dt-search,
+    .dt-container .dt-length {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        width: 100%;
+    }
+
+    .dt-container .dt-search input {
+        flex: 1;
+        margin-inline: 0;
+        min-width: 0;
+    }
+}
+
+.card-header,
+.card-footer {
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.pagination {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 575.98px) {
+    .form-actions > .btn {
+        padding-inline: .75rem;
+        white-space: normal;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 1rem;
+        max-width: 100%;
+    }
+
+    table.dataTable > tbody > tr.child ul.dtr-details > li {
+        display: flex;
+        flex-direction: column;
+        gap: .25rem;
+    }
+
+    .d-flex.justify-content-between {
+        flex-wrap: wrap;
+    }
 }
 
 .dt-container .dt-search input,
@@ -67,6 +320,10 @@ table.dataTable > tbody > tr.child span.dtr-title {
 .dt-container .row {
     margin-left: 0;
     margin-right: 0;
+}
+
+.dt-container .dt-layout-table > .col-12 {
+    padding-inline: 0;
 }
 
 @media (max-width: 991.98px) {
@@ -135,7 +392,7 @@ table.dataTable > tbody > tr.child span.dtr-title {
     top: 1rem;
 }
 
-:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
     outline: 3px solid #ffbf47;
     outline-offset: 2px;
 }

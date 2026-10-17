@@ -1,8 +1,45 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.section-actions').forEach((bar) => {
+        const actions = [...bar.children].flatMap((child) =>
+            child.classList.contains('btn-list') ? [...child.children] : [child]
+        );
+        let previousCapacity = 0;
+        const arrange = () => {
+            const capacity = Math.max(1, Math.min(6, Math.floor((bar.clientWidth + 8) / 158)));
+            if (capacity === previousCapacity) return;
+            previousCapacity = capacity;
+            const rows = [];
+            let offset = 0;
+            let remainingRows = Math.ceil(actions.length / capacity);
+            while (remainingRows > 0) {
+                const size = Math.ceil((actions.length - offset) / remainingRows);
+                const row = document.createElement('div');
+                row.className = 'action-row';
+                row.append(...actions.slice(offset, offset + size));
+                rows.push(row);
+                offset += size;
+                remainingRows -= 1;
+            }
+            bar.replaceChildren(...rows);
+        };
+        arrange();
+        if (typeof window.ResizeObserver === 'function') {
+            new window.ResizeObserver(arrange).observe(bar);
+        } else {
+            window.addEventListener('resize', arrange);
+        }
+    });
+
     document.querySelectorAll('select[data-auto-submit]').forEach((select) => {
         select.addEventListener('change', () => select.form.requestSubmit());
+    });
+
+    document.querySelectorAll('select[data-context-select]').forEach((select) => {
+        select.addEventListener('change', () => {
+            select.form.requestSubmit(select.form.querySelector('button[name="load"]'));
+        });
     });
 
     document.querySelectorAll('form[data-confirm]').forEach((form) => {
@@ -35,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pageLength: Number.isFinite(pageLength) ? pageLength : 25,
             lengthMenu: [10, 25, 50, 100],
             responsive: true,
+            columnDefs: [{ targets: 0, responsivePriority: 1 }],
             searching: true,
             stateSave: !compact && !serverPage,
             language: {

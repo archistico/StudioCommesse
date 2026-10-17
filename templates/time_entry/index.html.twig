@@ -5,19 +5,37 @@
 {% block page_actions %}
 <div class="btn-list">
     <a class="btn btn-outline-secondary" href="{{ path('app_project_show', {id: activity.project.id}) }}">Torna alla commessa</a>
-    <a class="btn btn-outline-success" href="{{ path('app_time_entry_index', {activity: activity.id}) }}">Apri nel report Ore</a>
+    <a class="btn btn-outline-secondary" href="{{ path('app_time_entry_index', {activity: activity.id}) }}">Apri nel report Ore</a>
     {% if not activity.project.archived %}<a class="btn btn-primary" href="{{ path('app_time_entry_new', {id: activity.id}) }}">Registra ore</a>{% endif %}
 </div>
 {% endblock %}
 
-{% block page_body %}
+{% block page_summary %}
+{% if confirm_timer_cancel %}
+<section class="card border-warning mb-3" aria-labelledby="timer-cancel-title" data-timer-cancel-prompt>
+    <div class="card-body">
+        <h3 class="card-title" id="timer-cancel-title">Vuoi annullare la registrazione in corso?</h3>
+        <p>Il timer deve durare almeno un minuto. Puoi annullare questa registrazione senza salvare ore oppure lasciare il timer in corso.</p>
+        <p class="text-secondary mb-0">Se non fai nulla, il timer continua. L’annullamento riguarda solo questa registrazione.</p>
+    </div>
+    <div class="card-footer form-actions timer-decision-actions">
+        <a class="btn btn-outline-secondary" href="{{ path('app_activity_time', {id: activity.id}) }}">Lascia continuare</a>
+        <form method="post" action="{{ path('app_timer_stop') }}">
+            <input type="hidden" name="intent" value="cancel">
+            <input type="hidden" name="entry_id" value="{{ running.id }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('timer_cancel_' ~ running.id) }}">
+            <button class="btn btn-danger" type="submit">Annulla registrazione</button>
+        </form>
+    </div>
+</section>
+{% endif %}
 <div class="row row-cards mb-3">
     <div class="col-12 col-lg-4"><div class="card"><div class="card-body"><div class="text-secondary">Consuntivato</div><div class="h2">{{ total_minutes|duration_hm }}</div></div></div></div>
     <div class="col-12 col-lg-8"><div class="card"><div class="card-body">
         {% if running %}
             <div class="d-flex justify-content-between align-items-center gap-3">
                 <div><div class="fw-semibold">Timer attivo</div><div class="text-secondary">{{ running.activity.title }} · dalle {{ running.startedAt|date('d/m/Y H:i') }}</div></div>
-                <form action="{{ path('app_timer_stop') }}" method="post"><input type="hidden" name="_token" value="{{ csrf_token('timer_stop') }}"><button class="btn btn-danger">Ferma timer</button></form>
+                {% if not confirm_timer_cancel %}<form action="{{ path('app_timer_stop') }}" method="post"><input type="hidden" name="_token" value="{{ csrf_token('timer_stop') }}"><button class="btn btn-danger">Ferma timer</button></form>{% endif %}
             </div>
         {% elseif not activity.project.archived %}
             <div class="d-flex justify-content-between align-items-center gap-3">
@@ -29,7 +47,9 @@
         {% endif %}
     </div></div></div>
 </div>
+{% endblock %}
 
+{% block page_body %}
 <div class="card">
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>

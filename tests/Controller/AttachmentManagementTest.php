@@ -25,7 +25,7 @@ final class AttachmentManagementTest extends DatabaseWebTestCase
         $this->client->loginUser($responsible);
         $file = $this->createPdf('relazione.pdf');
 
-        $crawler = $this->client->request('GET', '/commesse/'.$project->getId().'/documenti?activity='.$activity->getId());
+        $crawler = $this->client->request('GET', '/commesse/'.$project->getId().'/documenti/nuovo?activity='.$activity->getId());
         self::assertResponseIsSuccessful();
         $form = $crawler->selectButton('Carica documento')->form([
             'attachment_upload[classification]' => AttachmentClassification::Technical->value,
@@ -107,7 +107,7 @@ final class AttachmentManagementTest extends DatabaseWebTestCase
         $project = $this->createProject($this->createCustomer('Cliente Archivio'), $partner, status: ProjectStatus::Completed);
         $this->client->loginUser($partner);
 
-        $crawler = $this->client->request('GET', '/commesse/'.$project->getId().'/documenti');
+        $crawler = $this->client->request('GET', '/commesse/'.$project->getId().'/documenti/nuovo');
         self::assertResponseIsSuccessful();
         $uploadForm = $crawler->selectButton('Carica documento')->form();
         $csrfToken = (string) $uploadForm['attachment_upload[_token]']->getValue();
@@ -135,7 +135,7 @@ final class AttachmentManagementTest extends DatabaseWebTestCase
     {
         self::assertIsInt($projectId);
         $this->client->loginUser($user);
-        $crawler = $this->client->request('GET', '/commesse/'.$projectId.'/documenti');
+        $crawler = $this->client->request('GET', '/commesse/'.$projectId.'/documenti/nuovo');
         $form = $crawler->selectButton('Carica documento')->form([
             'attachment_upload[classification]' => AttachmentClassification::Other->value,
             'attachment_upload[activity]' => '',

@@ -4,6 +4,7 @@
 {% block page_title %}Documenti · {{ project.code }}{% endblock %}
 {% block page_actions %}
 <div class="btn-list">
+    {% if not project.archived %}<a href="{{ path('app_attachment_new', {id: project.id, activity: selected_activity ? selected_activity.id : null}) }}" class="btn btn-primary">Carica documento</a>{% endif %}
     <a href="{{ path('app_project_show', {id: project.id}) }}" class="btn btn-outline-secondary">Torna alla commessa</a>
     <a href="{{ path('app_attachment_index', {project: project.id}) }}" class="btn btn-outline-primary">Vista globale</a>
 </div>
@@ -12,26 +13,9 @@
 {% block page_body %}
 {% if project.archived %}<div class="alert alert-secondary">La commessa è archiviata: i documenti restano consultabili ma non è possibile caricarne di nuovi.</div>{% endif %}
 
-{% if not project.archived %}
-<div class="card mb-3">
-    {{ form_start(form, {attr: {autocomplete: 'off'}}) }}
-    <div class="card-header"><h3 class="card-title">Carica documento</h3></div>
-    <div class="card-body">
-        {{ form_errors(form) }}
-        <div class="row g-3">
-            <div class="col-12">{{ form_row(form.file) }}</div>
-            <div class="col-12 col-lg-6">{{ form_row(form.classification) }}</div>
-            <div class="col-12 col-lg-6">{{ form_row(form.activity) }}</div>
-            <div class="col-12">{{ form_row(form.description) }}</div>
-        </div>
-        {{ form_rest(form) }}
-    </div>
-    <div class="card-footer"><button class="btn btn-primary w-100" type="submit">Carica documento</button></div>
-    {{ form_end(form, {render_rest: false}) }}
-</div>
-{% endif %}
 
-<div class="card mb-3">
+
+<details class="card mb-3 section-filters"><summary>Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
             <div class="col-12 col-lg-4">
@@ -52,15 +36,15 @@
                 <label class="form-label" for="project-document-query">Ricerca</label>
                 <input class="form-control" id="project-document-query" name="q" value="{{ query }}" placeholder="Nome o descrizione">
             </div>
-            <div class="col-12"><button class="btn btn-outline-primary w-100" type="submit">Filtra documenti</button></div>
+            <div class="col-12"><button class="btn btn-outline-primary" type="submit">Filtra documenti</button></div>
         </form>
     </div>
-</div>
+</details>
 
 <div class="card">
     <div class="card-header"><h3 class="card-title">Archivio documentale</h3><span class="badge bg-blue-lt ms-auto">{{ attachments|length }}</span></div>
     <div class="table-responsive">
-        <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
+        <table class="table table-vcenter card-table dt-responsive nowrap w-100 document-table" data-datatable>
             <thead><tr><th scope="col">Documento</th><th scope="col">Attività</th><th scope="col">Classificazione</th><th scope="col">Caricato da</th><th scope="col">Data</th><th scope="col">Dimensione</th></tr></thead>
             <tbody>
             {% for attachment in attachments %}

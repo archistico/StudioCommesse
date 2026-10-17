@@ -1,0 +1,49 @@
+{% extends 'layout/app.html.twig' %}
+{% set heading = {activity: 'Nuova attività', attachment: 'Carica documento', time: 'Registra ore', expense: 'Nuova spesa', payment: 'Nuovo incasso'}[kind] %}
+{% set return_route = {activity: 'app_activity_index', attachment: 'app_attachment_index', time: 'app_time_entry_index', expense: is_granted('ROLE_PARTNER') ? 'app_economics_index' : 'app_project_index', payment: 'app_economics_index'}[kind] %}
+{% block title %}{{ heading }} · {{ app_name }}{% endblock %}
+{% block page_title %}{{ heading }}{% endblock %}
+{% block page_body %}
+<div class="form-page">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">{{ kind == 'time' ? 'Scegli commessa e attività' : 'Scegli la commessa' }}</h3></div>
+        <form method="get">
+            <div class="card-body">
+                {% if selection_error %}<div class="alert alert-warning" role="alert">Seleziona una commessa attiva{{ kind == 'time' ? ' e un’attività della commessa' : '' }} per continuare.</div>{% endif %}
+                {% if projects is empty %}
+                    <p class="text-secondary">Non ci sono commesse attive. Per continuare occorre prima creare o ripristinare una commessa.</p>
+                    {% if is_granted('ROLE_PARTNER') %}<a class="btn btn-outline-primary" href="{{ path('app_project_new') }}">Nuova commessa</a>{% endif %}
+                {% else %}
+                    <p class="text-secondary">{{ kind == 'time' ? 'Scegli la commessa, poi l’attività su cui registrare le ore. L’elenco delle attività si aggiorna al cambio di commessa.' : 'Il nuovo elemento sarà collegato alla commessa selezionata.' }}</p>
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="creation-project" class="form-label required">Commessa</label>
+                            <select id="creation-project" name="project" class="form-select" {{ kind == 'time' ? 'data-context-select' : '' }} required>
+                                <option value="">Seleziona una commessa</option>
+                                {% for project in projects %}<option value="{{ project.id }}" {{ selected_project and selected_project.id == project.id ? 'selected' : '' }}>{{ project.code }} · {{ project.name }} · {{ project.client.name }}</option>{% endfor %}
+                            </select>
+                        </div>
+                        {% if kind == 'time' %}
+                            <div class="col-12 mt-3"><button class="btn btn-outline-secondary" type="submit" name="load" value="1" formnovalidate>Aggiorna attività</button></div>
+                            {% if selected_project %}
+                                <div class="col-12 mt-3">
+                                    <label for="creation-activity" class="form-label required">Attività</label>
+                                    <select id="creation-activity" name="activity" class="form-select" required>
+                                        <option value="">Seleziona un’attività</option>
+                                        {% for activity in activities %}<option value="{{ activity.id }}" {{ selected_activity and selected_activity.id == activity.id ? 'selected' : '' }}>{{ activity.title }}</option>{% endfor %}
+                                    </select>
+                                    {% if activities is empty %}<p class="form-hint">Questa commessa non ha attività. <a href="{{ path('app_activity_new', {id: selected_project.id}) }}">Crea un’attività</a> prima di registrare ore.</p>{% endif %}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+            <div class="card-footer form-actions">
+                <a class="btn btn-outline-secondary" href="{{ path(return_route) }}">Annulla</a>
+                <button class="btn btn-primary" type="submit" name="continue" value="1" {{ projects is empty or (kind == 'time' and activities is empty) ? 'disabled' : '' }}>Continua</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -56,7 +56,8 @@ final class UserManagementTest extends DatabaseWebTestCase
         self::assertIsInt($ratePosition);
         self::assertIsInt($submitPosition);
         self::assertLessThan($submitPosition, $ratePosition);
-        self::assertStringContainsString('btn btn-primary w-100', $html);
+        self::assertSelectorExists('.form-actions .btn-primary[type="submit"]');
+        self::assertSelectorExists('.form-actions a.btn-outline-secondary');
     }
 
     public function testCreateFormRejectsShortPassword(): void

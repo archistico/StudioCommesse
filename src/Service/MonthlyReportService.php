@@ -222,6 +222,7 @@ final readonly class MonthlyReportService
             AuditAction::ActivityCreated, AuditAction::ActivityUpdated => trim(($project ? $project.' · ' : '').($title ?? 'Attività')),
             AuditAction::TimeEntryCreated, AuditAction::TimeEntryUpdated, AuditAction::TimerStarted => $title ?? 'Registrazione ore',
             AuditAction::TimerStopped => 'Timer'.$minutes,
+            AuditAction::TimerCancelled => 'Registrazione timer annullata',
             AuditAction::ExpenseCreated, AuditAction::ExpenseUpdated, AuditAction::ExpenseDeleted => ($project ?? 'Commessa').$amount,
             AuditAction::PaymentCreated, AuditAction::PaymentUpdated, AuditAction::PaymentDeleted => ($project ?? 'Commessa').$amount,
             AuditAction::AttachmentUploaded, AuditAction::AttachmentUpdated, AuditAction::AttachmentDownloaded, AuditAction::AttachmentDeleted => $name ?? 'Documento',

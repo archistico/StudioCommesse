@@ -9,6 +9,7 @@ use App\Entity\Project;
 use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Enum\AuditAction;
+use App\Exception\TimerTooShortException;
 use App\Form\TimeEntryType;
 use App\Query\TimeEntrySearchCriteria;
 use App\Repository\ActivityRepository;
@@ -177,13 +178,19 @@ final class TimeEntryController extends AbstractController
     }
 
     #[Route('/attivita/{id}', name: 'app_activity_time', requirements: ['id' => '\\d+'], methods: ['GET'])]
-    public function activity(Activity $activity, TimeEntryRepository $repository): Response
+    public function activity(Activity $activity, Request $request, TimeEntryRepository $repository): Response
     {
+        $running = $repository->findRunningForUser($this->requireCurrentUser());
+
         return $this->render('time_entry/index.html.twig', [
             'activity' => $activity,
             'entries' => $repository->findForActivity($activity),
             'total_minutes' => $repository->sumMinutesForActivity($activity),
-            'running' => $repository->findRunningForUser($this->requireCurrentUser()),
+            'running' => $running,
+            'confirm_timer_cancel' => null !== $running
+                && !$running->getActivity()?->getProject()?->isArchived()
+                && $running->getActivity()?->getId() === $activity->getId()
+                && (string) $running->getId() === $request->query->get('cancel_timer'),
         ]);
     }
 
@@ -209,6 +216,9 @@ final class TimeEntryController extends AbstractController
     #[Route('/timer/ferma', name: 'app_timer_stop', methods: ['POST'])]
     public function stop(Request $request, TimerService $timer): Response
     {
+        if ('cancel' === $request->request->get('intent')) {
+            return $this->cancelTimer($request, $timer);
+        }
         if (!$this->isCsrfTokenValid('timer_stop', (string) $request->request->get('_token'))) {
             throw $this->createAccessDeniedException();
         }
@@ -219,8 +229,32 @@ final class TimeEntryController extends AbstractController
             $this->addFlash('success', 'Timer fermato.');
 
             return $this->redirectToRoute('app_activity_time', ['id' => $entry->getActivity()?->getId()]);
+        } catch (TimerTooShortException $exception) {
+            return $this->redirectToRoute('app_activity_time', [
+                'id' => $exception->entry->getActivity()?->getId(),
+                'cancel_timer' => $exception->entry->getId(),
+            ]);
         } catch (DomainException $exception) {
             $this->addFlash('danger', $exception->getMessage());
+
+            return $this->redirectToRoute('app_activity_index');
+        }
+    }
+
+    private function cancelTimer(Request $request, TimerService $timer): Response
+    {
+        $entryId = $this->positiveInt($request->request->get('entry_id'));
+        if (null === $entryId || !$this->isCsrfTokenValid('timer_cancel_'.$entryId, (string) $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        try {
+            $entry = $timer->cancel($this->requireCurrentUser(), $entryId, $request->getClientIp());
+            $this->addFlash('success', 'Registrazione annullata. Nessuna ora è stata salvata.');
+
+            return $this->redirectToRoute('app_activity_time', ['id' => $entry->getActivity()?->getId()]);
+        } catch (DomainException $exception) {
+            $this->addFlash('warning', $exception->getMessage());
 
             return $this->redirectToRoute('app_activity_index');
         }

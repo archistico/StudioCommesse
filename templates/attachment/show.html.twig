@@ -38,18 +38,18 @@
             <div class="card-body">
                 {{ form_errors(form) }}
                 <div class="row g-3">
-                    <div class="col-12 col-lg-6">{{ form_row(form.classification) }}</div>
-                    <div class="col-12 col-lg-6">{{ form_row(form.activity) }}</div>
+                    <div class="col-12 col-md-6">{{ form_row(form.classification) }}</div>
+                    <div class="col-12 col-md-6">{{ form_row(form.activity) }}</div>
                     <div class="col-12">{{ form_row(form.description) }}</div>
                 </div>
                 {{ form_rest(form) }}
             </div>
-            <div class="card-footer"><button class="btn btn-primary w-100" type="submit">Salva modifiche</button></div>
+            <div class="card-footer form-actions"><a class="btn btn-outline-secondary" href="{{ path('app_attachment_project', {id: attachment.project.id}) }}">Annulla</a><button class="btn btn-primary" type="submit">Salva modifiche</button></div>
             {{ form_end(form, {render_rest: false}) }}
         </div>
         <div class="card mt-3 border-danger">
             <div class="card-body"><h3 class="card-title text-danger">Elimina documento</h3><p class="text-secondary">L’eliminazione rimuove sia i metadati sia il file memorizzato e non è annullabile.</p>
-                <form method="post" action="{{ path('app_attachment_delete', {id: attachment.id}) }}" onsubmit="return confirm('Eliminare definitivamente questo documento?');">
+                <form method="post" action="{{ path('app_attachment_delete', {id: attachment.id}) }}" data-confirm="Eliminare definitivamente questo documento?">
                     <input type="hidden" name="_token" value="{{ csrf_token('delete_attachment_' ~ attachment.id) }}">
                     <button class="btn btn-danger w-100" type="submit">Elimina documento</button>
                 </form>

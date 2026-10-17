@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased - Azioni rapide e annullamento timer
+
+- Le azioni comuni riempiono la larghezza della riga, con pulsanti alti almeno 48 px, un massimo di sei per riga e righe successive bilanciate al ridimensionamento.
+- In dashboard aggiunte nuova attività, nuova registrazione ore e nuovo cliente; ore e attività hanno più spazio, mentre cliente e commessa restano riservati ai soci.
+- Fermare un timer sotto il minuto propone di annullare quella registrazione oppure lasciarla continuare. Non fare nulla o tornare al dettaglio mantiene il timer attivo.
+- L'annullamento richiede una conferma POST con CSRF specifico, riguarda soltanto il timer proprio confermato e viene registrato nell'audit; conferme precedenti non possono eliminare un timer sostitutivo.
+- Un arresto troppo breve non modifica l'entità in memoria e permette un successivo arresto valido anche nella stessa sessione di servizio.
+
+## Unreleased - Armonizzazione interfaccia
+
+- Schema condiviso per le sezioni: riepiloghi iniziali, barra delle azioni e liste/tabelle a piena larghezza.
+- Filtri richiudibili, dettagli secondari separati e controlli delle tabelle adattabili a telefono e tablet.
+- Form con campi correlati affiancati da tablet, impilati su telefono; Annulla grigio a sinistra e salvataggio a destra.
+- Creazione di attività e documenti e registrazione ore disponibili dalle viste globali, con scelta della commessa e dell'attività quando necessaria e contesto preselezionato quando noto.
+- Nuova spesa e nuovo incasso disponibili dal riepilogo Economia; scelta della commessa per entrambe e accesso agli incassi riservato ai soci anche nel nuovo percorso.
+- Pagina dedicata al caricamento documenti, con archivio separato; menu utente e logout accessibili anche su telefono.
+- Copertura dei nuovi flussi, dei permessi, degli archivi e dell'ordine dei contenuti tramite test HTTP e JavaScript.
+
 ## Unreleased - Correzioni utenti, login e autorizzazione
 
 - Le sessioni degli account disattivati vengono revocate alla richiesta successiva, mantenendo i controlli Symfony su cambi di password, username e ruolo.

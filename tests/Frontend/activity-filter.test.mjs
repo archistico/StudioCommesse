@@ -28,3 +28,32 @@ test('the assignee change submits its form without requiring DataTables', () => 
     listeners.get('change')();
     assert.equal(submitted, 1);
 });
+
+test('changing the creation project reloads choices with the validation-free load button', () => {
+    let submitted;
+    let onChange;
+    const loadButton = { name: 'load', formNoValidate: true };
+    const select = {
+        form: {
+            querySelector: (selector) => {
+                assert.equal(selector, 'button[name="load"]');
+                return loadButton;
+            },
+            requestSubmit: (button) => { submitted = button; },
+        },
+        addEventListener: (event, callback) => {
+            assert.equal(event, 'change');
+            onChange = callback;
+        },
+    };
+    vm.runInNewContext(readFileSync(new URL('../../public/assets/js/app.js', import.meta.url), 'utf8'), {
+        document: {
+            addEventListener: (_, callback) => callback(),
+            querySelectorAll: (selector) => selector === 'select[data-context-select]' ? [select] : [],
+        },
+        window: {},
+    });
+    assert.equal(submitted, undefined);
+    onChange();
+    assert.equal(submitted, loadButton);
+});

@@ -7,9 +7,7 @@
     <a href="{{ path('app_time_entry_index', time_report_query) }}" class="btn btn-outline-primary">Apri registrazioni ore</a>
 {% endblock %}
 
-{% block page_body %}
-{% if date_error %}<div class="alert alert-warning">{{ date_error }}</div>{% endif %}
-
+{% block page_summary %}
 <div class="card mb-3">
     <div class="card-body d-flex flex-column flex-md-row align-items-md-center gap-3">
         <div class="flex-fill">
@@ -22,13 +20,24 @@
         </div>
     </div>
 </div>
+<div class="row row-cards mb-3">
+    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Ore totali</div><div class="h2 mb-0">{{ evaluation.totalMinutes|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Ore fatturabili</div><div class="h2 mb-0">{{ evaluation.billableMinutes|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Giornate lavorate</div><div class="h2 mb-0">{{ evaluation.workedDayCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Media per giornata</div><div class="h2 mb-0">{{ evaluation.averageMinutesPerWorkedDay|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Registrazioni</div><div class="h2 mb-0">{{ evaluation.entryCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Commesse</div><div class="h2 mb-0">{{ evaluation.projectCount }}</div></div></div></div>
+</div>
+{% endblock %}
+
+{% block page_body %}
+{% if date_error %}<div class="alert alert-warning">{{ date_error }}</div>{% endif %}
 
 <div class="alert alert-info">
     Le giornate sono determinate dalla data di inizio della registrazione. I timer ancora aperti non entrano nelle ore totali finché non vengono chiusi.
 </div>
 
-<div class="card mb-3">
-    <div class="card-header"><h3 class="card-title">Filtri della valutazione</h3></div>
+<details class="card mb-3 section-filters"><summary>Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
             <input type="hidden" name="closure" value="{{ control_context.closure }}">
@@ -70,28 +79,19 @@
                     <option value="0" {{ billable_value == '0' ? 'selected' : '' }}>Non fatturabili</option>
                 </select>
             </div>
-            <div class="col-12 col-lg-3 col-xl-2">
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <label for="evaluation-from" class="form-label">Dal</label>
                 <input id="evaluation-from" name="from" type="date" class="form-control" value="{{ date_from }}">
             </div>
-            <div class="col-12 col-lg-3 col-xl-2">
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <label for="evaluation-to" class="form-label">Al</label>
                 <input id="evaluation-to" name="to" type="date" class="form-control" value="{{ date_to }}">
             </div>
-            <div class="col-12 col-lg-auto"><button class="btn btn-primary w-100" type="submit">Applica filtri</button></div>
+            <div class="col-12 col-lg-auto"><button class="btn btn-outline-primary" type="submit">Applica filtri</button></div>
             <div class="col-12 col-lg-auto"><a href="{{ path('app_control_collaborator_show', {id: evaluation.userId}) }}" class="btn btn-outline-secondary w-100">Azzera</a></div>
         </form>
     </div>
-</div>
-
-<div class="row row-cards mb-3">
-    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Ore totali</div><div class="h2 mb-0">{{ evaluation.totalMinutes|duration_hm }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Ore fatturabili</div><div class="h2 mb-0">{{ evaluation.billableMinutes|duration_hm }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Giornate lavorate</div><div class="h2 mb-0">{{ evaluation.workedDayCount }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Media per giornata</div><div class="h2 mb-0">{{ evaluation.averageMinutesPerWorkedDay|duration_hm }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Registrazioni</div><div class="h2 mb-0">{{ evaluation.entryCount }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Commesse</div><div class="h2 mb-0">{{ evaluation.projectCount }}</div></div></div></div>
-</div>
+</details>
 
 <div class="d-flex align-items-center mb-2"><h3 class="mb-0">Dettaglio giornaliero</h3></div>
 

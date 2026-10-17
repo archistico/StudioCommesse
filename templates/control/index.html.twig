@@ -3,19 +3,27 @@
 {% block title %}Controllo · {{ app_name }}{% endblock %}
 {% block page_title %}Controllo{% endblock %}
 {% block page_actions %}
-    <a href="{{ path('app_economics_index') }}" class="btn btn-outline-success">Apri economia</a>
+    <a href="{{ path('app_economics_index') }}" class="btn btn-outline-secondary">Apri economia</a>
+{% endblock %}
+
+{% block page_summary %}
+<div class="row row-cards mb-3">
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Commesse filtrate</div><div class="h2 mb-0">{{ dashboard.projects|length }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Chiuse completamente</div><div class="h2 mb-0 text-success">{{ dashboard.overallClosedCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Lavoro chiuso, da incassare</div><div class="h2 mb-0 text-warning">{{ dashboard.toCollectCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Criticità / sovraccarichi</div><div class="h2 mb-0 text-danger">{{ dashboard.criticalProjectCount }} / {{ dashboard.overloadedCollaboratorCount }}</div></div></div></div>
+</div>
 {% endblock %}
 
 {% block page_body %}
 {% if date_error %}<div class="alert alert-warning">{{ date_error }}</div>{% endif %}
 
-<div class="alert alert-info">
+<details class="section-help mb-3"><summary>Come leggere gli indicatori</summary><div class="text-secondary mt-2">
     <div class="fw-semibold mb-1">Indicatori derivati, non nuovi stati salvati</div>
     Una commessa è ferma dopo {{ stalled_days }} giorni senza aggiornamenti operativi. Un carico è segnalato oltre {{ overload_activity_count }} attività aperte o {{ overload_remaining_minutes|duration_hm }} residue. I filtri e l’ordinamento restano memorizzati nella sessione fino ad “Azzera”.
-</div>
+</div></details>
 
-<div class="card mb-3">
-    <div class="card-header"><h3 class="card-title">Filtri persistenti</h3></div>
+<details class="card mb-3 section-filters"><summary>Filtri persistenti{% if app.request.query.all is not empty or selected_client_id or selected_responsible_id or criteria.onlyCritical or criteria.overallStatus %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
             <div class="col-12 col-lg-4 col-xl-3">
@@ -51,11 +59,11 @@
                     <span class="form-check-label">Solo commesse con criticità</span>
                 </label>
             </div>
-            <div class="col-12 col-lg-3 col-xl-2">
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <label for="control-from" class="form-label">Periodo dal</label>
                 <input id="control-from" name="from" type="date" class="form-control" value="{{ date_from }}">
             </div>
-            <div class="col-12 col-lg-3 col-xl-2">
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <label for="control-to" class="form-label">Periodo al</label>
                 <input id="control-to" name="to" type="date" class="form-control" value="{{ date_to }}">
             </div>
@@ -65,26 +73,19 @@
                     {% for value, label in sort_options %}<option value="{{ value }}" {{ criteria.sort == value ? 'selected' : '' }}>{{ label }}</option>{% endfor %}
                 </select>
             </div>
-            <div class="col-12 col-lg-3 col-xl-2">
+            <div class="col-12 col-md-6 col-lg-3 col-xl-2">
                 <label for="control-direction" class="form-label">Direzione</label>
                 <select id="control-direction" name="direction" class="form-select">
                     <option value="desc" {{ criteria.direction == 'desc' ? 'selected' : '' }}>Decrescente</option>
                     <option value="asc" {{ criteria.direction == 'asc' ? 'selected' : '' }}>Crescente</option>
                 </select>
             </div>
-            <div class="col-12 col-lg-auto"><button class="btn btn-primary w-100" type="submit">Applica</button></div>
+            <div class="col-12 col-lg-auto"><button class="btn btn-outline-primary" type="submit">Applica</button></div>
             <div class="col-12 col-lg-auto"><a href="{{ path('app_control_index', {reset: 1}) }}" class="btn btn-outline-secondary w-100">Azzera</a></div>
             <div class="col-12"><div class="form-hint">Il periodo influenza i riepiloghi per persona, cliente e mese. Gli stati di chiusura e gli scostamenti della commessa sono sempre calcolati sull’intera vita della commessa.</div></div>
         </form>
     </div>
-</div>
-
-<div class="row row-cards mb-3">
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Commesse filtrate</div><div class="h2 mb-0">{{ dashboard.projects|length }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Chiuse completamente</div><div class="h2 mb-0 text-success">{{ dashboard.overallClosedCount }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Lavoro chiuso, da incassare</div><div class="h2 mb-0 text-warning">{{ dashboard.toCollectCount }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Criticità / sovraccarichi</div><div class="h2 mb-0 text-danger">{{ dashboard.criticalProjectCount }} / {{ dashboard.overloadedCollaboratorCount }}</div></div></div></div>
-</div>
+</details>
 
 <div class="card mb-3">
     <div class="card-header"><h3 class="card-title">Chiusura e scostamenti per commessa</h3></div>
@@ -147,8 +148,8 @@
 </div>
 
 <div class="row row-cards mb-3">
-    <div class="col-12 col-lg-6">
-        <div class="card h-100">
+    <div class="col-12">
+        <div class="card">
             <div class="card-header"><h3 class="card-title">Carico per persona</h3></div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
@@ -175,8 +176,8 @@
         </div>
     </div>
 
-    <div class="col-12 col-lg-6">
-        <div class="card h-100">
+    <div class="col-12">
+        <div class="card">
             <div class="card-header"><h3 class="card-title">Riepilogo per cliente</h3></div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>

@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block page_body %}
-<div class="card mb-3">
+<details class="card mb-3 section-filters"><summary>Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
     <div class="card-body">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-12 col-lg-4">
@@ -41,7 +41,7 @@
             </div>
         </form>
     </div>
-</div>
+</details>
 
 <div class="card">
     <div class="table-responsive">

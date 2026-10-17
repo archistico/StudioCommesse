@@ -133,5 +133,30 @@ final class TimerServiceRegressionTest extends DatabaseWebTestCase
         }
 
         self::assertSame(1, (int) $this->entityManager->getConnection()->fetchOne('SELECT COUNT(*) FROM time_entry WHERE ended_at IS NULL AND cost_snapshot_cents = 0'));
+        self::assertTrue($this->entityManager->isOpen());
+        $stopped = $timer->stop($user, new DateTimeImmutable('2026-07-20 10:01'));
+        self::assertSame(1, $stopped->getDurationMinutes());
+        self::assertFalse($stopped->isRunning());
+    }
+
+    public function testCancelCannotDiscardAnotherUsersRunningTimer(): void
+    {
+        $owner = $this->createUser('timer-da-annullare');
+        $other = $this->createUser('timer-non-proprietario');
+        $project = $this->createProject($this->createCustomer(), $owner);
+        $activity = $this->createTestActivity($project, $owner);
+        $entry = $this->createTestTimeEntry($activity, $owner, 'now', null);
+        $entryId = $entry->getId();
+        self::assertIsInt($entryId);
+        $timer = self::getContainer()->get(TimerService::class);
+
+        try {
+            $timer->cancel($other, $entryId);
+            self::fail('Il timer di un altro utente non può essere annullato.');
+        } catch (DomainException $exception) {
+            self::assertStringContainsString('Nessun altro timer è stato modificato.', $exception->getMessage());
+        }
+        self::assertSame(1, $this->entityManager->getRepository(\App\Entity\TimeEntry::class)->count(['id' => $entryId, 'endedAt' => null]));
+        self::assertTrue($this->entityManager->isOpen());
     }
 }

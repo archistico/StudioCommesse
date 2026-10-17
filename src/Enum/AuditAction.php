@@ -25,6 +25,7 @@ enum AuditAction: string
     case TimeEntryUpdated = 'time_entry.updated';
     case TimerStarted = 'timer.started';
     case TimerStopped = 'timer.stopped';
+    case TimerCancelled = 'timer.cancelled';
     case ExpenseCreated = 'expense.created';
     case ExpenseUpdated = 'expense.updated';
     case ExpenseDeleted = 'expense.deleted';
@@ -59,6 +60,7 @@ enum AuditAction: string
             self::TimeEntryUpdated => 'Registrazione ore aggiornata',
             self::TimerStarted => 'Timer avviato',
             self::TimerStopped => 'Timer fermato',
+            self::TimerCancelled => 'Registrazione timer annullata',
             self::ExpenseCreated => 'Spesa registrata',
             self::ExpenseUpdated => 'Spesa aggiornata',
             self::ExpenseDeleted => 'Spesa eliminata',
@@ -81,7 +83,7 @@ enum AuditAction: string
             self::ClientCreated, self::ClientUpdated, self::ClientArchived, self::ClientRestored => 'Clienti',
             self::ProjectCreated, self::ProjectUpdated, self::ProjectArchived, self::ProjectRestored => 'Commesse',
             self::ActivityCreated, self::ActivityUpdated => 'Attività',
-            self::TimeEntryCreated, self::TimeEntryUpdated, self::TimerStarted, self::TimerStopped => 'Ore',
+            self::TimeEntryCreated, self::TimeEntryUpdated, self::TimerStarted, self::TimerStopped, self::TimerCancelled => 'Ore',
             self::ExpenseCreated, self::ExpenseUpdated, self::ExpenseDeleted,
             self::PaymentCreated, self::PaymentUpdated, self::PaymentDeleted => 'Economia',
             self::AttachmentUploaded, self::AttachmentUpdated, self::AttachmentDownloaded, self::AttachmentDeleted => 'Documenti',

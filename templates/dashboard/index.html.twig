@@ -3,12 +3,15 @@
 {% block title %}Dashboard · {{ app_name }}{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 {% block page_actions %}
+    <a href="{{ path('app_time_entry_choose_activity') }}" class="btn btn-primary" data-action-priority="3">Nuova registrazione ore</a>
+    <a href="{{ path('app_activity_choose_project') }}" class="btn btn-primary">Nuova attività</a>
     {% if is_granted('ROLE_PARTNER') %}
-        <a href="{{ path('app_project_new') }}" class="btn btn-primary">Nuova commessa</a>
+        <a href="{{ path('app_project_new') }}" class="btn btn-primary" data-action-priority="1">Nuova commessa</a>
+        <a href="{{ path('app_client_new') }}" class="btn btn-primary" data-action-priority="1">Nuovo cliente</a>
     {% endif %}
 {% endblock %}
 
-{% block page_body %}
+{% block page_summary %}
 <div class="row row-deck row-cards mb-3">
     <div class="col-12 col-lg-6 col-xl-3">
         <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
@@ -35,7 +38,6 @@
         </div></div></div>
     </div>
 </div>
-
 <div class="row row-deck row-cards mb-3" data-dashboard-operational-summary>
     <div class="col-12 col-lg-6 col-xl-3">
         <div class="card card-sm"><div class="card-body"><div class="row align-items-center">
@@ -68,7 +70,9 @@
         </div></div></div>
     </div>
 </div>
+{% endblock %}
 
+{% block page_body %}
 <div class="row row-cards">
     <div class="col-12">
         <div class="card">

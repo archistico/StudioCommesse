@@ -4,6 +4,9 @@
 {% block page_title %}{{ client.name }}{% endblock %}
 {% block page_actions %}
 <div class="btn-list">
+    {% if is_granted('ROLE_PARTNER') and not client.archived %}
+                    <a href="{{ path('app_project_new', {client: client.id}) }}" class="btn btn-primary">Nuova commessa</a>
+                {% endif %}
     <a href="{{ path('app_client_index') }}" class="btn btn-outline-secondary">Torna ai clienti</a>
     {% if is_granted('ROLE_PARTNER') %}
         {% if not client.archived %}<a href="{{ path('app_client_edit', {id: client.id}) }}" class="btn btn-primary">Modifica</a>{% endif %}
@@ -17,9 +20,9 @@
 </div>
 {% endblock %}
 
-{% block page_body %}
-<div class="row row-cards">
-    <div class="col-12 col-lg-5">
+{% block page_summary %}
+<div class="row row-cards mb-3">
+<div class="col-12">
         <div class="card">
             <div class="card-header"><h3 class="card-title">Anagrafica</h3></div>
             <div class="card-body">
@@ -41,13 +44,17 @@
             </div>
         {% endif %}
     </div>
-    <div class="col-12 col-lg-7">
+</div>
+{% endblock %}
+
+{% block page_body %}
+<div class="row row-cards">
+
+    <div class="col-12">
         <div class="card">
             <div class="card-header d-flex align-items-center">
                 <h3 class="card-title">Commesse</h3>
-                {% if is_granted('ROLE_PARTNER') and not client.archived %}
-                    <a href="{{ path('app_project_new', {client: client.id}) }}" class="btn btn-sm btn-primary ms-auto">Nuova commessa</a>
-                {% endif %}
+
             </div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>

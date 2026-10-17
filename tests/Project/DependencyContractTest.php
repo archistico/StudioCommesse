@@ -423,7 +423,7 @@ final class DependencyContractTest extends TestCase
         self::assertStringContainsString('CREATE TABLE expense', $migration);
         self::assertStringContainsString('CREATE TABLE payment', $migration);
         self::assertStringContainsString('estimatedAmountCents', $project);
-        self::assertStringContainsString('col-lg-6 d-flex', $show);
+        self::assertStringContainsString('col-12 d-flex', $show);
         self::assertStringContainsString('activity_time', $show);
         self::assertStringContainsString('col-xl-3', $dashboard);
         self::assertStringNotContainsString('Milestone M2', $dashboard);
@@ -458,8 +458,8 @@ final class DependencyContractTest extends TestCase
         self::assertStringContainsString('col-12 col-lg-6 col-xl-3', $dashboard);
         self::assertStringContainsString('Utenti attivi', $dashboard);
         self::assertStringNotContainsString('Milestone', $dashboard);
-        self::assertStringContainsString('col-lg-6 d-flex flex-column gap-3', $project);
-        self::assertStringContainsString('col-lg-6 d-flex', $project);
+        self::assertStringContainsString('col-12 d-flex flex-column gap-3', $project);
+        self::assertStringContainsString('col-12 d-flex', $project);
         self::assertLessThan(strpos($project, 'Nota riservata'), strpos($project, 'Riferimenti'));
         self::assertStringContainsString('activity_time[activity.id]', $project);
         self::assertStringContainsString('|duration_hm', $project);

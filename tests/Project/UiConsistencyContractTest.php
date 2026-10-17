@@ -33,7 +33,7 @@ final class UiConsistencyContractTest extends TestCase
         self::assertGreaterThan(10, $tableCount);
     }
 
-    public function testLayoutsDoNotCreateSmallOrMediumScreenColumns(): void
+    public function testResponsiveColumnsKeepAFullWidthPhoneFallback(): void
     {
         $templateRoot = dirname(__DIR__, 2).'/templates';
         $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($templateRoot));
@@ -43,7 +43,12 @@ final class UiConsistencyContractTest extends TestCase
                 continue;
             }
             $contents = (string) file_get_contents($file->getPathname());
-            self::assertDoesNotMatchRegularExpression('/\\bcol-(?:sm|md)-\\d+\\b/', $contents, $file->getPathname());
+            preg_match_all('/class="([^"]*)"/', $contents, $matches);
+            foreach ($matches[1] as $classList) {
+                if (preg_match('/\bcol-(?:sm|md)-\d+\b/', $classList)) {
+                    self::assertMatchesRegularExpression('/\bcol-12\b/', $classList, $file->getPathname().' :: '.$classList);
+                }
+            }
         }
     }
 
