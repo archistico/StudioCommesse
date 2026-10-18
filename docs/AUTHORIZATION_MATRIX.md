@@ -1,6 +1,8 @@
 # Matrice autorizzazioni e riservatezza
 
-Questa matrice descrive la politica server-side delle 64 rotte applicative. La versione verificabile è `config/authorization_matrix.php`; una nuova rotta deve essere aggiunta alla matrice prima che il gate possa passare.
+Questa matrice descrive la politica server-side delle 65 rotte applicative. La versione verificabile è `config/authorization_matrix.php`; una nuova rotta deve essere aggiunta alla matrice prima che il gate possa passare.
+
+`app_project_delete` (GET/POST) è riservata ai Soci. Il GET mostra l’impatto senza modificare dati; il POST richiede il CSRF specifico della commessa. La cancellazione comprende attività, ore e timer, spese, incassi e documenti con i relativi file. Clienti, utenti e audit storico restano conservati. Una commessa archiviata deve essere ripristinata prima della cancellazione. I lock dei timer e degli allegati coordinano l’operazione; cancellazione e audit condividono la transazione e i file vengono ripristinati in caso di rollback.
 
 ## Livelli di accesso
 

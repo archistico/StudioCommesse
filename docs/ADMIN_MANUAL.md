@@ -15,6 +15,10 @@ Prima di intervenire su produzione:
 - verificare spazio libero e permessi;
 - informare gli utenti della finestra di manutenzione.
 
+## Cancellazione di una commessa
+
+Solo un Socio può usare **Modifica commessa → Cancella commessa**. La pagina di conferma mostra attività, ore, timer attivi, spese, incassi e documenti coinvolti. La conferma cancella definitivamente la commessa e questi dati, inclusi i file dei documenti, conservando clienti, utenti e cronologia audit. Per una commessa archiviata occorre prima il ripristino. Se la transazione non riesce, i dati e i file vengono conservati; l’operazione riuscita viene registrata nell’audit.
+
 ## Account
 
 I Soci accedono agli account da **Impostazioni → Gestisci utenti**. Nella modifica di un utente, **Elimina utente** apre una pagina di conferma con i conteggi dei dati collegati. L’eliminazione è consentita soltanto senza commesse (anche archiviate), attività assegnate o create, ore, timer, spese, incassi e documenti caricati. Il proprio account e l’ultimo socio attivo sono protetti. La cronologia audit viene conservata e l’eliminazione viene registrata.

@@ -39,6 +39,13 @@
         {% if project is defined and is_granted('ROLE_PARTNER') %}
             <div class="card mt-3 border-danger">
                 <div class="card-body">
+                    <h3 class="card-title text-danger">Cancellazione definitiva</h3>
+                    <p class="text-secondary">Cancella la commessa e tutte le attività, ore, timer, spese, incassi e documenti collegati. La pagina successiva mostra il riepilogo e richiede conferma.</p>
+                    <a class="btn btn-danger w-100" href="{{ path('app_project_delete', {id: project.id}) }}">Cancella commessa</a>
+                </div>
+            </div>
+            <div class="card mt-3 border-danger">
+                <div class="card-body">
                     <h3 class="card-title text-danger">Archiviazione</h3>
                     <p class="text-secondary">I dati archiviati restano consultabili.</p>
                     <form method="post" action="{{ path('app_project_archive', {id: project.id}) }}" data-confirm="Archiviare questa commessa?">

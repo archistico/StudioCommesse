@@ -218,7 +218,7 @@ final readonly class MonthlyReportService
         $minutes = isset($details['minutes']) ? ' · '.(int) $details['minutes'].' min' : '';
 
         return match ($action) {
-            AuditAction::ProjectCreated, AuditAction::ProjectUpdated, AuditAction::ProjectArchived, AuditAction::ProjectRestored => $project ?? $name ?? 'Commessa',
+            AuditAction::ProjectCreated, AuditAction::ProjectUpdated, AuditAction::ProjectArchived, AuditAction::ProjectRestored, AuditAction::ProjectDeleted => $project ?? $name ?? 'Commessa',
             AuditAction::ActivityCreated, AuditAction::ActivityUpdated, AuditAction::ActivityDeleted => trim(($project ? $project.' · ' : '').($title ?? 'Attività')),
             AuditAction::TimeEntryCreated, AuditAction::TimeEntryUpdated, AuditAction::TimerStarted, AuditAction::TimeEntryDeleted => $title ?? 'Registrazione ore',
             AuditAction::TimerStopped => 'Timer'.$minutes,

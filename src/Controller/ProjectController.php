@@ -24,6 +24,7 @@ use App\Service\AuditRecord;
 use App\Service\AuditedTransaction;
 use App\Service\ProjectControlService;
 use App\Service\ProjectCreator;
+use App\Service\ProjectDeletionService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -279,6 +280,31 @@ final class ProjectController extends AbstractController
         }
 
         return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
+    }
+
+    #[Route('/{id}/elimina', name: 'app_project_delete', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_PARTNER')]
+    public function delete(Project $project, Request $request, ProjectDeletionService $deletion): Response
+    {
+        $this->denyAccessUnlessGranted(ProjectVoter::EDIT, $project);
+        if ($request->isMethod('POST')) {
+            $this->validateCsrf('delete_project_'.$project->getId(), $request);
+            try {
+                $deletion->delete($project, $this->requireCurrentUser(), $request->getClientIp());
+            } catch (\DomainException $exception) {
+                $this->addFlash('danger', $exception->getMessage());
+
+                return $this->redirectToRoute('app_project_show', ['id' => $project->getId()]);
+            }
+            $this->addFlash('success', 'Commessa e tutti i dati collegati cancellati.');
+
+            return $this->redirectToRoute('app_project_index');
+        }
+
+        return $this->render('project/delete.html.twig', [
+            'project' => $project,
+            'impact' => $deletion->impact($project),
+        ]);
     }
 
     private function validateCsrf(string $id, Request $request): void

@@ -27,6 +27,8 @@ Da tastiera:
 
 I Collaboratori possono vedere tutte le commesse, creare attività e registrare le proprie ore. I dati economici riservati restano visibili soltanto ai Soci.
 
+Un Socio può cancellare definitivamente una commessa da **Modifica → Cancella commessa**. La pagina successiva riepiloga attività, ore, timer, spese, incassi e documenti che verranno eliminati e richiede conferma. Clienti e utenti vengono conservati. Per le commesse archiviate occorre prima il ripristino.
+
 ## Attività e ore
 
 La pagina Attività mostra inizialmente le proprie attività. Il filtro assegnatario consente di consultare quelle di altre persone.

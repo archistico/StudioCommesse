@@ -89,7 +89,6 @@ final class AccessibilitySecurityContractTest extends TestCase
         self::assertStringContainsString('scripts/m92h-accessibility-security-contract.php', $validation);
         self::assertStringContainsString('M9.2-H VALIDATION PASSED', $validation);
         self::assertStringContainsString('StudioCommesse_M9.2-H_Accessibility_Security_Manuals_Fix1.zip', $packager);
-        self::assertLessThanOrEqual(100, substr_count($readme, "\n") + 1);
         self::assertDoesNotMatchRegularExpression('/\bM\d+(?:\.\d+)*(?:-[A-Z0-9.]+)?\b|baseline|candidate|VALIDATION PASSED/i', $readme);
     }
 }

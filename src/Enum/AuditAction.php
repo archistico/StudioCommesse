@@ -20,6 +20,7 @@ enum AuditAction: string
     case ProjectUpdated = 'project.updated';
     case ProjectArchived = 'project.archived';
     case ProjectRestored = 'project.restored';
+    case ProjectDeleted = 'project.deleted';
     case ActivityCreated = 'activity.created';
     case ActivityUpdated = 'activity.updated';
     case ActivityDeleted = 'activity.deleted';
@@ -58,6 +59,7 @@ enum AuditAction: string
             self::ProjectUpdated => 'Commessa aggiornata',
             self::ProjectArchived => 'Commessa archiviata',
             self::ProjectRestored => 'Commessa ripristinata',
+            self::ProjectDeleted => 'Commessa cancellata',
             self::ActivityCreated => 'Attività creata',
             self::ActivityUpdated => 'Attività aggiornata',
             self::ActivityDeleted => 'Attività e ore collegate eliminate',
@@ -87,7 +89,7 @@ enum AuditAction: string
             self::LoginSucceeded, self::LoginFailed, self::LoginThrottled => 'Sicurezza',
             self::UserCreated, self::UserUpdated, self::UserDeleted => 'Utenti',
             self::ClientCreated, self::ClientUpdated, self::ClientArchived, self::ClientRestored => 'Clienti',
-            self::ProjectCreated, self::ProjectUpdated, self::ProjectArchived, self::ProjectRestored => 'Commesse',
+            self::ProjectCreated, self::ProjectUpdated, self::ProjectArchived, self::ProjectRestored, self::ProjectDeleted => 'Commesse',
             self::ActivityCreated, self::ActivityUpdated, self::ActivityDeleted => 'Attività',
             self::TimeEntryCreated, self::TimeEntryUpdated, self::TimeEntryDeleted, self::TimerStarted, self::TimerStopped, self::TimerCancelled => 'Ore',
             self::ExpenseCreated, self::ExpenseUpdated, self::ExpenseDeleted,

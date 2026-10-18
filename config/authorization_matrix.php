@@ -22,6 +22,7 @@ declare(strict_types=1);
  * @return array<string, array{methods: list<string>, access: string, ownership: string, archive: string, data: string}>
  */
 return [
+    'app_project_delete' => ['methods' => ['GET', 'POST'], 'access' => 'partner', 'ownership' => 'any active project; all linked data', 'archive' => 'deny_write', 'data' => 'GET confirms impact; POST with project-specific CSRF deletes project, activities, hours, expenses, payments and document files; retain audit'],
     'app_home' => ['methods' => ['GET'], 'access' => 'collaborator', 'ownership' => 'none', 'archive' => 'not_applicable', 'data' => 'redirect dashboard'],
     'app_login' => ['methods' => ['GET', 'POST'], 'access' => 'public', 'ownership' => 'none', 'archive' => 'not_applicable', 'data' => 'authentication only'],
     'app_logout' => ['methods' => ['POST'], 'access' => 'collaborator', 'ownership' => 'current user', 'archive' => 'not_applicable', 'data' => 'session only'],

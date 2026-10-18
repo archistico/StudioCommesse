@@ -1,0 +1,32 @@
+{% extends 'layout/app.html.twig' %}
+{% block title %}Cancella commessa · {{ app_name }}{% endblock %}
+{% block page_title %}Cancella commessa{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_project_edit', {id: project.id}), label: 'Torna alla commessa'} only %}{% endblock %}
+{% block page_body %}
+<div class="form-page">
+    <div class="card border-danger">
+        <div class="card-header"><h3 class="card-title">{{ project.code }} · {{ project.name }}</h3></div>
+        <div class="card-body">
+            <p>Verranno cancellati definitivamente la commessa e tutti i dati collegati, di qualsiasi utente.</p>
+            <dl class="row detail-list">
+                <dt class="col-12 col-md-6">Attività</dt><dd class="col-12 col-md-6">{{ impact.activity_count }}</dd>
+                <dt class="col-12 col-md-6">Registrazioni ore, inclusi timer</dt><dd class="col-12 col-md-6">{{ impact.entry_count }}</dd>
+                <dt class="col-12 col-md-6">Ore consuntivate</dt><dd class="col-12 col-md-6">{{ impact.total_minutes|duration_hm }}</dd>
+                <dt class="col-12 col-md-6">Costo storico delle ore</dt><dd class="col-12 col-md-6">{{ impact.total_cost_cents|money_eur }}</dd>
+                <dt class="col-12 col-md-6">Spese</dt><dd class="col-12 col-md-6">{{ impact.expense_count }}</dd>
+                <dt class="col-12 col-md-6">Incassi</dt><dd class="col-12 col-md-6">{{ impact.payment_count }}</dd>
+                <dt class="col-12 col-md-6">Documenti e relativi file</dt><dd class="col-12 col-md-6">{{ impact.attachment_count }}</dd>
+            </dl>
+            {% if impact.running_count > 0 %}<div class="alert alert-warning">{{ impact.running_count }} {{ impact.running_count == 1 ? 'timer attivo verrà cancellato' : 'timer attivi verranno cancellati' }} senza salvare ulteriori ore.</div>{% endif %}
+            <p class="mb-0">Clienti e utenti vengono conservati. La cancellazione resta registrata nell’audit. L’operazione non è annullabile.</p>
+        </div>
+        <form method="post" action="{{ path('app_project_delete', {id: project.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_project_' ~ project.id) }}">
+            <div class="card-footer form-actions confirmation-actions">
+                <a class="btn btn-outline-secondary" href="{{ path('app_project_edit', {id: project.id}) }}">Annulla</a>
+                <button class="btn btn-danger" type="submit">Cancella commessa e tutti i dati collegati</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
