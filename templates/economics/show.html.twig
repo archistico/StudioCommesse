@@ -7,10 +7,10 @@
 <div class="btn-list">
 
     {% if not project.archived %}
-        <a href="{{ path('app_expense_new', {id: project.id}) }}" class="btn btn-primary">Nuova spesa</a>
+        <a href="{{ path('app_expense_new', {id: project.id}) }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'plus'} only %}Nuova spesa</a>
     {% endif %}
     {% if is_partner_view and not project.archived %}
-        <a href="{{ path('app_payment_new', {id: project.id}) }}" class="btn btn-primary">Nuovo incasso</a>
+        <a href="{{ path('app_payment_new', {id: project.id}) }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'plus'} only %}Nuovo incasso</a>
     {% endif %}
 </div>
 {% endblock %}
@@ -18,10 +18,10 @@
 {% block page_summary %}
 {% if is_partner_view %}
     <div class="row row-deck row-cards mb-3">
-        <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Preventivo</div><div class="h2">{{ summary.estimatedAmountCents|money_eur }}</div><div class="small text-secondary">Tariffa commessa: {{ project.defaultHourlyRateCents|money_eur }}/h</div></div></div></div>
-        <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Costo ore</div><div class="h2">{{ summary.labourCostCents|money_eur }}</div><div class="small text-secondary">Tariffe congelate sulle registrazioni</div></div></div></div>
-        <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Spese</div><div class="h2 text-danger">{{ summary.expenseCostCents|money_eur }}</div><div class="small text-secondary">Costo totale: {{ summary.totalCostCents|money_eur }}</div></div></div></div>
-        <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Incassato</div><div class="h2 text-success">{{ summary.paymentsCents|money_eur }}</div><div class="small text-secondary">Da incassare: {{ summary.remainingToCollectCents|money_eur }}</div></div></div></div>
+        <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'currency-euro'} only %}Preventivo</div><div class="h2">{{ summary.estimatedAmountCents|money_eur }}</div><div class="small text-secondary">Tariffa commessa: {{ project.defaultHourlyRateCents|money_eur }}/h</div></div></div></div>
+        <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'currency-euro'} only %}Costo ore</div><div class="h2">{{ summary.labourCostCents|money_eur }}</div><div class="small text-secondary">Tariffe congelate sulle registrazioni</div></div></div></div>
+        <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'receipt'} only %}Spese</div><div class="h2 text-danger">{{ summary.expenseCostCents|money_eur }}</div><div class="small text-secondary">Costo totale: {{ summary.totalCostCents|money_eur }}</div></div></div></div>
+        <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'coin'} only %}Incassato</div><div class="h2 text-success">{{ summary.paymentsCents|money_eur }}</div><div class="small text-secondary">Da incassare: {{ summary.remainingToCollectCents|money_eur }}</div></div></div></div>
     </div>
 
     <div class="alert {{ summary.marginCents < 0 ? 'alert-danger' : 'alert-success' }}">
@@ -31,7 +31,7 @@
 {% else %}
     <div class="row row-cards mb-3">
         <div class="col-12 col-lg-6">
-            <div class="card"><div class="card-body"><div class="text-secondary">Le mie spese sulla commessa</div><div class="h2 text-danger">{{ own_expense_total_cents|money_eur }}</div><div class="small text-secondary">Sono visibili soltanto le spese registrate dal tuo account.</div></div></div>
+            <div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'receipt'} only %}Le mie spese sulla commessa</div><div class="h2 text-danger">{{ own_expense_total_cents|money_eur }}</div><div class="small text-secondary">Sono visibili soltanto le spese registrate dal tuo account.</div></div></div>
         </div>
         <div class="col-12 col-lg-6">
             <div class="alert alert-info h-100 mb-0 d-flex align-items-center">Preventivo, costi complessivi e incassi sono riservati ai soci.</div>
@@ -45,7 +45,7 @@
 <div class="row row-cards">
     <div class="col-12">
         <div class="card h-100">
-            <div class="card-header"><h3 class="card-title">{{ is_partner_view ? 'Spese' : 'Le mie spese' }}</h3></div>
+            <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'receipt'} only %}{{ is_partner_view ? 'Spese' : 'Le mie spese' }}</h3></div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
                     <thead><tr><th scope="col">Data</th><th scope="col">Descrizione</th><th scope="col">Registrata da</th><th scope="col">Importo</th></tr></thead>
@@ -71,7 +71,7 @@
     {% if is_partner_view %}
         <div class="col-12">
             <div class="card h-100">
-                <div class="card-header"><h3 class="card-title">Incassi</h3></div>
+                <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'coin'} only %}Incassi</h3></div>
                 <div class="table-responsive">
                     <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
                         <thead><tr><th scope="col">Data</th><th scope="col">Descrizione</th><th scope="col">Registrato da</th><th scope="col">Importo</th></tr></thead>

@@ -52,7 +52,7 @@ final class UserManagementTest extends DatabaseWebTestCase
         self::assertResponseIsSuccessful();
         $html = (string) $this->client->getResponse()->getContent();
         $ratePosition = strpos($html, 'name="user[defaultHourlyRateCents]"');
-        $submitPosition = strpos($html, '>Crea utente</button>');
+        $submitPosition = strpos($html, 'Crea utente</button>');
         self::assertIsInt($ratePosition);
         self::assertIsInt($submitPosition);
         self::assertLessThan($submitPosition, $ratePosition);

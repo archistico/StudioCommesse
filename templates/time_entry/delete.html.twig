@@ -5,7 +5,7 @@
 {% block page_body %}
 <div class="form-page">
     <div class="card border-danger">
-        <div class="card-header"><h3 class="card-title">{{ entry.activity.title }}</h3></div>
+        <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'list-check'} only %}{{ entry.activity.title }}</h3></div>
         <div class="card-body">
             <p class="text-secondary">{{ entry.activity.project.code }} · {{ entry.activity.project.name }}</p>
             <dl class="row detail-list">
@@ -24,8 +24,8 @@
         <form method="post" action="{{ path('app_time_entry_delete', {id: entry.id}) }}">
             <input type="hidden" name="_token" value="{{ csrf_token('delete_time_entry_' ~ entry.id) }}">
             <div class="card-footer form-actions confirmation-actions">
-                <a class="btn btn-outline-secondary" href="{{ entry.running ? path('app_activity_time', {id: entry.activity.id}) : path('app_time_entry_edit', {id: entry.id}) }}">Annulla</a>
-                <button class="btn btn-danger" type="submit">Elimina registrazione ore</button>
+                <a class="btn btn-outline-secondary" href="{{ entry.running ? path('app_activity_time', {id: entry.activity.id}) : path('app_time_entry_edit', {id: entry.id}) }}">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Annulla</a>
+                <button class="btn btn-danger" type="submit">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Elimina registrazione ore</button>
             </div>
         </form>
     </div>

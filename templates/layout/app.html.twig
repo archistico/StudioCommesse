@@ -60,7 +60,7 @@
                     <li class="nav-item">
                         <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_client_' ? 'active' : '' }}" href="{{ path('app_client_index') }}" aria-current="{{ app.request.attributes.get('_route') starts with 'app_client_' ? 'page' : 'false' }}">
                             <span class="nav-link-icon d-md-none d-lg-inline-block" aria-hidden="true">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8 -4v18"/><path d="M19 21V11l-6 -4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0 -8a4 4 0 0 0 0 8"/><path d="M17 13a4 4 0 1 0 0 -8"/><path d="M17 21v-2a4 4 0 0 0 -4 -4H5a4 4 0 0 0 -4 4v2"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.87"/></svg>
                             </span>
                             <span class="nav-link-title">Clienti</span>
                         </a>
@@ -88,7 +88,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_economics_' or app.request.attributes.get('_route') starts with 'app_expense_' or app.request.attributes.get('_route') starts with 'app_payment_' ? 'active' : '' }}" href="{{ path('app_economics_index') }}" aria-current="{{ app.request.attributes.get('_route') starts with 'app_economics_' or app.request.attributes.get('_route') starts with 'app_expense_' or app.request.attributes.get('_route') starts with 'app_payment_' ? 'page' : 'false' }}">
-                                <span class="nav-link-icon d-md-none d-lg-inline-block" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 9m0 2a2 2 0 1 0 0 -4a2 2 0 0 0 0 4"/><path d="M17 9m0 2a2 2 0 1 0 0 -4a2 2 0 0 0 0 4"/><path d="M7 15m0 2a2 2 0 1 0 0 -4a2 2 0 0 0 0 4"/><path d="M17 15m0 2a2 2 0 1 0 0 -4a2 2 0 0 0 0 4"/><path d="M9 9h6"/><path d="M9 15h6"/></svg></span>
+                                <span class="nav-link-icon d-md-none d-lg-inline-block" aria-hidden="true">{% include 'components/icon.html.twig' with {name: 'currency-euro'} only %}</span>
                                 <span class="nav-link-title">Economia</span>
                             </a>
                         </li>
@@ -103,7 +103,7 @@
                         <li class="nav-item">
                             <a class="nav-link {{ (app.request.attributes.get('_route') starts with 'app_settings_' or app.request.attributes.get('_route') starts with 'app_user_') ? 'active' : '' }}" href="{{ path('app_settings_index') }}" aria-current="{{ (app.request.attributes.get('_route') starts with 'app_settings_' or app.request.attributes.get('_route') starts with 'app_user_') ? 'page' : 'false' }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block" aria-hidden="true">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0 -8a4 4 0 0 0 0 8"/><path d="M17 13a4 4 0 1 0 0 -8"/><path d="M17 21v-2a4 4 0 0 0 -4 -4H5a4 4 0 0 0 -4 4v2"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.87"/></svg>
+                                    {% include 'components/icon.html.twig' with {name: 'settings'} only %}
                                 </span>
                                 <span class="nav-link-title">Impostazioni</span>
                             </a>
@@ -129,7 +129,7 @@
                         <div class="dropdown-header">{{ app.user.displayName }} · {{ app.user.role.label }}</div>
                         <form action="{{ path('app_logout') }}" method="post">
                             <input type="hidden" name="_csrf_token" value="{{ csrf_token('logout') }}">
-                            <button type="submit" class="dropdown-item">Esci</button>
+                            <button type="submit" class="dropdown-item">{% include 'components/icon.html.twig' with {name: 'logout'} only %}Esci</button>
                         </form>
                     </div>
                 </div>

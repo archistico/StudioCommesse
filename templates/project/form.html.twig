@@ -31,26 +31,26 @@
                 {{ form_rest(form) }}
             </div>
             <div class="card-footer form-actions">
-                <a class="btn btn-outline-secondary" href="{{ project is defined ? path('app_project_show', {id: project.id}) : path('app_project_index') }}">Annulla</a>
-                <button class="btn btn-primary" type="submit">{{ submit_label }}</button>
+                <a class="btn btn-outline-secondary" href="{{ project is defined ? path('app_project_show', {id: project.id}) : path('app_project_index') }}">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Annulla</a>
+                <button class="btn btn-primary" type="submit">{% include 'components/icon.html.twig' with {name: 'device-floppy'} only %}{{ submit_label }}</button>
             </div>
             {{ form_end(form, {render_rest: false}) }}
         </div>
         {% if project is defined and is_granted('ROLE_PARTNER') %}
             <div class="card mt-3 border-danger">
                 <div class="card-body">
-                    <h3 class="card-title text-danger">Cancellazione definitiva</h3>
+                    <h3 class="card-title text-danger">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Cancellazione definitiva</h3>
                     <p class="text-secondary">Cancella la commessa e tutte le attività, ore, timer, spese, incassi e documenti collegati. La pagina successiva mostra il riepilogo e richiede conferma.</p>
-                    <a class="btn btn-danger w-100" href="{{ path('app_project_delete', {id: project.id}) }}">Cancella commessa</a>
+                    <a class="btn btn-danger w-100" href="{{ path('app_project_delete', {id: project.id}) }}">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Cancella commessa</a>
                 </div>
             </div>
             <div class="card mt-3 border-danger">
                 <div class="card-body">
-                    <h3 class="card-title text-danger">Archiviazione</h3>
+                    <h3 class="card-title text-danger">{% include 'components/icon.html.twig' with {name: 'archive'} only %}Archiviazione</h3>
                     <p class="text-secondary">I dati archiviati restano consultabili.</p>
                     <form method="post" action="{{ path('app_project_archive', {id: project.id}) }}" data-confirm="Archiviare questa commessa?">
                         <input type="hidden" name="_token" value="{{ csrf_token('archive_project_' ~ project.id) }}">
-                        <button class="btn btn-danger w-100" type="submit">Archivia commessa</button>
+                        <button class="btn btn-danger w-100" type="submit">{% include 'components/icon.html.twig' with {name: 'archive'} only %}Archivia commessa</button>
                     </form>
                 </div>
             </div>

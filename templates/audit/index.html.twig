@@ -3,21 +3,21 @@
 {% block title %}Audit operativo · {{ app_name }}{% endblock %}
 {% block page_title %}Audit operativo{% endblock %}
 {% block page_actions %}
-    <a class="btn btn-primary" href="{{ path('app_audit_csv', export_query) }}">Esporta CSV</a>
+    <a class="btn btn-primary" href="{{ path('app_audit_csv', export_query) }}">{% include 'components/icon.html.twig' with {name: 'download'} only %}Esporta CSV</a>
 {% endblock %}
 
 {% block page_summary %}
 <div class="row row-cards mb-3">
-    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Eventi trovati</div><div class="h2 mb-0">{{ audit_summary.totalEvents }}</div></div></div></div>
-    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Eventi sicurezza</div><div class="h2 mb-0">{{ audit_summary.securityEvents }}</div></div></div></div>
-    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Accessi falliti</div><div class="h2 mb-0">{{ audit_summary.failedLogins }}</div></div></div></div>
-    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Blocchi temporanei</div><div class="h2 mb-0">{{ audit_summary.blockedLogins }}</div></div></div></div>
-    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary">Attori distinti</div><div class="h2 mb-0">{{ audit_summary.actorCount }}</div></div></div></div>
+    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'chart-bar'} only %}Eventi trovati</div><div class="h2 mb-0">{{ audit_summary.totalEvents }}</div></div></div></div>
+    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'chart-bar'} only %}Eventi sicurezza</div><div class="h2 mb-0">{{ audit_summary.securityEvents }}</div></div></div></div>
+    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'chart-bar'} only %}Accessi falliti</div><div class="h2 mb-0">{{ audit_summary.failedLogins }}</div></div></div></div>
+    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'chart-bar'} only %}Blocchi temporanei</div><div class="h2 mb-0">{{ audit_summary.blockedLogins }}</div></div></div></div>
+    <div class="col-12 col-lg"><div class="card card-sm"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'chart-bar'} only %}Attori distinti</div><div class="h2 mb-0">{{ audit_summary.actorCount }}</div></div></div></div>
 </div>
 {% endblock %}
 
 {% block page_body %}
-<details class="card mb-3 section-filters"><summary>Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
+<details class="card mb-3 section-filters"><summary>{% include 'components/icon.html.twig' with {name: 'filter'} only %}Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
     <div class="card-body">
         <form method="get" class="row g-3" data-audit-filter>
             <div class="col-12 col-lg-4">
@@ -51,8 +51,8 @@
                 <input class="form-control" type="date" id="to" name="to" value="{{ criteria.occurredBefore ? criteria.occurredBefore|date_modify('-1 day')|date('Y-m-d') : '' }}">
             </div>
             <div class="col-12 d-flex gap-2">
-                <button class="btn btn-primary" type="submit">Applica filtri</button>
-                <a class="btn btn-secondary" href="{{ path('app_audit_index') }}">Azzera</a>
+                <button class="btn btn-primary" type="submit">{% include 'components/icon.html.twig' with {name: 'filter'} only %}Applica filtri</button>
+                <a class="btn btn-secondary" href="{{ path('app_audit_index') }}">{% include 'components/icon.html.twig' with {name: 'filter-off'} only %}Azzera</a>
             </div>
         </form>
     </div>

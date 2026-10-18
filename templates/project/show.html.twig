@@ -8,9 +8,9 @@
 {% block page_summary %}
 <div class="card mb-3 project-details">
     <div class="card-header project-details-header">
-        <h3 class="card-title">Dettagli della commessa</h3>
+        <h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'folder'} only %}Dettagli della commessa</h3>
         {% if is_granted('PROJECT_EDIT', project) %}
-            <a href="{{ path('app_project_edit', {id: project.id}) }}" class="btn btn-primary">Modifica</a>
+            <a href="{{ path('app_project_edit', {id: project.id}) }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'pencil'} only %}Modifica</a>
         {% endif %}
     </div>
     <div class="card-body">
@@ -41,17 +41,17 @@
 
 {% block page_actions %}
 <div class="btn-list">
-    {% if not project.archived %}<a href="{{ path('app_activity_new', {id: project.id}) }}" class="btn btn-primary">Nuova attività</a>{% endif %}
-    <a href="{{ path('app_time_entry_index', {project: project.id}) }}" class="btn btn-success">Ore della commessa</a>
-    <a href="{{ path('app_attachment_project', {id: project.id}) }}" class="btn btn-primary">Documenti{% if attachment_count > 0 %} ({{ attachment_count }}){% endif %}</a>
-    <a href="{{ path('app_economics_project', {id: project.id}) }}" class="btn btn-secondary">Economia</a>
+    {% if not project.archived %}<a href="{{ path('app_activity_new', {id: project.id}) }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'plus'} only %}Nuova attività</a>{% endif %}
+    <a href="{{ path('app_time_entry_index', {project: project.id}) }}" class="btn btn-success">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Ore della commessa</a>
+    <a href="{{ path('app_attachment_project', {id: project.id}) }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'file-description'} only %}Documenti{% if attachment_count > 0 %} ({{ attachment_count }}){% endif %}</a>
+    <a href="{{ path('app_economics_project', {id: project.id}) }}" class="btn btn-secondary">{% include 'components/icon.html.twig' with {name: 'currency-euro'} only %}Economia</a>
     {% if closure_control %}
-        <a href="{{ path('app_control_index', {client: project.client.id, responsible: project.responsible.id}) }}" class="btn btn-secondary">Controllo</a>
+        <a href="{{ path('app_control_index', {client: project.client.id, responsible: project.responsible.id}) }}" class="btn btn-secondary">{% include 'components/icon.html.twig' with {name: 'chart-bar'} only %}Controllo</a>
     {% endif %}
     {% if is_granted('ROLE_PARTNER') and project.archived %}
         <form method="post" action="{{ path('app_project_restore', {id: project.id}) }}">
             <input type="hidden" name="_token" value="{{ csrf_token('restore_project_' ~ project.id) }}">
-            <button class="btn btn-success" type="submit">Ripristina</button>
+            <button class="btn btn-success" type="submit">{% include 'components/icon.html.twig' with {name: 'restore'} only %}Ripristina</button>
         </form>
     {% endif %}
 </div>
@@ -64,7 +64,7 @@
 
 <div class="card project-activities">
     <div class="card-header">
-        <h3 class="card-title">Attività</h3>
+        <h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'list-check'} only %}Attività</h3>
         <span class="badge bg-secondary-lt ms-auto">{{ activities|length }}</span>
     </div>
     <div class="list-group list-group-flush">

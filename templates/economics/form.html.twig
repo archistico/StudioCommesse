@@ -7,7 +7,7 @@
 <div class="row justify-content-center form-page">
     <div class="col-12">
         <div class="card">
-            <div class="card-header"><h3 class="card-title">{{ project.code }} · {{ project.name }}</h3></div>
+            <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'folder'} only %}{{ project.code }} · {{ project.name }}</h3></div>
             {{ form_start(form, {attr: {autocomplete: 'off'}}) }}
             <div class="card-body">
                 {{ form_errors(form) }}
@@ -31,25 +31,25 @@
                 {{ form_rest(form) }}
             </div>
             <div class="card-footer form-actions">
-                <a class="btn btn-outline-secondary" href="{{ path('app_economics_project', {id: project.id}) }}">Annulla</a>
-                <button class="btn btn-primary" type="submit">Salva</button>
+                <a class="btn btn-outline-secondary" href="{{ path('app_economics_project', {id: project.id}) }}">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Annulla</a>
+                <button class="btn btn-primary" type="submit">{% include 'components/icon.html.twig' with {name: 'device-floppy'} only %}Salva</button>
             </div>
             {{ form_end(form, {render_rest: false}) }}
         </div>
         {% if not is_new and ((expense is defined and is_granted('EXPENSE_MANAGE', expense)) or (payment is defined and is_granted('ROLE_PARTNER'))) %}
             <div class="card mt-3 border-danger">
                 <div class="card-body">
-                    <h3 class="card-title text-danger">Operazione irreversibile</h3>
+                    <h3 class="card-title text-danger">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Operazione irreversibile</h3>
                     <p class="text-secondary">L’eliminazione è definitiva.</p>
                     {% if expense is defined %}
                         <form action="{{ path('app_expense_delete', {id: expense.id}) }}" method="post" data-confirm="Eliminare definitivamente questa spesa?">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete_expense_' ~ expense.id) }}">
-                            <button class="btn btn-danger w-100" type="submit">Elimina spesa</button>
+                            <button class="btn btn-danger w-100" type="submit">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Elimina spesa</button>
                         </form>
                     {% elseif payment is defined %}
                         <form action="{{ path('app_payment_delete', {id: payment.id}) }}" method="post" data-confirm="Eliminare definitivamente questo incasso?">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete_payment_' ~ payment.id) }}">
-                            <button class="btn btn-danger w-100" type="submit">Elimina incasso</button>
+                            <button class="btn btn-danger w-100" type="submit">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Elimina incasso</button>
                         </form>
                     {% endif %}
                 </div>

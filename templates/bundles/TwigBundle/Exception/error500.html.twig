@@ -12,7 +12,7 @@
             <p class="empty-subtitle text-secondary">Si è verificato un errore interno. Nessun dettaglio tecnico è stato esposto.</p>
             {% set rid = request_id|default(app.request.attributes.get('_studio_commesse_request_id')) %}
             {% if rid %}<p class="text-secondary small">Riferimento: {{ rid }}</p>{% endif %}
-            <div class="empty-action"><a href="{{ path('app_dashboard') }}" class="btn btn-primary">Torna alla dashboard</a></div>
+            <div class="empty-action"><a href="{{ path('app_dashboard') }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Torna alla dashboard</a></div>
         </div>
     </div>
 </main>

@@ -23,19 +23,19 @@
                 {{ form_rest(form) }}
             </div>
             <div class="card-footer form-actions">
-                <a class="btn btn-outline-secondary" href="{{ client is defined ? path('app_client_show', {id: client.id}) : path('app_client_index') }}">Annulla</a>
-                <button class="btn btn-primary" type="submit">{{ submit_label }}</button>
+                <a class="btn btn-outline-secondary" href="{{ client is defined ? path('app_client_show', {id: client.id}) : path('app_client_index') }}">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Annulla</a>
+                <button class="btn btn-primary" type="submit">{% include 'components/icon.html.twig' with {name: 'device-floppy'} only %}{{ submit_label }}</button>
             </div>
             {{ form_end(form, {render_rest: false}) }}
         </div>
         {% if client is defined %}
             <div class="card mt-3 border-danger">
                 <div class="card-body">
-                    <h3 class="card-title text-danger">Archiviazione</h3>
+                    <h3 class="card-title text-danger">{% include 'components/icon.html.twig' with {name: 'archive'} only %}Archiviazione</h3>
                     <p class="text-secondary">I dati archiviati restano consultabili.</p>
                     <form method="post" action="{{ path('app_client_archive', {id: client.id}) }}" data-confirm="Archiviare questo cliente? È possibile solo se tutte le commesse sono archiviate.">
                         <input type="hidden" name="_token" value="{{ csrf_token('archive_client_' ~ client.id) }}">
-                        <button class="btn btn-danger w-100" type="submit">Archivia cliente</button>
+                        <button class="btn btn-danger w-100" type="submit">{% include 'components/icon.html.twig' with {name: 'archive'} only %}Archivia cliente</button>
                     </form>
                 </div>
             </div>

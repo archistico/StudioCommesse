@@ -7,13 +7,13 @@
 {% block page_body %}
 <div class="form-page">
     <div class="card">
-        <div class="card-header"><h3 class="card-title">{{ kind == 'time' ? 'Scegli commessa e attività' : 'Scegli la commessa' }}</h3></div>
+        <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'list-check'} only %}{{ kind == 'time' ? 'Scegli commessa e attività' : 'Scegli la commessa' }}</h3></div>
         <form method="get">
             <div class="card-body">
                 {% if selection_error %}<div class="alert alert-warning" role="alert">Seleziona una commessa attiva{{ kind == 'time' ? ' e un’attività della commessa' : '' }} per continuare.</div>{% endif %}
                 {% if projects is empty %}
                     <p class="text-secondary">Non ci sono commesse attive. Per continuare occorre prima creare o ripristinare una commessa.</p>
-                    {% if is_granted('ROLE_PARTNER') %}<a class="btn btn-primary" href="{{ path('app_project_new') }}">Nuova commessa</a>{% endif %}
+                    {% if is_granted('ROLE_PARTNER') %}<a class="btn btn-primary" href="{{ path('app_project_new') }}">{% include 'components/icon.html.twig' with {name: 'plus'} only %}Nuova commessa</a>{% endif %}
                 {% else %}
                     <p class="text-secondary">{{ kind == 'time' ? 'Scegli la commessa, poi l’attività su cui registrare le ore. L’elenco delle attività si aggiorna al cambio di commessa.' : 'Il nuovo elemento sarà collegato alla commessa selezionata.' }}</p>
                     <div class="row">
@@ -25,7 +25,7 @@
                             </select>
                         </div>
                         {% if kind == 'time' %}
-                            <div class="col-12 mt-3"><button class="btn btn-secondary" type="submit" name="load" value="1" formnovalidate>Aggiorna attività</button></div>
+                            <div class="col-12 mt-3"><button class="btn btn-secondary" type="submit" name="load" value="1" formnovalidate>{% include 'components/icon.html.twig' with {name: 'refresh'} only %}Aggiorna attività</button></div>
                             {% if selected_project %}
                                 <div class="col-12 mt-3">
                                     <label for="creation-activity" class="form-label required">Attività</label>
@@ -41,8 +41,8 @@
                 {% endif %}
             </div>
             <div class="card-footer form-actions">
-                <a class="btn btn-outline-secondary" href="{{ path(return_route) }}">Annulla</a>
-                <button class="btn btn-primary" type="submit" name="continue" value="1" {{ projects is empty or (kind == 'time' and activities is empty) ? 'disabled' : '' }}>Continua</button>
+                <a class="btn btn-outline-secondary" href="{{ path(return_route) }}">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Annulla</a>
+                <button class="btn btn-primary" type="submit" name="continue" value="1" {{ projects is empty or (kind == 'time' and activities is empty) ? 'disabled' : '' }}>{% include 'components/icon.html.twig' with {name: 'arrow-right'} only %}Continua</button>
             </div>
         </form>
     </div>

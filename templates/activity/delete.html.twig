@@ -5,7 +5,7 @@
 {% block page_body %}
 <div class="form-page">
     <div class="card border-danger">
-        <div class="card-header"><h3 class="card-title">{{ activity.title }}</h3></div>
+        <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'list-check'} only %}{{ activity.title }}</h3></div>
         <div class="card-body">
             <p class="text-secondary">{{ activity.project.code }} · {{ activity.project.name }}</p>
             <p>Verranno eliminati definitivamente l’attività e <strong>{{ impact.entry_count }} {{ impact.entry_count == 1 ? 'registrazione ore' : 'registrazioni ore' }}</strong>, di tutti gli utenti.</p>
@@ -19,8 +19,8 @@
         <form method="post" action="{{ path('app_activity_delete', {id: activity.id}) }}">
             <input type="hidden" name="_token" value="{{ csrf_token('delete_activity_' ~ activity.id) }}">
             <div class="card-footer form-actions confirmation-actions">
-                <a class="btn btn-outline-secondary" href="{{ path('app_activity_edit', {id: activity.id}) }}">Annulla</a>
-                <button class="btn btn-danger" type="submit">Elimina attività e tutte le ore</button>
+                <a class="btn btn-outline-secondary" href="{{ path('app_activity_edit', {id: activity.id}) }}">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Annulla</a>
+                <button class="btn btn-danger" type="submit">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Elimina attività e tutte le ore</button>
             </div>
         </form>
     </div>

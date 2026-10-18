@@ -4,7 +4,7 @@
 {% block page_title %}{{ page_title }}{% endblock %}
 {% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_user_index'), label: 'Torna agli utenti'} only %}{% endblock %}
 {% block page_actions %}
-{% if edited_user is defined %}<a class="btn btn-danger" href="{{ path('app_user_delete', {id: edited_user.id}) }}">Elimina utente</a>{% endif %}
+{% if edited_user is defined %}<a class="btn btn-danger" href="{{ path('app_user_delete', {id: edited_user.id}) }}">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Elimina utente</a>{% endif %}
 {% endblock %}
 
 {% block page_body %}
@@ -25,8 +25,8 @@
                 {{ form_rest(form) }}
             </div>
             <div class="card-footer form-actions">
-                <a class="btn btn-outline-secondary" href="{{ path('app_user_index') }}">Annulla</a>
-                <button type="submit" class="btn btn-primary">{{ submit_label }}</button>
+                <a class="btn btn-outline-secondary" href="{{ path('app_user_index') }}">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Annulla</a>
+                <button type="submit" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'device-floppy'} only %}{{ submit_label }}</button>
             </div>
             {{ form_end(form, {render_rest: false}) }}
         </div>

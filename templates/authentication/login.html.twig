@@ -32,7 +32,7 @@
                 </div>
                 <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                 <div class="form-footer">
-                    <button type="submit" class="btn btn-primary w-100">Accedi</button>
+                    <button type="submit" class="btn btn-primary w-100">{% include 'components/icon.html.twig' with {name: 'login'} only %}Accedi</button>
                 </div>
                 <p class="form-hint mt-3 mb-0" id="login-security-note">Dopo 5 tentativi falliti sulla stessa utenza e postazione, nuovi tentativi vengono sospesi per un’ora.</p>
             </div>

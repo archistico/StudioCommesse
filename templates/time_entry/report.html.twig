@@ -5,19 +5,19 @@
 
 {% block page_summary %}
 <div class="row row-cards mb-3">
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Ore consuntivate</div><div class="h2 mb-0">{{ summary.totalMinutes|duration_hm }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Registrazioni</div><div class="h2 mb-0">{{ summary.entryCount }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Persone coinvolte</div><div class="h2 mb-0">{{ summary.userCount }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Commesse coinvolte</div><div class="h2 mb-0">{{ summary.projectCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Ore consuntivate</div><div class="h2 mb-0">{{ summary.totalMinutes|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Registrazioni</div><div class="h2 mb-0">{{ summary.entryCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'chart-bar'} only %}Persone coinvolte</div><div class="h2 mb-0">{{ summary.userCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'folder'} only %}Commesse coinvolte</div><div class="h2 mb-0">{{ summary.projectCount }}</div></div></div></div>
 </div>
 {% endblock %}
 
 {% block page_actions %}
 {% if is_granted('ROLE_COLLABORATOR') %}
     {% if selected_activity and not selected_activity.project.archived %}
-        <a class="btn btn-primary" href="{{ path('app_time_entry_new', {id: selected_activity.id}) }}">Registra ore</a>
+        <a class="btn btn-primary" href="{{ path('app_time_entry_new', {id: selected_activity.id}) }}">{% include 'components/icon.html.twig' with {name: 'plus'} only %}Registra ore</a>
     {% else %}
-        <a class="btn btn-primary" href="{{ path('app_time_entry_choose_activity', {project: selected_project and not selected_project.archived ? selected_project.id : null}) }}">Registra ore</a>
+        <a class="btn btn-primary" href="{{ path('app_time_entry_choose_activity', {project: selected_project and not selected_project.archived ? selected_project.id : null}) }}">{% include 'components/icon.html.twig' with {name: 'plus'} only %}Registra ore</a>
     {% endif %}
 {% endif %}
 {% endblock %}
@@ -25,7 +25,7 @@
 {% block page_body %}
 {% if date_error %}<div class="alert alert-warning">{{ date_error }}</div>{% endif %}
 
-<details class="card mb-3 section-filters"><summary>Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
+<details class="card mb-3 section-filters"><summary>{% include 'components/icon.html.twig' with {name: 'filter'} only %}Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
             <div class="col-12 col-lg-4 col-xl-3">
@@ -72,8 +72,8 @@
                 <input id="to" name="to" type="date" class="form-control" value="{{ date_to }}">
             </div>
             <div class="col-12"><div class="form-hint">Il periodo filtra la data di inizio della registrazione.</div></div>
-            <div class="col-12 col-lg-auto"><button class="btn btn-primary" type="submit">Applica filtri</button></div>
-            <div class="col-12 col-lg-auto"><a href="{{ path('app_time_entry_index') }}" class="btn btn-secondary w-100">Azzera</a></div>
+            <div class="col-12 col-lg-auto"><button class="btn btn-primary" type="submit">{% include 'components/icon.html.twig' with {name: 'filter'} only %}Applica filtri</button></div>
+            <div class="col-12 col-lg-auto"><a href="{{ path('app_time_entry_index') }}" class="btn btn-secondary w-100">{% include 'components/icon.html.twig' with {name: 'filter-off'} only %}Azzera</a></div>
         </form>
     </div>
 </details>
@@ -82,7 +82,7 @@
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Dettaglio registrazioni</h3>
+        <h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Dettaglio registrazioni</h3>
         <div class="ms-auto text-secondary">{{ page.firstItemNumber }}–{{ page.lastItemNumber }} di {{ page.totalItems }}</div>
     </div>
     <div class="table-responsive">

@@ -11,7 +11,7 @@
             <p class="empty-title">Operazione non disponibile</p>
             <p class="empty-subtitle text-secondary">La richiesta non può essere completata. Nessun dettaglio tecnico è stato esposto.</p>
             <div class="empty-action">
-                <a href="{{ path('app_dashboard') }}" class="btn btn-primary">Torna alla dashboard</a>
+                <a href="{{ path('app_dashboard') }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Torna alla dashboard</a>
             </div>
         </div>
     </div>

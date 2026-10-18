@@ -5,7 +5,7 @@
 {% block page_body %}
 <div class="form-page">
     <div class="card border-danger">
-        <div class="card-header"><h3 class="card-title">{{ project.code }} · {{ project.name }}</h3></div>
+        <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'folder'} only %}{{ project.code }} · {{ project.name }}</h3></div>
         <div class="card-body">
             <p>Verranno cancellati definitivamente la commessa e tutti i dati collegati, di qualsiasi utente.</p>
             <dl class="row detail-list">
@@ -23,8 +23,8 @@
         <form method="post" action="{{ path('app_project_delete', {id: project.id}) }}">
             <input type="hidden" name="_token" value="{{ csrf_token('delete_project_' ~ project.id) }}">
             <div class="card-footer form-actions confirmation-actions">
-                <a class="btn btn-outline-secondary" href="{{ path('app_project_edit', {id: project.id}) }}">Annulla</a>
-                <button class="btn btn-danger" type="submit">Cancella commessa e tutti i dati collegati</button>
+                <a class="btn btn-outline-secondary" href="{{ path('app_project_edit', {id: project.id}) }}">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Annulla</a>
+                <button class="btn btn-danger" type="submit">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Cancella commessa e tutti i dati collegati</button>
             </div>
         </form>
     </div>

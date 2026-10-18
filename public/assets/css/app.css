@@ -2,6 +2,38 @@
     --studio-brand: #206bc4;
 }
 
+.ui-icon {
+    flex-shrink: 0;
+    height: 1.25rem;
+    vertical-align: -.2em;
+    width: 1.25rem;
+}
+
+.btn:has(> .ui-icon) {
+    column-gap: .4rem;
+}
+
+.btn > .ui-icon,
+.nav-link-icon > .ui-icon {
+    margin: 0;
+}
+
+.card-title > .ui-icon,
+.metric-label > .ui-icon,
+.dropdown-item > .ui-icon,
+.section-filters > summary > .ui-icon {
+    margin-right: .45rem;
+}
+
+.card-title > .ui-icon,
+.metric-label > .ui-icon {
+    color: var(--studio-brand);
+}
+
+.card-title.text-danger > .ui-icon {
+    color: inherit;
+}
+
 .report-quick-periods,
 .report-economics {
     display: flex;

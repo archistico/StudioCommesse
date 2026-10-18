@@ -7,15 +7,15 @@
 {% if is_granted('ROLE_COLLABORATOR') %}
     {% set creation_project = selected_activity ? selected_activity.project : selected_project %}
     {% if creation_project and not creation_project.archived %}
-        <a class="btn btn-primary" href="{{ path('app_attachment_new', {id: creation_project.id, activity: selected_activity ? selected_activity.id : null}) }}">Carica documento</a>
+        <a class="btn btn-primary" href="{{ path('app_attachment_new', {id: creation_project.id, activity: selected_activity ? selected_activity.id : null}) }}">{% include 'components/icon.html.twig' with {name: 'upload'} only %}Carica documento</a>
     {% else %}
-        <a class="btn btn-primary" href="{{ path('app_attachment_choose_project') }}">Carica documento</a>
+        <a class="btn btn-primary" href="{{ path('app_attachment_choose_project') }}">{% include 'components/icon.html.twig' with {name: 'upload'} only %}Carica documento</a>
     {% endif %}
 {% endif %}
 {% endblock %}
 
 {% block page_body %}
-<details class="card mb-3 section-filters"><summary>Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
+<details class="card mb-3 section-filters"><summary>{% include 'components/icon.html.twig' with {name: 'filter'} only %}Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
             <div class="col-12 col-lg-3">
@@ -43,7 +43,7 @@
                 <label class="form-label" for="document-query">Ricerca</label>
                 <input class="form-control" id="document-query" name="q" value="{{ query }}" placeholder="Nome, descrizione, commessa">
             </div>
-            <div class="col-12"><button class="btn btn-primary" type="submit">Mostra</button></div>
+            <div class="col-12"><button class="btn btn-primary" type="submit">{% include 'components/icon.html.twig' with {name: 'filter'} only %}Mostra</button></div>
         </form>
     </div>
 </details>

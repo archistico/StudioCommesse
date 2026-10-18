@@ -5,7 +5,7 @@
 {% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_control_index', control_query), label: 'Torna al controllo'} only %}{% endblock %}
 {% block page_actions %}
 
-    <a href="{{ path('app_time_entry_index', time_report_query) }}" class="btn btn-primary">Apri registrazioni ore</a>
+    <a href="{{ path('app_time_entry_index', time_report_query) }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Apri registrazioni ore</a>
 {% endblock %}
 
 {% block page_summary %}
@@ -22,12 +22,12 @@
     </div>
 </div>
 <div class="row row-cards mb-3">
-    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Ore totali</div><div class="h2 mb-0">{{ evaluation.totalMinutes|duration_hm }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Ore fatturabili</div><div class="h2 mb-0">{{ evaluation.billableMinutes|duration_hm }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Giornate lavorate</div><div class="h2 mb-0">{{ evaluation.workedDayCount }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Media per giornata</div><div class="h2 mb-0">{{ evaluation.averageMinutesPerWorkedDay|duration_hm }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Registrazioni</div><div class="h2 mb-0">{{ evaluation.entryCount }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary">Commesse</div><div class="h2 mb-0">{{ evaluation.projectCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Ore totali</div><div class="h2 mb-0">{{ evaluation.totalMinutes|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Ore fatturabili</div><div class="h2 mb-0">{{ evaluation.billableMinutes|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'chart-bar'} only %}Giornate lavorate</div><div class="h2 mb-0">{{ evaluation.workedDayCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'chart-bar'} only %}Media per giornata</div><div class="h2 mb-0">{{ evaluation.averageMinutesPerWorkedDay|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Registrazioni</div><div class="h2 mb-0">{{ evaluation.entryCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-2"><div class="card h-100"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'folder'} only %}Commesse</div><div class="h2 mb-0">{{ evaluation.projectCount }}</div></div></div></div>
 </div>
 {% endblock %}
 
@@ -38,7 +38,7 @@
     Le giornate sono determinate dalla data di inizio della registrazione. I timer ancora aperti non entrano nelle ore totali finché non vengono chiusi.
 </div>
 
-<details class="card mb-3 section-filters"><summary>Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
+<details class="card mb-3 section-filters"><summary>{% include 'components/icon.html.twig' with {name: 'filter'} only %}Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
             <input type="hidden" name="closure" value="{{ control_context.closure }}">
@@ -88,8 +88,8 @@
                 <label for="evaluation-to" class="form-label">Al</label>
                 <input id="evaluation-to" name="to" type="date" class="form-control" value="{{ date_to }}">
             </div>
-            <div class="col-12 col-lg-auto"><button class="btn btn-primary" type="submit">Applica filtri</button></div>
-            <div class="col-12 col-lg-auto"><a href="{{ path('app_control_collaborator_show', {id: evaluation.userId}) }}" class="btn btn-secondary w-100">Azzera</a></div>
+            <div class="col-12 col-lg-auto"><button class="btn btn-primary" type="submit">{% include 'components/icon.html.twig' with {name: 'filter'} only %}Applica filtri</button></div>
+            <div class="col-12 col-lg-auto"><a href="{{ path('app_control_collaborator_show', {id: evaluation.userId}) }}" class="btn btn-secondary w-100">{% include 'components/icon.html.twig' with {name: 'filter-off'} only %}Azzera</a></div>
         </form>
     </div>
 </details>
@@ -100,7 +100,7 @@
     <div class="card mb-3">
         <div class="card-header">
             <div>
-                <h3 class="card-title">{{ day.date|date('d/m/Y') }}</h3>
+                <h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'calendar'} only %}{{ day.date|date('d/m/Y') }}</h3>
                 <div class="small text-secondary">{{ day.entries|length }} {{ day.entries|length == 1 ? 'registrazione' : 'registrazioni' }}</div>
             </div>
             <div class="ms-auto text-end">

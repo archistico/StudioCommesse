@@ -11,7 +11,7 @@
             <p class="empty-title">Dati modificati o già presenti</p>
             <p class="empty-subtitle text-secondary">L’operazione non è stata applicata. Ricarica la pagina e verifica i dati prima di riprovare.</p>
             {% if request_id is defined and request_id %}<p class="text-secondary small">Riferimento: {{ request_id }}</p>{% endif %}
-            <div class="empty-action"><a href="{{ path('app_dashboard') }}" class="btn btn-primary">Torna alla dashboard</a></div>
+            <div class="empty-action"><a href="{{ path('app_dashboard') }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Torna alla dashboard</a></div>
         </div>
     </div>
 </main>

@@ -42,7 +42,7 @@ final class FormLayoutContractTest extends TestCase
         self::assertStringContainsString('form_rest(form)', $template);
         self::assertStringContainsString('form_end(form, {render_rest: false})', $template);
         self::assertStringContainsString('card-footer form-actions', $template);
-        self::assertStringContainsString('>Annulla</a>', $template);
+        self::assertStringContainsString('Annulla</a>', $template);
         self::assertStringNotContainsString('btn btn-primary w-100', $template);
 
         preg_match_all("/->add\(\s*'([A-Za-z][A-Za-z0-9]*)'/", $formType, $matches);

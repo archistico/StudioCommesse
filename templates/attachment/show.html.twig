@@ -6,7 +6,7 @@
 {% block page_actions %}
 <div class="btn-list">
 
-    <a href="{{ path('app_attachment_download', {id: attachment.id}) }}" class="btn btn-primary">Scarica</a>
+    <a href="{{ path('app_attachment_download', {id: attachment.id}) }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'download'} only %}Scarica</a>
 </div>
 {% endblock %}
 
@@ -14,7 +14,7 @@
 <div class="row row-cards">
     <div class="col-12 col-lg-5">
         <div class="card h-100">
-            <div class="card-header"><h3 class="card-title">Informazioni file</h3></div>
+            <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'file-description'} only %}Informazioni file</h3></div>
             <div class="card-body">
                 <dl class="row mb-0 detail-list">
                     <dt class="col-12 col-lg-5">Commessa</dt><dd class="col-12 col-lg-7"><a href="{{ path('app_project_show', {id: attachment.project.id}) }}">{{ attachment.project.code }} · {{ attachment.project.name }}</a></dd>
@@ -35,7 +35,7 @@
         {% if can_manage and form %}
         <div class="card">
             {{ form_start(form, {attr: {autocomplete: 'off'}}) }}
-            <div class="card-header"><h3 class="card-title">Classificazione e collegamento</h3></div>
+            <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'file-description'} only %}Classificazione e collegamento</h3></div>
             <div class="card-body">
                 {{ form_errors(form) }}
                 <div class="row g-3">
@@ -45,19 +45,19 @@
                 </div>
                 {{ form_rest(form) }}
             </div>
-            <div class="card-footer form-actions"><a class="btn btn-outline-secondary" href="{{ path('app_attachment_project', {id: attachment.project.id}) }}">Annulla</a><button class="btn btn-primary" type="submit">Salva modifiche</button></div>
+            <div class="card-footer form-actions"><a class="btn btn-outline-secondary" href="{{ path('app_attachment_project', {id: attachment.project.id}) }}">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Annulla</a><button class="btn btn-primary" type="submit">{% include 'components/icon.html.twig' with {name: 'device-floppy'} only %}Salva modifiche</button></div>
             {{ form_end(form, {render_rest: false}) }}
         </div>
         <div class="card mt-3 border-danger">
-            <div class="card-body"><h3 class="card-title text-danger">Elimina documento</h3><p class="text-secondary">L’eliminazione rimuove sia i metadati sia il file memorizzato e non è annullabile.</p>
+            <div class="card-body"><h3 class="card-title text-danger">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Elimina documento</h3><p class="text-secondary">L’eliminazione rimuove sia i metadati sia il file memorizzato e non è annullabile.</p>
                 <form method="post" action="{{ path('app_attachment_delete', {id: attachment.id}) }}" data-confirm="Eliminare definitivamente questo documento?">
                     <input type="hidden" name="_token" value="{{ csrf_token('delete_attachment_' ~ attachment.id) }}">
-                    <button class="btn btn-danger w-100" type="submit">Elimina documento</button>
+                    <button class="btn btn-danger w-100" type="submit">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Elimina documento</button>
                 </form>
             </div>
         </div>
         {% else %}
-        <div class="card h-100"><div class="card-header"><h3 class="card-title">Descrizione</h3></div><div class="card-body {{ attachment.description ? '' : 'text-secondary' }}">{{ attachment.description ? attachment.description|nl2br : 'Nessuna descrizione.' }}</div></div>
+        <div class="card h-100"><div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'file-description'} only %}Descrizione</h3></div><div class="card-body {{ attachment.description ? '' : 'text-secondary' }}">{{ attachment.description ? attachment.description|nl2br : 'Nessuna descrizione.' }}</div></div>
         {% endif %}
     </div>
 </div>

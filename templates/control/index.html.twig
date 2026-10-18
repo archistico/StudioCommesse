@@ -3,15 +3,15 @@
 {% block title %}Controllo · {{ app_name }}{% endblock %}
 {% block page_title %}Controllo{% endblock %}
 {% block page_actions %}
-    <a href="{{ path('app_economics_index') }}" class="btn btn-secondary">Apri economia</a>
+    <a href="{{ path('app_economics_index') }}" class="btn btn-secondary">{% include 'components/icon.html.twig' with {name: 'currency-euro'} only %}Apri economia</a>
 {% endblock %}
 
 {% block page_summary %}
 <div class="row row-cards mb-3">
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Commesse filtrate</div><div class="h2 mb-0">{{ dashboard.projects|length }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Chiuse completamente</div><div class="h2 mb-0 text-success">{{ dashboard.overallClosedCount }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Lavoro chiuso, da incassare</div><div class="h2 mb-0 text-warning">{{ dashboard.toCollectCount }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Criticità / sovraccarichi</div><div class="h2 mb-0 text-danger">{{ dashboard.criticalProjectCount }} / {{ dashboard.overloadedCollaboratorCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'folder'} only %}Commesse filtrate</div><div class="h2 mb-0">{{ dashboard.projects|length }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'chart-bar'} only %}Chiuse completamente</div><div class="h2 mb-0 text-success">{{ dashboard.overallClosedCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'currency-euro'} only %}Lavoro chiuso, da incassare</div><div class="h2 mb-0 text-warning">{{ dashboard.toCollectCount }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'chart-bar'} only %}Criticità / sovraccarichi</div><div class="h2 mb-0 text-danger">{{ dashboard.criticalProjectCount }} / {{ dashboard.overloadedCollaboratorCount }}</div></div></div></div>
 </div>
 {% endblock %}
 
@@ -80,15 +80,15 @@
                     <option value="asc" {{ criteria.direction == 'asc' ? 'selected' : '' }}>Crescente</option>
                 </select>
             </div>
-            <div class="col-12 col-lg-auto"><button class="btn btn-primary" type="submit">Applica</button></div>
-            <div class="col-12 col-lg-auto"><a href="{{ path('app_control_index', {reset: 1}) }}" class="btn btn-secondary w-100">Azzera</a></div>
+            <div class="col-12 col-lg-auto"><button class="btn btn-primary" type="submit">{% include 'components/icon.html.twig' with {name: 'filter'} only %}Applica</button></div>
+            <div class="col-12 col-lg-auto"><a href="{{ path('app_control_index', {reset: 1}) }}" class="btn btn-secondary w-100">{% include 'components/icon.html.twig' with {name: 'filter-off'} only %}Azzera</a></div>
             <div class="col-12"><div class="form-hint">Il periodo influenza i riepiloghi per persona, cliente e mese. Gli stati di chiusura e gli scostamenti della commessa sono sempre calcolati sull’intera vita della commessa.</div></div>
         </form>
     </div>
 </details>
 
 <div class="card mb-3">
-    <div class="card-header"><h3 class="card-title">Chiusura e scostamenti per commessa</h3></div>
+    <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'folder'} only %}Chiusura e scostamenti per commessa</h3></div>
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
             <thead>
@@ -150,7 +150,7 @@
 <div class="row row-cards mb-3">
     <div class="col-12">
         <div class="card">
-            <div class="card-header"><h3 class="card-title">Carico per persona</h3></div>
+            <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'users'} only %}Carico per persona</h3></div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
                     <thead><tr><th scope="col">Persona</th><th scope="col">Attività aperte</th><th scope="col">Residuo</th><th scope="col">Ore periodo</th><th scope="col">Fatturabili</th><th scope="col">Commesse</th></tr></thead>
@@ -178,7 +178,7 @@
 
     <div class="col-12">
         <div class="card">
-            <div class="card-header"><h3 class="card-title">Riepilogo per cliente</h3></div>
+            <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'users'} only %}Riepilogo per cliente</h3></div>
             <div class="table-responsive">
                 <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
                     <thead><tr><th scope="col">Cliente</th><th scope="col">Commesse</th><th scope="col">Ore periodo</th><th scope="col">Costi periodo</th><th scope="col">Incassi periodo</th><th scope="col">Saldo gestionale</th></tr></thead>
@@ -201,7 +201,7 @@
 </div>
 
 <div class="card">
-    <div class="card-header"><h3 class="card-title">Andamento mensile del periodo</h3></div>
+    <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'calendar'} only %}Andamento mensile del periodo</h3></div>
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
             <thead><tr><th scope="col">Mese</th><th scope="col">Ore lavorate</th><th scope="col">Ore fatturabili</th><th scope="col">Costo ore</th><th scope="col">Spese</th><th scope="col">Incassi</th><th scope="col">Saldo gestionale</th></tr></thead>

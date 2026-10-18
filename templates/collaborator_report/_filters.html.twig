@@ -7,9 +7,9 @@
     <div class="card-body">
         <nav class="report-quick-periods mb-3" aria-label="Periodo del report">
             {% for value, label in {today: 'Oggi', week: 'Questa settimana', month: 'Questo mese'} %}
-                <a href="{{ path(app.request.attributes.get('_route'), filter_query|merge({period: value})|merge(person is defined ? {id: person.id} : {})) }}" class="btn {{ period == value ? 'btn-primary' : 'btn-secondary' }}" aria-current="{{ period == value ? 'true' : 'false' }}">{{ label }}</a>
+                <a href="{{ path(app.request.attributes.get('_route'), filter_query|merge({period: value})|merge(person is defined ? {id: person.id} : {})) }}" class="btn {{ period == value ? 'btn-primary' : 'btn-secondary' }}" aria-current="{{ period == value ? 'true' : 'false' }}">{% include 'components/icon.html.twig' with {name: 'calendar'} only %}{{ label }}</a>
             {% endfor %}
-            <a href="#report-from" class="btn {{ period == 'custom' ? 'btn-primary' : 'btn-secondary' }}" aria-current="{{ period == 'custom' ? 'true' : 'false' }}">Periodo personalizzato</a>
+            <a href="#report-from" class="btn {{ period == 'custom' ? 'btn-primary' : 'btn-secondary' }}" aria-current="{{ period == 'custom' ? 'true' : 'false' }}">{% include 'components/icon.html.twig' with {name: 'calendar'} only %}Periodo personalizzato</a>
         </nav>
         <form method="get" class="row g-3 align-items-end">
             <input type="hidden" name="period" value="custom">
@@ -31,8 +31,8 @@
             </div>
             <div class="col-12 col-md-6 col-lg-3 col-xl-2"><label for="report-from" class="form-label">Dal</label><input id="report-from" type="date" name="from" class="form-control" value="{{ criteria.from|date('Y-m-d') }}" required></div>
             <div class="col-12 col-md-6 col-lg-3 col-xl-2"><label for="report-to" class="form-label">Al</label><input id="report-to" type="date" name="to" class="form-control" value="{{ criteria.to|date('Y-m-d') }}" required></div>
-            <div class="col-12 col-lg-auto"><button type="submit" class="btn btn-primary">Mostra report</button></div>
-            <div class="col-12 col-lg-auto"><a class="btn btn-secondary" href="{{ path(app.request.attributes.get('_route'), person is defined ? {id: person.id} : {}) }}">Azzera</a></div>
+            <div class="col-12 col-lg-auto"><button type="submit" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'filter'} only %}Mostra report</button></div>
+            <div class="col-12 col-lg-auto"><a class="btn btn-secondary" href="{{ path(app.request.attributes.get('_route'), person is defined ? {id: person.id} : {}) }}">{% include 'components/icon.html.twig' with {name: 'filter-off'} only %}Azzera</a></div>
         </form>
     </div>
 </div>

@@ -4,28 +4,28 @@
 {% block page_title %}Report mensile · {{ report.month|date('m/Y') }}{% endblock %}
 {% block page_actions %}
 <div class="btn-list">
-    <a class="btn btn-secondary" href="{{ path('app_monthly_report', {month: previous_month, project: selected_project ? selected_project.id : null}) }}">Mese precedente</a>
-    <a class="btn btn-secondary" href="{{ path('app_monthly_report', {month: next_month, project: selected_project ? selected_project.id : null}) }}">Mese successivo</a>
-    <a class="btn btn-secondary" href="{{ path('app_monthly_report_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">CSV dettaglio ore</a>
-    <a class="btn btn-success" href="{{ path('app_monthly_report_users_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">CSV riepilogo utenti</a>
+    <a class="btn btn-secondary" href="{{ path('app_monthly_report', {month: previous_month, project: selected_project ? selected_project.id : null}) }}">{% include 'components/icon.html.twig' with {name: 'chevron-left'} only %}Mese precedente</a>
+    <a class="btn btn-secondary" href="{{ path('app_monthly_report', {month: next_month, project: selected_project ? selected_project.id : null}) }}">{% include 'components/icon.html.twig' with {name: 'chevron-right'} only %}Mese successivo</a>
+    <a class="btn btn-secondary" href="{{ path('app_monthly_report_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">{% include 'components/icon.html.twig' with {name: 'download'} only %}CSV dettaglio ore</a>
+    <a class="btn btn-success" href="{{ path('app_monthly_report_users_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">{% include 'components/icon.html.twig' with {name: 'download'} only %}CSV riepilogo utenti</a>
 </div>
 {% endblock %}
 
 {% block page_summary %}
 <div class="row row-deck row-cards mb-3">
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Ore registrate</div><div class="h2">{{ report.workedMinutes|duration_hm }}</div><div class="small text-secondary">{{ report.timeEntryCount }} registrazioni · {{ report.contributorCount }} persone</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Ore fatturabili</div><div class="h2">{{ report.billableMinutes|duration_hm }}</div><div class="small text-secondary">{{ report.workedMinutes > 0 ? ((report.billableMinutes * 100 / report.workedMinutes)|round) : 0 }}% del totale</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Commesse movimentate</div><div class="h2">{{ report.movedProjectCount }}</div><div class="small text-secondary">{{ report.inactiveProjectCount }} senza movimenti</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary">Azioni registrate</div><div class="h2">{{ report.actionCount }}</div><div class="small text-secondary">{{ report.attachmentCount }} documenti caricati</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Ore registrate</div><div class="h2">{{ report.workedMinutes|duration_hm }}</div><div class="small text-secondary">{{ report.timeEntryCount }} registrazioni · {{ report.contributorCount }} persone</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Ore fatturabili</div><div class="h2">{{ report.billableMinutes|duration_hm }}</div><div class="small text-secondary">{{ report.workedMinutes > 0 ? ((report.billableMinutes * 100 / report.workedMinutes)|round) : 0 }}% del totale</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'folder'} only %}Commesse movimentate</div><div class="h2">{{ report.movedProjectCount }}</div><div class="small text-secondary">{{ report.inactiveProjectCount }} senza movimenti</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'chart-bar'} only %}Azioni registrate</div><div class="h2">{{ report.actionCount }}</div><div class="small text-secondary">{{ report.attachmentCount }} documenti caricati</div></div></div></div>
 </div>
 <div class="row row-cards mb-3">
-    <div class="col-12 col-lg-6"><div class="card"><div class="card-body"><div class="text-secondary">Spese del mese</div><div class="h2 text-danger">{{ report.expenseCents|money_eur }}</div></div></div></div>
-    <div class="col-12 col-lg-6"><div class="card"><div class="card-body"><div class="text-secondary">Incassi del mese</div><div class="h2 text-success">{{ report.paymentCents|money_eur }}</div></div></div></div>
+    <div class="col-12 col-lg-6"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'receipt'} only %}Spese del mese</div><div class="h2 text-danger">{{ report.expenseCents|money_eur }}</div></div></div></div>
+    <div class="col-12 col-lg-6"><div class="card"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'coin'} only %}Incassi del mese</div><div class="h2 text-success">{{ report.paymentCents|money_eur }}</div></div></div></div>
 </div>
 {% endblock %}
 
 {% block page_body %}
-<details class="card mb-3 d-print-none section-filters"><summary>Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
+<details class="card mb-3 d-print-none section-filters"><summary>{% include 'components/icon.html.twig' with {name: 'filter'} only %}Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
     <div class="card-body">
         <form method="get" class="row g-3 align-items-end">
             <div class="col-12 col-lg-6">
@@ -41,13 +41,13 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-12"><button class="btn btn-primary" type="submit">Mostra report</button></div>
+            <div class="col-12"><button class="btn btn-primary" type="submit">{% include 'components/icon.html.twig' with {name: 'filter'} only %}Mostra report</button></div>
         </form>
     </div>
 </details>
 
 <div class="card mb-3">
-    <div class="card-header"><h3 class="card-title">Andamento per commessa</h3><div class="small text-secondary ms-auto">Lo stato e l’avanzamento sono quelli correnti; ore e movimenti appartengono al mese selezionato.</div></div>
+    <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'folder'} only %}Andamento per commessa</h3><div class="small text-secondary ms-auto">Lo stato e l’avanzamento sono quelli correnti; ore e movimenti appartengono al mese selezionato.</div></div>
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-page-length="25">
             <thead><tr><th scope="col">Commessa</th><th scope="col">Stato corrente</th><th scope="col">Attività</th><th scope="col">Ore mese</th><th scope="col">Movimenti</th><th scope="col">Economia mese</th></tr></thead>
@@ -72,10 +72,10 @@
 <div class="card mb-3" data-monthly-user-cost-summary>
     <div class="card-header">
         <div>
-            <h3 class="card-title">Riepilogo ore e costi per utente</h3>
+            <h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Riepilogo ore e costi per utente</h3>
             <div class="small text-secondary">Il costo standard usa la tariffa attuale dell’utente; il costo storico usa le tariffe congelate sulle registrazioni concluse.</div>
         </div>
-        <a class="btn btn-sm btn-success ms-auto d-print-none" href="{{ path('app_monthly_report_users_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">Esporta riepilogo</a>
+        <a class="btn btn-sm btn-success ms-auto d-print-none" href="{{ path('app_monthly_report_users_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">{% include 'components/icon.html.twig' with {name: 'download'} only %}Esporta riepilogo</a>
     </div>
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>
@@ -100,7 +100,7 @@
 </div>
 
 <div class="card mb-3">
-    <div class="card-header"><h3 class="card-title">Registrazioni ore del mese</h3></div>
+    <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Registrazioni ore del mese</h3></div>
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable data-datatable-page-length="50">
             <thead><tr><th scope="col">Data</th><th scope="col">Commessa e attività</th><th scope="col">Persona</th><th scope="col">Lavoro svolto</th><th scope="col">Durata</th><th scope="col">Fatturabile</th><th scope="col">Costo storico</th></tr></thead>

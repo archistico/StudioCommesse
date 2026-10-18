@@ -5,7 +5,7 @@
 {% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_project_show', {id: activity.project.id}), label: 'Torna alla commessa'} only %}{% endblock %}
 {% block page_actions %}
 <div class="btn-list">
-    <a href="{{ path('app_attachment_project', {id: activity.project.id, activity: activity.id}) }}" class="btn btn-primary">Documenti{% if attachment_count > 0 %} ({{ attachment_count }}){% endif %}</a>
+    <a href="{{ path('app_attachment_project', {id: activity.project.id, activity: activity.id}) }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'file-description'} only %}Documenti{% if attachment_count > 0 %} ({{ attachment_count }}){% endif %}</a>
 </div>
 {% endblock %}
 
@@ -13,7 +13,7 @@
 <div class="row justify-content-center form-page">
     <div class="col-12">
         <div class="card">
-            <div class="card-header"><h3 class="card-title">{{ activity.project.code }} · {{ activity.project.name }}</h3></div>
+            <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'folder'} only %}{{ activity.project.code }} · {{ activity.project.name }}</h3></div>
             {{ form_start(form, {attr: {autocomplete: 'off'}}) }}
             <div class="card-body">
                 {{ form_errors(form) }}
@@ -40,17 +40,17 @@
                 {{ form_rest(form) }}
             </div>
             <div class="card-footer form-actions">
-                <a class="btn btn-outline-secondary" href="{{ path('app_project_show', {id: activity.project.id}) }}">Annulla</a>
-                <button class="btn btn-primary" type="submit">{{ submit_label }}</button>
+                <a class="btn btn-outline-secondary" href="{{ path('app_project_show', {id: activity.project.id}) }}">{% include 'components/icon.html.twig' with {name: 'arrow-left'} only %}Annulla</a>
+                <button class="btn btn-primary" type="submit">{% include 'components/icon.html.twig' with {name: 'device-floppy'} only %}{{ submit_label }}</button>
             </div>
             {{ form_end(form, {render_rest: false}) }}
         </div>
         {% if activity.id and is_granted('ROLE_PARTNER') %}
             <div class="card mt-3 border-danger">
                 <div class="card-body">
-                    <h3 class="card-title text-danger">Elimina attività</h3>
+                    <h3 class="card-title text-danger">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Elimina attività</h3>
                     <p class="text-secondary">Elimina definitivamente questa attività e tutte le registrazioni ore collegate, anche di altri utenti. Potrai verificare il riepilogo prima di confermare.</p>
-                    <a class="btn btn-danger" href="{{ path('app_activity_delete', {id: activity.id}) }}">Elimina attività e ore</a>
+                    <a class="btn btn-danger" href="{{ path('app_activity_delete', {id: activity.id}) }}">{% include 'components/icon.html.twig' with {name: 'trash'} only %}Elimina attività e ore</a>
                 </div>
             </div>
         {% endif %}

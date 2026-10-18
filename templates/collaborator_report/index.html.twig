@@ -6,22 +6,22 @@
 <h2 class="d-none d-print-block">Report collaboratori</h2>
 {% include 'collaborator_report/_filters.html.twig' %}
 <div class="row row-cards mb-3 report-metrics">
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary">Ore registrate nel periodo</div><div class="h1 mb-0">{{ totals.minutes|duration_hm }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary">Collaboratori con registrazioni</div><div class="h1 mb-0">{{ totals.contributors }} <span class="text-secondary fs-4">su {{ people|length }}</span></div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary">Attività scadute · situazione attuale</div><div class="h1 mb-0 {{ totals.overdue > 0 ? 'text-danger' : '' }}">{{ totals.overdue }}</div></div></div></div>
-    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary">Attività in attesa · situazione attuale</div><div class="h1 mb-0">{{ totals.waiting }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'calendar'} only %}Ore registrate nel periodo</div><div class="h1 mb-0">{{ totals.minutes|duration_hm }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'clock'} only %}Collaboratori con registrazioni</div><div class="h1 mb-0">{{ totals.contributors }} <span class="text-secondary fs-4">su {{ people|length }}</span></div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'list-check'} only %}Attività scadute · situazione attuale</div><div class="h1 mb-0 {{ totals.overdue > 0 ? 'text-danger' : '' }}">{{ totals.overdue }}</div></div></div></div>
+    <div class="col-12 col-lg-6 col-xl-3"><div class="card h-100"><div class="card-body"><div class="text-secondary metric-label">{% include 'components/icon.html.twig' with {name: 'list-check'} only %}Attività in attesa · situazione attuale</div><div class="h1 mb-0">{{ totals.waiting }}</div></div></div></div>
 </div>
 {% endblock %}
 
 {% block page_actions %}
-<a class="btn btn-success" href="{{ path('app_collaborator_report_csv', current_query) }}">CSV riepilogo</a>
-<a class="btn btn-success" href="{{ path('app_collaborator_report_entries_csv', current_query) }}">CSV registrazioni</a>
-<button type="button" class="btn btn-primary" data-print>Stampa report</button>
+<a class="btn btn-success" href="{{ path('app_collaborator_report_csv', current_query) }}">{% include 'components/icon.html.twig' with {name: 'download'} only %}CSV riepilogo</a>
+<a class="btn btn-success" href="{{ path('app_collaborator_report_entries_csv', current_query) }}">{% include 'components/icon.html.twig' with {name: 'download'} only %}CSV registrazioni</a>
+<button type="button" class="btn btn-primary" data-print>{% include 'components/icon.html.twig' with {name: 'printer'} only %}Stampa report</button>
 {% endblock %}
 
 {% block page_body %}
 <div class="card collaborator-report">
-    <div class="card-header"><div><h3 class="card-title">Panoramica collaboratori</h3><div class="text-secondary">Apri un nome per vedere attività, lavoro svolto e giornate. Le situazioni da verificare compaiono per prime.</div></div></div>
+    <div class="card-header"><div><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'users'} only %}Panoramica collaboratori</h3><div class="text-secondary">Apri un nome per vedere attività, lavoro svolto e giornate. Le situazioni da verificare compaiono per prime.</div></div></div>
     <div class="table-responsive">
         <table class="table card-table w-100" data-datatable data-datatable-compact="true">
             <thead><tr><th scope="col">Collaboratore</th><th scope="col">Lavoro attuale / ultimo registrato</th><th scope="col" data-priority="2">Ore nel periodo</th><th scope="col">Attività aperte oggi</th><th scope="col" data-priority="3">Segnalazioni</th></tr></thead>

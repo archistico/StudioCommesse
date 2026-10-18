@@ -1,5 +1,11 @@
 # Third-party notices
 
+## Tabler Icons
+
+The local SVG sprite in `public/assets/icons/tabler.svg` includes outline icons from [Tabler Icons](https://github.com/tabler/tabler-icons), source commit `a4ce1404bc6d24d3c365afe7b258d6bf6f48d62d`.
+
+Copyright (c) 2020-2026 Paweł Kuna. License: MIT. The complete license is included in `public/assets/icons/LICENSE.txt`.
+
 ## Tabler 1.4.0
 
 Studio Commesse uses the compiled CSS and JavaScript assets from Tabler 1.4.0.

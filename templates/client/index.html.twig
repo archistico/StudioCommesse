@@ -5,14 +5,14 @@
 {% block page_actions %}
     {% if is_granted('ROLE_PARTNER') %}
         <div class="btn-list">
-            <a href="{{ path('app_economics_index') }}#importi-clienti" class="btn btn-primary">Riepilogo dovuti</a>
-            <a href="{{ path('app_client_new') }}" class="btn btn-primary">Nuovo cliente</a>
+            <a href="{{ path('app_economics_index') }}#importi-clienti" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'currency-euro'} only %}Riepilogo dovuti</a>
+            <a href="{{ path('app_client_new') }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'plus'} only %}Nuovo cliente</a>
         </div>
     {% endif %}
 {% endblock %}
 
 {% block page_body %}
-<details class="card mb-3 section-filters"><summary>Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
+<details class="card mb-3 section-filters"><summary>{% include 'components/icon.html.twig' with {name: 'filter'} only %}Filtri e ricerca{% if app.request.query.all is not empty %}<span class="badge bg-blue-lt ms-2">Impostati</span>{% endif %}</summary>
     <div class="card-body">
         <form method="get" class="row g-2 align-items-end">
             <div class="col-12 col-lg-8">
@@ -26,8 +26,8 @@
                 </label>
             </div>
             <div class="col-12 col-lg-2 d-flex gap-2">
-                <button class="btn btn-primary flex-fill" type="submit">Filtra</button>
-                <a class="btn btn-secondary" href="{{ path('app_client_index') }}" aria-label="Azzera filtri">×</a>
+                <button class="btn btn-primary flex-fill" type="submit">{% include 'components/icon.html.twig' with {name: 'filter'} only %}Filtra</button>
+                <a class="btn btn-secondary" href="{{ path('app_client_index') }}" aria-label="Azzera filtri">{% include 'components/icon.html.twig' with {name: 'filter-off'} only %}</a>
             </div>
         </form>
     </div>

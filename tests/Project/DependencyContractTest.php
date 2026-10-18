@@ -403,10 +403,10 @@ final class DependencyContractTest extends TestCase
         self::assertStringNotContainsString("path('app_project_archive'", $show);
         self::assertStringContainsString("path('app_project_archive'", $form);
         self::assertStringContainsString("csrf_token('archive_project_' ~ project.id)", $form);
-        self::assertStringContainsString('>Archivia commessa</button>', $form);
+        self::assertStringContainsString('Archivia commessa</button>', $form);
         self::assertStringContainsString("path('app_project_restore'", $show);
         self::assertStringContainsString("csrf_token('restore_project_' ~ project.id)", $show);
-        self::assertStringContainsString('>Ripristina</button>', $show);
+        self::assertStringContainsString('Ripristina</button>', $show);
         $controller = file_get_contents(dirname(__DIR__, 2).'/src/Controller/ProjectController.php');
         self::assertIsString($controller);
         self::assertStringContainsString("#[IsGranted('ROLE_PARTNER')]", $controller);

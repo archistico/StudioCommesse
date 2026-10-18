@@ -6,15 +6,15 @@
 {% block page_actions %}
 <div class="btn-list">
     {% if is_granted('ROLE_PARTNER') and not client.archived %}
-                    <a href="{{ path('app_project_new', {client: client.id}) }}" class="btn btn-primary">Nuova commessa</a>
+                    <a href="{{ path('app_project_new', {client: client.id}) }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'plus'} only %}Nuova commessa</a>
                 {% endif %}
 
     {% if is_granted('ROLE_PARTNER') %}
-        {% if not client.archived %}<a href="{{ path('app_client_edit', {id: client.id}) }}" class="btn btn-primary">Modifica</a>{% endif %}
+        {% if not client.archived %}<a href="{{ path('app_client_edit', {id: client.id}) }}" class="btn btn-primary">{% include 'components/icon.html.twig' with {name: 'pencil'} only %}Modifica</a>{% endif %}
         {% if client.archived %}
             <form method="post" action="{{ path('app_client_restore', {id: client.id}) }}">
                 <input type="hidden" name="_token" value="{{ csrf_token('restore_client_' ~ client.id) }}">
-                <button class="btn btn-success" type="submit">Ripristina</button>
+                <button class="btn btn-success" type="submit">{% include 'components/icon.html.twig' with {name: 'restore'} only %}Ripristina</button>
             </form>
         {% endif %}
     {% endif %}
@@ -25,7 +25,7 @@
 <div class="row row-cards mb-3">
 <div class="col-12">
         <div class="card">
-            <div class="card-header"><h3 class="card-title">Anagrafica</h3></div>
+            <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'users'} only %}Anagrafica</h3></div>
             <div class="card-body">
                 <dl class="row mb-0 detail-list">
                     <dt class="col-12 col-lg-4">Stato</dt><dd class="col-12 col-lg-8">{{ client.archived ? 'Archiviato' : 'Attivo' }}</dd>
@@ -40,7 +40,7 @@
         </div>
         {% if client.notes %}
             <div class="card mt-3">
-                <div class="card-header"><h3 class="card-title">Note operative</h3></div>
+                <div class="card-header"><h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'file-description'} only %}Note operative</h3></div>
                 <div class="card-body text-secondary">{{ client.notes|nl2br }}</div>
             </div>
         {% endif %}
@@ -54,7 +54,7 @@
     <div class="col-12">
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <h3 class="card-title">Commesse</h3>
+                <h3 class="card-title">{% include 'components/icon.html.twig' with {name: 'folder'} only %}Commesse</h3>
 
             </div>
             <div class="table-responsive">

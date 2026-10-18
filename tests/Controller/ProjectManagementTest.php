@@ -120,7 +120,7 @@ final class ProjectManagementTest extends DatabaseWebTestCase
         $html = (string) $this->client->getResponse()->getContent();
         $estimatedPosition = strpos($html, 'name="project[estimatedAmountCents]"');
         $ratePosition = strpos($html, 'name="project[defaultHourlyRateCents]"');
-        $submitPosition = strpos($html, '>Salva modifiche</button>');
+        $submitPosition = strpos($html, 'Salva modifiche</button>');
         self::assertIsInt($estimatedPosition);
         self::assertIsInt($ratePosition);
         self::assertIsInt($submitPosition);
