@@ -38,7 +38,7 @@ final class AuthorizationMatrixContractTest extends TestCase
         $matrixRoutes = array_keys($matrix);
         sort($matrixRoutes);
 
-        self::assertCount(60, $routes);
+        self::assertCount(64, $routes);
         self::assertSame(array_keys($routes), $matrixRoutes);
         foreach ($routes as $route => $methods) {
             self::assertArrayHasKey($route, $matrix);
@@ -60,6 +60,10 @@ final class AuthorizationMatrixContractTest extends TestCase
             'app_time_entry_delete',
             'app_user_new',
             'app_user_edit',
+            'app_user_delete',
+            'app_settings_index',
+            'app_settings_backup',
+            'app_settings_reset',
             'app_economics_index',
             'app_payment_new',
             'app_payment_choose_project',
@@ -90,7 +94,7 @@ final class AuthorizationMatrixContractTest extends TestCase
             if ([] === array_intersect(['POST', 'PUT', 'PATCH', 'DELETE'], $policy['methods'])) {
                 continue;
             }
-            if (in_array($route, ['app_login', 'app_logout', 'app_user_new', 'app_user_edit', 'app_client_new', 'app_client_archive', 'app_client_restore', 'app_project_new', 'app_project_archive', 'app_project_restore'], true)) {
+            if (in_array($route, ['app_login', 'app_logout', 'app_user_new', 'app_user_edit', 'app_user_delete', 'app_settings_backup', 'app_settings_reset', 'app_client_new', 'app_client_archive', 'app_client_restore', 'app_project_new', 'app_project_archive', 'app_project_restore'], true)) {
                 continue;
             }
 

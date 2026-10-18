@@ -2,6 +2,7 @@
 
 {% block title %}{{ page_title }} · {{ app_name }}{% endblock %}
 {% block page_title %}{{ page_title }}{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_activity_time', {id: activity.id}), label: 'Torna alle ore'} only %}{% endblock %}
 {% block page_body %}
 <div class="row justify-content-center form-page">
     <div class="col-12">
@@ -29,7 +30,7 @@
                 <div class="card-body">
                     <h3 class="card-title text-danger">Elimina registrazione</h3>
                     <p class="text-secondary">La registrazione sarà eliminata definitivamente. Potrai verificarne i dati prima di confermare.</p>
-                    <a class="btn btn-outline-danger" href="{{ path('app_time_entry_delete', {id: entry.id}) }}">Elimina registrazione ore</a>
+                    <a class="btn btn-danger" href="{{ path('app_time_entry_delete', {id: entry.id}) }}">Elimina registrazione ore</a>
                 </div>
             </div>
         {% endif %}

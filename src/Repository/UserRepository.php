@@ -91,4 +91,29 @@ final class UserRepository extends ServiceEntityRepository implements PasswordUp
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /** @return array<string, int> */
+    public function countLinkedRecords(User $user): array
+    {
+        $connection = $this->getEntityManager()->getConnection();
+        $queries = [
+            'Commesse' => 'SELECT COUNT(*) FROM project WHERE responsible_id = :id',
+            'Attività' => 'SELECT COUNT(*) FROM activity WHERE assignee_id = :id OR created_by_id = :id',
+            'Ore e timer' => 'SELECT COUNT(*) FROM time_entry WHERE user_id = :id',
+            'Spese' => 'SELECT COUNT(*) FROM expense WHERE recorded_by_id = :id',
+            'Incassi' => 'SELECT COUNT(*) FROM payment WHERE recorded_by_id = :id',
+            'Documenti' => 'SELECT COUNT(*) FROM attachment WHERE uploaded_by_id = :id',
+        ];
+        $counts = [];
+        foreach ($queries as $label => $sql) {
+            $counts[$label] = (int) $connection->fetchOne($sql, ['id' => $user->getId()]);
+        }
+
+        return $counts;
+    }
+
+    public function remove(User $user): void
+    {
+        $this->getEntityManager()->remove($user);
+    }
 }

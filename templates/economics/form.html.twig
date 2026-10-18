@@ -2,6 +2,7 @@
 
 {% block title %}{{ title }} · {{ app_name }}{% endblock %}
 {% block page_title %}{{ title }}{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_economics_project', {id: project.id}), label: 'Torna ai dati economici'} only %}{% endblock %}
 {% block page_body %}
 <div class="row justify-content-center form-page">
     <div class="col-12">
@@ -43,12 +44,12 @@
                     {% if expense is defined %}
                         <form action="{{ path('app_expense_delete', {id: expense.id}) }}" method="post" data-confirm="Eliminare definitivamente questa spesa?">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete_expense_' ~ expense.id) }}">
-                            <button class="btn btn-outline-danger w-100" type="submit">Elimina spesa</button>
+                            <button class="btn btn-danger w-100" type="submit">Elimina spesa</button>
                         </form>
                     {% elseif payment is defined %}
                         <form action="{{ path('app_payment_delete', {id: payment.id}) }}" method="post" data-confirm="Eliminare definitivamente questo incasso?">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete_payment_' ~ payment.id) }}">
-                            <button class="btn btn-outline-danger w-100" type="submit">Elimina incasso</button>
+                            <button class="btn btn-danger w-100" type="submit">Elimina incasso</button>
                         </form>
                     {% endif %}
                 </div>

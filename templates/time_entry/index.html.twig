@@ -2,10 +2,11 @@
 
 {% block title %}Ore · {{ activity.title }} · {{ app_name }}{% endblock %}
 {% block page_title %}Ore · {{ activity.title }}{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_project_show', {id: activity.project.id}), label: 'Torna alla commessa'} only %}{% endblock %}
 {% block page_actions %}
 <div class="btn-list">
-    <a class="btn btn-outline-secondary" href="{{ path('app_project_show', {id: activity.project.id}) }}">Torna alla commessa</a>
-    <a class="btn btn-outline-secondary" href="{{ path('app_time_entry_index', {activity: activity.id}) }}">Apri nel report Ore</a>
+
+    <a class="btn btn-secondary" href="{{ path('app_time_entry_index', {activity: activity.id}) }}">Apri nel report Ore</a>
     {% if not activity.project.archived %}<a class="btn btn-primary" href="{{ path('app_time_entry_new', {id: activity.id}) }}">Registra ore</a>{% endif %}
 </div>
 {% endblock %}

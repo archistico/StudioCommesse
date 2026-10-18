@@ -2,9 +2,10 @@
 
 {% block title %}{{ page_title }} · {{ app_name }}{% endblock %}
 {% block page_title %}{{ page_title }}{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_project_show', {id: activity.project.id}), label: 'Torna alla commessa'} only %}{% endblock %}
 {% block page_actions %}
 <div class="btn-list">
-    <a href="{{ path('app_attachment_project', {id: activity.project.id, activity: activity.id}) }}" class="btn btn-outline-primary">Documenti{% if attachment_count > 0 %} ({{ attachment_count }}){% endif %}</a>
+    <a href="{{ path('app_attachment_project', {id: activity.project.id, activity: activity.id}) }}" class="btn btn-primary">Documenti{% if attachment_count > 0 %} ({{ attachment_count }}){% endif %}</a>
 </div>
 {% endblock %}
 
@@ -49,7 +50,7 @@
                 <div class="card-body">
                     <h3 class="card-title text-danger">Elimina attività</h3>
                     <p class="text-secondary">Elimina definitivamente questa attività e tutte le registrazioni ore collegate, anche di altri utenti. Potrai verificare il riepilogo prima di confermare.</p>
-                    <a class="btn btn-outline-danger" href="{{ path('app_activity_delete', {id: activity.id}) }}">Elimina attività e ore</a>
+                    <a class="btn btn-danger" href="{{ path('app_activity_delete', {id: activity.id}) }}">Elimina attività e ore</a>
                 </div>
             </div>
         {% endif %}

@@ -9,6 +9,18 @@ use App\Enum\UserRole;
 
 final class UserAccountGuard
 {
+    public function validateDeletion(User $actor, User $target, int $activePartnerCount): ?string
+    {
+        if ($actor === $target || (null !== $actor->getId() && $actor->getId() === $target->getId())) {
+            return 'Non puoi eliminare il tuo stesso account.';
+        }
+        if ($target->isActive() && UserRole::Partner === $target->getRole() && $activePartnerCount <= 1) {
+            return 'Deve rimanere almeno un socio attivo.';
+        }
+
+        return null;
+    }
+
     public function validateUpdate(
         User $actor,
         UserRole $previousRole,

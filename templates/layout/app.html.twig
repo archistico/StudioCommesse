@@ -101,11 +101,11 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_user_' ? 'active' : '' }}" href="{{ path('app_user_index') }}" aria-current="{{ app.request.attributes.get('_route') starts with 'app_user_' ? 'page' : 'false' }}">
+                            <a class="nav-link {{ (app.request.attributes.get('_route') starts with 'app_settings_' or app.request.attributes.get('_route') starts with 'app_user_') ? 'active' : '' }}" href="{{ path('app_settings_index') }}" aria-current="{{ (app.request.attributes.get('_route') starts with 'app_settings_' or app.request.attributes.get('_route') starts with 'app_user_') ? 'page' : 'false' }}">
                                 <span class="nav-link-icon d-md-none d-lg-inline-block" aria-hidden="true">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a4 4 0 1 0 0 -8a4 4 0 0 0 0 8"/><path d="M17 13a4 4 0 1 0 0 -8"/><path d="M17 21v-2a4 4 0 0 0 -4 -4H5a4 4 0 0 0 -4 4v2"/><path d="M21 21v-2a4 4 0 0 0 -3 -3.87"/></svg>
                                 </span>
-                                <span class="nav-link-title">Utenti</span>
+                                <span class="nav-link-title">Impostazioni</span>
                             </a>
                         </li>
                     {% endif %}
@@ -143,7 +143,10 @@
                 <div class="row g-2 align-items-center">
                     <div class="col">
                         <div class="page-pretitle">{{ app_name }}</div>
-                        <h2 class="page-title">{% block page_title %}Dashboard{% endblock %}</h2>
+                        <div class="page-heading">
+                            {% block page_back %}{% endblock %}
+                            <h2 class="page-title">{% block page_title %}Dashboard{% endblock %}</h2>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -158,7 +161,8 @@
                 {% endif %}
                 {% set page_actions_content = block('page_actions') %}
                 {% if page_actions_content|trim %}
-                    <nav class="section-actions d-print-none" aria-label="Azioni della sezione">{{ page_actions_content|raw }}</nav>
+                    {% set action_layout = block('page_actions_layout')|trim %}
+                    <nav class="section-actions d-print-none" aria-label="Azioni della sezione" data-action-layout="{{ action_layout }}"{% if action_layout == 'single-row' %} tabindex="0"{% endif %}>{{ page_actions_content|raw }}</nav>
                 {% endif %}
                 {% block page_body %}{% endblock %}
             </div>
@@ -179,3 +183,4 @@
 
 {% block page_actions %}{% endblock %}
 {% block page_summary %}{% endblock %}
+{% block page_actions_layout %}balanced{% endblock %}

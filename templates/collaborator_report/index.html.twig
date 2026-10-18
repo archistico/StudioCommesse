@@ -14,9 +14,9 @@
 {% endblock %}
 
 {% block page_actions %}
-<a class="btn btn-outline-success" href="{{ path('app_collaborator_report_csv', current_query) }}">CSV riepilogo</a>
-<a class="btn btn-outline-success" href="{{ path('app_collaborator_report_entries_csv', current_query) }}">CSV registrazioni</a>
-<button type="button" class="btn btn-outline-primary" data-print>Stampa report</button>
+<a class="btn btn-success" href="{{ path('app_collaborator_report_csv', current_query) }}">CSV riepilogo</a>
+<a class="btn btn-success" href="{{ path('app_collaborator_report_entries_csv', current_query) }}">CSV registrazioni</a>
+<button type="button" class="btn btn-primary" data-print>Stampa report</button>
 {% endblock %}
 
 {% block page_body %}

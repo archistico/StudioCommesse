@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelectorAll('.section-actions').forEach((bar) => {
+        if (bar.getAttribute?.('data-action-layout') === 'single-row') return;
         const actions = [...bar.children].flatMap((child) =>
             child.classList.contains('btn-list') ? [...child.children] : [child]
         );

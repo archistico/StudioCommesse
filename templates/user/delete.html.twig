@@ -1,0 +1,26 @@
+{% extends 'layout/app.html.twig' %}
+{% block title %}Elimina utente · {{ app_name }}{% endblock %}
+{% block page_title %}Elimina utente{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_user_edit', {id: target_user.id}), label: 'Torna all’utente'} only %}{% endblock %}
+{% block page_body %}
+<div class="form-page">
+    <div class="card border-danger">
+        <div class="card-header"><h3 class="card-title">{{ target_user.displayName }} · {{ target_user.username }}</h3></div>
+        <div class="card-body">
+            {% if deletion_error %}<div class="alert alert-warning" role="alert">{{ deletion_error }}</div>{% endif %}
+            <p>L’utente può essere eliminato soltanto se non ha commesse, attività, ore, timer, spese, incassi o documenti collegati, incluse le commesse archiviate.</p>
+            <dl class="row detail-list">
+                {% for label, count in links %}<dt class="col-12 col-md-6">{{ label }}</dt><dd class="col-12 col-md-6">{{ count }}</dd>{% endfor %}
+            </dl>
+            <p class="mb-0">L’eliminazione è definitiva. La cronologia audit viene conservata.</p>
+        </div>
+        <form action="{{ path('app_user_delete', {id: target_user.id}) }}" method="post">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ target_user.id) }}">
+            <div class="card-footer form-actions confirmation-actions">
+                <a class="btn btn-outline-secondary" href="{{ path('app_user_edit', {id: target_user.id}) }}">Annulla</a>
+                {% if not deletion_error %}<button class="btn btn-danger" type="submit">Elimina utente</button>{% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

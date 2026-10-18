@@ -1,6 +1,7 @@
 {% extends 'layout/app.html.twig' %}
 {% block title %}Elimina attività · {{ app_name }}{% endblock %}
 {% block page_title %}Elimina attività e ore collegate{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_activity_edit', {id: activity.id}), label: 'Torna all’attività'} only %}{% endblock %}
 {% block page_body %}
 <div class="form-page">
     <div class="card border-danger">

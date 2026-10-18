@@ -227,7 +227,7 @@ final readonly class MonthlyReportService
             AuditAction::PaymentCreated, AuditAction::PaymentUpdated, AuditAction::PaymentDeleted => ($project ?? 'Commessa').$amount,
             AuditAction::AttachmentUploaded, AuditAction::AttachmentUpdated, AuditAction::AttachmentDownloaded, AuditAction::AttachmentDeleted => $name ?? 'Documento',
             AuditAction::ClientCreated, AuditAction::ClientUpdated, AuditAction::ClientArchived, AuditAction::ClientRestored => $name ?? 'Cliente',
-            AuditAction::UserCreated, AuditAction::UserUpdated => $this->text($details['username'] ?? null) ?? 'Utente',
+            AuditAction::UserCreated, AuditAction::UserUpdated, AuditAction::UserDeleted => $this->text($details['username'] ?? null) ?? 'Utente',
             AuditAction::LoginSucceeded, AuditAction::LoginFailed, AuditAction::LoginThrottled => 'Accesso applicativo',
             AuditAction::FixturesLoaded => 'Dataset dimostrativo',
         };

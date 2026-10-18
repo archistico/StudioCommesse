@@ -4,9 +4,9 @@
 {% block page_title %}Report mensile · {{ report.month|date('m/Y') }}{% endblock %}
 {% block page_actions %}
 <div class="btn-list">
-    <a class="btn btn-outline-secondary" href="{{ path('app_monthly_report', {month: previous_month, project: selected_project ? selected_project.id : null}) }}">Mese precedente</a>
-    <a class="btn btn-outline-secondary" href="{{ path('app_monthly_report', {month: next_month, project: selected_project ? selected_project.id : null}) }}">Mese successivo</a>
-    <a class="btn btn-outline-secondary" href="{{ path('app_monthly_report_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">CSV dettaglio ore</a>
+    <a class="btn btn-secondary" href="{{ path('app_monthly_report', {month: previous_month, project: selected_project ? selected_project.id : null}) }}">Mese precedente</a>
+    <a class="btn btn-secondary" href="{{ path('app_monthly_report', {month: next_month, project: selected_project ? selected_project.id : null}) }}">Mese successivo</a>
+    <a class="btn btn-secondary" href="{{ path('app_monthly_report_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">CSV dettaglio ore</a>
     <a class="btn btn-success" href="{{ path('app_monthly_report_users_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">CSV riepilogo utenti</a>
 </div>
 {% endblock %}
@@ -41,7 +41,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-12"><button class="btn btn-outline-primary" type="submit">Mostra report</button></div>
+            <div class="col-12"><button class="btn btn-primary" type="submit">Mostra report</button></div>
         </form>
     </div>
 </details>
@@ -75,7 +75,7 @@
             <h3 class="card-title">Riepilogo ore e costi per utente</h3>
             <div class="small text-secondary">Il costo standard usa la tariffa attuale dell’utente; il costo storico usa le tariffe congelate sulle registrazioni concluse.</div>
         </div>
-        <a class="btn btn-sm btn-outline-success ms-auto d-print-none" href="{{ path('app_monthly_report_users_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">Esporta riepilogo</a>
+        <a class="btn btn-sm btn-success ms-auto d-print-none" href="{{ path('app_monthly_report_users_csv', {month: month_value, project: selected_project ? selected_project.id : null}) }}">Esporta riepilogo</a>
     </div>
     <div class="table-responsive">
         <table class="table table-vcenter card-table dt-responsive nowrap w-100" data-datatable>

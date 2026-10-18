@@ -1,0 +1,45 @@
+{% extends 'layout/app.html.twig' %}
+
+{% block title %}Impostazioni · {{ app_name }}{% endblock %}
+{% block page_title %}Impostazioni{% endblock %}
+{% block page_summary %}<p class="mb-0">Gestione riservata ai soci.</p>{% endblock %}
+
+{% block page_body %}
+<div class="row g-3">
+    <div class="col-12 col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><h3 class="card-title">Utenti</h3></div>
+            <div class="card-body"><p>Gestisci account, ruoli, tariffe e accessi.</p><a class="btn btn-primary" href="{{ path('app_user_index') }}">Gestisci utenti</a></div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><h3 class="card-title">Backup database</h3></div>
+            <div class="card-body">
+                <p>Scarica una copia del database, inclusi utenti e dati applicativi. I file dei documenti non sono inclusi: per il backup completo usa la procedura amministrativa di database e allegati.</p>
+                <form action="{{ path('app_settings_backup') }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('database_backup') }}">
+                    <button class="btn btn-primary" type="submit">Scarica database</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="card border-danger">
+            <div class="card-header"><h3 class="card-title">Svuota database mantenendo gli utenti</h3></div>
+            <div class="card-body">
+                <p>Elimina definitivamente clienti, commesse, attività, ore, timer, spese, incassi, registrazioni dei documenti e audit. Gli utenti, le password, i ruoli e le tariffe personali vengono conservati.</p>
+                <p>I file dei documenti restano sul server, ma non saranno più consultabili dal gestionale. Scarica un backup prima di procedere. L’operazione non è annullabile.</p>
+                {% if reset_error is defined %}<div class="alert alert-danger" role="alert">{{ reset_error }}</div>{% endif %}
+                <form action="{{ path('app_settings_reset') }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('database_reset') }}">
+                    <label class="form-label" for="reset-confirmation">Scrivi CANCELLA DATI per confermare</label>
+                    <input class="form-control mb-3" id="reset-confirmation" name="confirmation" type="text" autocomplete="off" required aria-describedby="reset-help">
+                    <p class="text-secondary" id="reset-help">Conferma richiesta per eliminare tutti i dati applicativi.</p>
+                    <button class="btn btn-danger" type="submit">Svuota database</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

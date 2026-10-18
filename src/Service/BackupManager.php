@@ -307,7 +307,7 @@ final readonly class BackupManager
         }
     }
 
-    private function snapshotDatabase(string $target): void
+    public function snapshotDatabase(string $target): void
     {
         if (file_exists($target)) {
             throw new \RuntimeException('Il file database del backup esiste già.');

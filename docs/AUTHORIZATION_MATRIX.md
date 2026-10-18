@@ -1,6 +1,6 @@
 # Matrice autorizzazioni e riservatezza
 
-Questa matrice descrive la politica server-side delle 60 rotte applicative. La versione verificabile è `config/authorization_matrix.php`; una nuova rotta deve essere aggiunta alla matrice prima che il gate possa passare.
+Questa matrice descrive la politica server-side delle 64 rotte applicative. La versione verificabile è `config/authorization_matrix.php`; una nuova rotta deve essere aggiunta alla matrice prima che il gate possa passare.
 
 ## Livelli di accesso
 
@@ -77,6 +77,8 @@ I percorsi di scelta app_activity_choose_project, app_attachment_choose_project 
 Anche app_expense_choose_project e app_payment_choose_project selezionano soltanto commesse attive. Il primo mantiene l'accesso collaboratore per le spese proprie; il secondo richiede ROLE_PARTNER prima di caricare l'elenco. Entrambi indirizzano ai form economici esistenti.
 
 ## Amministrazione
+
+Le rotte `app_settings_index` (GET), `app_settings_backup` (POST), `app_settings_reset` (POST) e `app_user_delete` (GET/POST) richiedono `ROLE_PARTNER`. Backup e azzeramento richiedono CSRF; l’azzeramento richiede anche `CANCELLA DATI` e un lock esclusivo delle richieste. Lo svuotamento globale include esplicitamente i dati archiviati, conservando utenti e migrazioni. L’eliminazione di un singolo utente richiede conferma e CSRF, nessun dato applicativo collegato e protegge account in uso e ultimo socio attivo. Il registro audit storico non blocca l’eliminazione dell’utente.
 
 Tutte le rotte `/admin/utenti`, `/controllo`, `/report/mensile`, `/report/collaboratori` e `/audit`, incluse le esportazioni CSV, richiedono `ROLE_PARTNER` lato server. Il registro audit contiene dati di sicurezza e correlazione tecnica e non viene mai esposto ai Collaboratori.
 

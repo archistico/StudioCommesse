@@ -11,6 +11,7 @@ enum AuditAction: string
     case LoginThrottled = 'security.login_throttled';
     case UserCreated = 'user.created';
     case UserUpdated = 'user.updated';
+    case UserDeleted = 'user.deleted';
     case ClientCreated = 'client.created';
     case ClientUpdated = 'client.updated';
     case ClientArchived = 'client.archived';
@@ -48,6 +49,7 @@ enum AuditAction: string
             self::LoginThrottled => 'Accesso temporaneamente bloccato',
             self::UserCreated => 'Utente creato',
             self::UserUpdated => 'Utente aggiornato',
+            self::UserDeleted => 'Utente eliminato',
             self::ClientCreated => 'Cliente creato',
             self::ClientUpdated => 'Cliente aggiornato',
             self::ClientArchived => 'Cliente archiviato',
@@ -83,7 +85,7 @@ enum AuditAction: string
     {
         return match ($this) {
             self::LoginSucceeded, self::LoginFailed, self::LoginThrottled => 'Sicurezza',
-            self::UserCreated, self::UserUpdated => 'Utenti',
+            self::UserCreated, self::UserUpdated, self::UserDeleted => 'Utenti',
             self::ClientCreated, self::ClientUpdated, self::ClientArchived, self::ClientRestored => 'Clienti',
             self::ProjectCreated, self::ProjectUpdated, self::ProjectArchived, self::ProjectRestored => 'Commesse',
             self::ActivityCreated, self::ActivityUpdated, self::ActivityDeleted => 'Attività',

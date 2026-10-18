@@ -62,4 +62,13 @@ final class UserAccountGuardTest extends TestCase
             2,
         ));
     }
+
+    public function testLastActivePartnerCannotBeDeleted(): void
+    {
+        $actor = (new User())->setRole(UserRole::Partner);
+        $target = (new User())->setRole(UserRole::Partner);
+
+        self::assertSame('Deve rimanere almeno un socio attivo.', $this->guard->validateDeletion($actor, $target, 1));
+        self::assertNull($this->guard->validateDeletion($actor, $target, 2));
+    }
 }

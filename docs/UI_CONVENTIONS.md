@@ -1,5 +1,9 @@
 # Convenzioni dell'interfaccia
 
+I pulsanti usano uno sfondo pieno, mantenendo i colori delle azioni: primario, secondario, successo e pericolo. Lo stile outline è riservato ad Annulla e alle azioni di ritorno alla vista precedente, inclusi Tutti i collaboratori e Lascia continuare. Filtri, azzeramento dei filtri, esportazioni, stampa e navigazione fra periodi usano pulsanti pieni.
+
+La navigazione di ritorno usa una freccia prima di h2.page-title, tramite il blocco page_back e il componente components/back_link.html.twig. Il collegamento mantiene una destinazione esplicita e un nome accessibile; non occupa la barra delle azioni. I pulsanti Annulla restano nei piè di pagina dei form. Nel dettaglio della commessa, Modifica si trova accanto a Dettagli della commessa; Nuova attività, Ore, Documenti, Economia e Controllo restano in una sola riga, scorribile orizzontalmente sugli schermi stretti. Le commesse archiviate espongono Ripristina al posto di Nuova attività.
+
 Il layout applicativo rende il titolo, l'eventuale blocco page_summary, la barra page_actions e infine page_body. Le card di riepilogo presentano gli indicatori essenziali; le informazioni di approfondimento possono essere richiuse tramite details e devono seguire gli elenchi quando sono secondarie.
 
 La barra delle azioni distribuisce i pulsanti sull'intera larghezza della riga, senza spazi vuoti laterali. Ogni riga contiene al massimo sei azioni, ridotte quando la larghezza disponibile lo richiede; le righe sono bilanciate e i pulsanti hanno un'altezza minima di 48 px. I pulsanti primari ricevono più spazio; data-action-priority="3" aumenta il peso delle operazioni più frequenti, mentre data-action-priority="1" assegna il peso normale. La dashboard privilegia registrazione ore e attività. Il ridimensionamento conserva ordine, moduli, token CSRF e collegamenti.

@@ -173,6 +173,36 @@ table.dataTable > tbody > tr.child span.dtr-title {
     overflow-wrap: anywhere;
 }
 
+.page-heading {
+    align-items: center;
+    display: flex;
+    gap: .75rem;
+    min-width: 0;
+}
+
+.page-heading .page-title {
+    min-width: 0;
+}
+
+.page-back {
+    flex: 0 0 2.75rem;
+    height: 2.75rem;
+    width: 2.75rem;
+}
+
+.page-back svg {
+    flex-shrink: 0;
+}
+
+.project-details-header {
+    flex-wrap: wrap;
+    gap: .75rem 1rem;
+}
+
+.project-details-header .card-title {
+    margin: 0;
+}
+
 .section-actions,
 .section-actions .btn-list,
 .section-actions .action-row {
@@ -232,6 +262,19 @@ table.dataTable > tbody > tr.child span.dtr-title {
 
 .section-actions form {
     display: flex;
+}
+
+.section-actions[data-action-layout="single-row"] {
+    overflow-x: auto;
+}
+
+.section-actions[data-action-layout="single-row"] .btn-list {
+    flex-wrap: nowrap;
+}
+
+.section-actions[data-action-layout="single-row"] .btn-list > * {
+    flex: var(--action-weight, 1) 0 8rem;
+    min-width: 8rem;
 }
 
 .form-page {

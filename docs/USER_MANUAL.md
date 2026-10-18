@@ -8,7 +8,7 @@ Non condividere password, non salvarle in file di testo e uscire dall’applicaz
 
 ## Navigazione
 
-La barra laterale contiene Dashboard, Commesse, Attività, Ore, Documenti e Clienti. I Soci vedono anche Report collaboratori, Report mensile, Controllo, Economia, Audit e Utenti.
+La barra laterale contiene Dashboard, Commesse, Attività, Ore, Documenti e Clienti. I Soci vedono anche Report collaboratori, Report mensile, Controllo, Economia, Audit e Impostazioni. La gestione Utenti si trova in Impostazioni → Gestisci utenti.
 
 Da tastiera:
 

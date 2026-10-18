@@ -91,4 +91,8 @@ return [
     'app_user_index' => ['methods' => ['GET'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'not_applicable', 'data' => 'user administration'],
     'app_user_new' => ['methods' => ['GET', 'POST'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'not_applicable', 'data' => 'user administration'],
     'app_user_edit' => ['methods' => ['GET', 'POST'], 'access' => 'partner', 'ownership' => 'guarded last partner/self update', 'archive' => 'not_applicable', 'data' => 'user administration'],
+    'app_user_delete' => ['methods' => ['GET', 'POST'], 'access' => 'partner', 'ownership' => 'no self deletion or linked records; preserve last active partner', 'archive' => 'not_applicable', 'data' => 'confirmation and CSRF; retain audit history'],
+    'app_settings_index' => ['methods' => ['GET'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'not_applicable', 'data' => 'users and database administration'],
+    'app_settings_backup' => ['methods' => ['POST'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'not_applicable', 'data' => 'CSRF protected SQLite snapshot download; no attachments'],
+    'app_settings_reset' => ['methods' => ['POST'], 'access' => 'partner', 'ownership' => 'none', 'archive' => 'not_applicable', 'data' => 'explicit confirmation and CSRF; delete all application data including archived projects; preserve users and migrations'],
 ];

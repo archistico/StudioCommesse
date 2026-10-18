@@ -2,6 +2,7 @@
 
 {% block title %}{{ page_title }} · {{ app_name }}{% endblock %}
 {% block page_title %}{{ page_title }}{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: project is defined ? path('app_project_show', {id: project.id}) : path('app_project_index'), label: project is defined ? 'Torna alla commessa' : 'Torna alle commesse'} only %}{% endblock %}
 {% block page_body %}
 <div class="row justify-content-center form-page">
     <div class="col-12">
@@ -42,7 +43,7 @@
                     <p class="text-secondary">I dati archiviati restano consultabili.</p>
                     <form method="post" action="{{ path('app_project_archive', {id: project.id}) }}" data-confirm="Archiviare questa commessa?">
                         <input type="hidden" name="_token" value="{{ csrf_token('archive_project_' ~ project.id) }}">
-                        <button class="btn btn-outline-danger w-100" type="submit">Archivia commessa</button>
+                        <button class="btn btn-danger w-100" type="submit">Archivia commessa</button>
                     </form>
                 </div>
             </div>

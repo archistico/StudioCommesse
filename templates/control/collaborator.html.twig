@@ -2,9 +2,10 @@
 
 {% block title %}Valutazione di {{ evaluation.displayName }} · {{ app_name }}{% endblock %}
 {% block page_title %}Valutazione collaboratore{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_control_index', control_query), label: 'Torna al controllo'} only %}{% endblock %}
 {% block page_actions %}
-    <a href="{{ path('app_control_index', control_query) }}" class="btn btn-outline-secondary">Torna al controllo</a>
-    <a href="{{ path('app_time_entry_index', time_report_query) }}" class="btn btn-outline-primary">Apri registrazioni ore</a>
+
+    <a href="{{ path('app_time_entry_index', time_report_query) }}" class="btn btn-primary">Apri registrazioni ore</a>
 {% endblock %}
 
 {% block page_summary %}
@@ -87,8 +88,8 @@
                 <label for="evaluation-to" class="form-label">Al</label>
                 <input id="evaluation-to" name="to" type="date" class="form-control" value="{{ date_to }}">
             </div>
-            <div class="col-12 col-lg-auto"><button class="btn btn-outline-primary" type="submit">Applica filtri</button></div>
-            <div class="col-12 col-lg-auto"><a href="{{ path('app_control_collaborator_show', {id: evaluation.userId}) }}" class="btn btn-outline-secondary w-100">Azzera</a></div>
+            <div class="col-12 col-lg-auto"><button class="btn btn-primary" type="submit">Applica filtri</button></div>
+            <div class="col-12 col-lg-auto"><a href="{{ path('app_control_collaborator_show', {id: evaluation.userId}) }}" class="btn btn-secondary w-100">Azzera</a></div>
         </form>
     </div>
 </details>

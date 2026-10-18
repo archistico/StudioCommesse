@@ -2,11 +2,12 @@
 
 {% block title %}Economia {{ project.code }} · {{ app_name }}{% endblock %}
 {% block page_title %}Economia · {{ project.code }}{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_project_show', {id: project.id}), label: 'Torna alla commessa'} only %}{% endblock %}
 {% block page_actions %}
 <div class="btn-list">
-    <a href="{{ path('app_project_show', {id: project.id}) }}" class="btn btn-outline-secondary">Torna alla commessa</a>
+
     {% if not project.archived %}
-        <a href="{{ path('app_expense_new', {id: project.id}) }}" class="btn btn-outline-primary">Nuova spesa</a>
+        <a href="{{ path('app_expense_new', {id: project.id}) }}" class="btn btn-primary">Nuova spesa</a>
     {% endif %}
     {% if is_partner_view and not project.archived %}
         <a href="{{ path('app_payment_new', {id: project.id}) }}" class="btn btn-primary">Nuovo incasso</a>

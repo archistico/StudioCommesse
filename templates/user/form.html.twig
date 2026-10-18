@@ -2,6 +2,10 @@
 
 {% block title %}{{ page_title }} · {{ app_name }}{% endblock %}
 {% block page_title %}{{ page_title }}{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_user_index'), label: 'Torna agli utenti'} only %}{% endblock %}
+{% block page_actions %}
+{% if edited_user is defined %}<a class="btn btn-danger" href="{{ path('app_user_delete', {id: edited_user.id}) }}">Elimina utente</a>{% endif %}
+{% endblock %}
 
 {% block page_body %}
 <div class="row justify-content-center form-page">

@@ -13,6 +13,7 @@ use App\Repository\UserRepository;
 use App\Service\AuditRecord;
 use App\Service\AuditedTransaction;
 use App\Service\UserAccountGuard;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
@@ -170,6 +171,56 @@ final class UserController extends AbstractController
             'submit_label' => 'Salva modifiche',
             'edited_user' => $user,
         ], new Response(status: $status));
+    }
+
+    #[Route('/{id}/elimina', name: 'app_user_delete', requirements: ['id' => '\\d+'], methods: ['GET', 'POST'])]
+    public function delete(
+        User $user,
+        Request $request,
+        UserRepository $userRepository,
+        UserAccountGuard $guard,
+        AuditedTransaction $transaction,
+    ): Response {
+        $actor = $this->requireCurrentUser();
+        if ($request->isMethod('POST') && !$this->isCsrfTokenValid('delete_user_'.$user->getId(), $request->request->getString('_token'))) {
+            throw $this->createAccessDeniedException('Token CSRF non valido.');
+        }
+        $links = $userRepository->countLinkedRecords($user);
+        $error = $guard->validateDeletion($actor, $user, $userRepository->countActiveByRole(UserRole::Partner));
+        if (null === $error && array_sum($links) > 0) {
+            $error = 'L’utente ha dati collegati e non può essere eliminato. Puoi disattivarlo dalla scheda utente.';
+        }
+
+        if ($request->isMethod('POST') && null === $error) {
+            $id = $user->getId();
+            $username = $user->getUsername();
+            try {
+                $transaction->execute(
+                    static fn () => $userRepository->remove($user),
+                    static fn (): AuditRecord => new AuditRecord(
+                        AuditAction::UserDeleted,
+                        $actor->getUserIdentifier(),
+                        User::class,
+                        $id,
+                        ['username' => $username],
+                        $request->getClientIp(),
+                    ),
+                );
+            } catch (ForeignKeyConstraintViolationException) {
+                $this->addFlash('danger', 'L’utente ha nuovi dati collegati e non può essere eliminato.');
+
+                return $this->redirectToRoute('app_user_index');
+            }
+            $this->addFlash('success', 'Utente eliminato correttamente.');
+
+            return $this->redirectToRoute('app_user_index');
+        }
+
+        return $this->render('user/delete.html.twig', [
+            'target_user' => $user,
+            'links' => $links,
+            'deletion_error' => $error,
+        ], new Response(status: $request->isMethod('POST') ? Response::HTTP_CONFLICT : Response::HTTP_OK));
     }
 
     private function requireCurrentUser(): User

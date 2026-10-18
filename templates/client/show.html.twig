@@ -2,12 +2,13 @@
 
 {% block title %}{{ client.name }} · {{ app_name }}{% endblock %}
 {% block page_title %}{{ client.name }}{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_client_index'), label: 'Torna ai clienti'} only %}{% endblock %}
 {% block page_actions %}
 <div class="btn-list">
     {% if is_granted('ROLE_PARTNER') and not client.archived %}
                     <a href="{{ path('app_project_new', {client: client.id}) }}" class="btn btn-primary">Nuova commessa</a>
                 {% endif %}
-    <a href="{{ path('app_client_index') }}" class="btn btn-outline-secondary">Torna ai clienti</a>
+
     {% if is_granted('ROLE_PARTNER') %}
         {% if not client.archived %}<a href="{{ path('app_client_edit', {id: client.id}) }}" class="btn btn-primary">Modifica</a>{% endif %}
         {% if client.archived %}

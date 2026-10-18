@@ -1,6 +1,7 @@
 {% extends 'layout/app.html.twig' %}
 {% block title %}Elimina registrazione ore · {{ app_name }}{% endblock %}
 {% block page_title %}Elimina registrazione ore{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: entry.running ? path('app_activity_time', {id: entry.activity.id}) : path('app_time_entry_edit', {id: entry.id}), label: 'Torna alla registrazione ore'} only %}{% endblock %}
 {% block page_body %}
 <div class="form-page">
     <div class="card border-danger">

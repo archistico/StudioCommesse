@@ -3,6 +3,7 @@
 {% set return_route = {activity: 'app_activity_index', attachment: 'app_attachment_index', time: 'app_time_entry_index', expense: is_granted('ROLE_PARTNER') ? 'app_economics_index' : 'app_project_index', payment: 'app_economics_index'}[kind] %}
 {% block title %}{{ heading }} · {{ app_name }}{% endblock %}
 {% block page_title %}{{ heading }}{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path(return_route), label: 'Torna indietro'} only %}{% endblock %}
 {% block page_body %}
 <div class="form-page">
     <div class="card">
@@ -12,7 +13,7 @@
                 {% if selection_error %}<div class="alert alert-warning" role="alert">Seleziona una commessa attiva{{ kind == 'time' ? ' e un’attività della commessa' : '' }} per continuare.</div>{% endif %}
                 {% if projects is empty %}
                     <p class="text-secondary">Non ci sono commesse attive. Per continuare occorre prima creare o ripristinare una commessa.</p>
-                    {% if is_granted('ROLE_PARTNER') %}<a class="btn btn-outline-primary" href="{{ path('app_project_new') }}">Nuova commessa</a>{% endif %}
+                    {% if is_granted('ROLE_PARTNER') %}<a class="btn btn-primary" href="{{ path('app_project_new') }}">Nuova commessa</a>{% endif %}
                 {% else %}
                     <p class="text-secondary">{{ kind == 'time' ? 'Scegli la commessa, poi l’attività su cui registrare le ore. L’elenco delle attività si aggiorna al cambio di commessa.' : 'Il nuovo elemento sarà collegato alla commessa selezionata.' }}</p>
                     <div class="row">
@@ -24,7 +25,7 @@
                             </select>
                         </div>
                         {% if kind == 'time' %}
-                            <div class="col-12 mt-3"><button class="btn btn-outline-secondary" type="submit" name="load" value="1" formnovalidate>Aggiorna attività</button></div>
+                            <div class="col-12 mt-3"><button class="btn btn-secondary" type="submit" name="load" value="1" formnovalidate>Aggiorna attività</button></div>
                             {% if selected_project %}
                                 <div class="col-12 mt-3">
                                     <label for="creation-activity" class="form-label required">Attività</label>

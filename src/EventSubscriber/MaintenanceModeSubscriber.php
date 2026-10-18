@@ -18,7 +18,7 @@ use Twig\Environment;
 
 final readonly class MaintenanceModeSubscriber implements EventSubscriberInterface
 {
-    private const REQUEST_LOCK_ATTRIBUTE = '_studio_commesse_runtime_lock';
+    private const REQUEST_LOCK_ATTRIBUTE = RequestRuntimeLock::REQUEST_ATTRIBUTE;
 
     public function __construct(
         private MaintenanceMode $maintenanceMode,

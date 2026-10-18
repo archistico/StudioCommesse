@@ -3,7 +3,7 @@
 {% block title %}Audit operativo · {{ app_name }}{% endblock %}
 {% block page_title %}Audit operativo{% endblock %}
 {% block page_actions %}
-    <a class="btn btn-outline-primary" href="{{ path('app_audit_csv', export_query) }}">Esporta CSV</a>
+    <a class="btn btn-primary" href="{{ path('app_audit_csv', export_query) }}">Esporta CSV</a>
 {% endblock %}
 
 {% block page_summary %}
@@ -52,7 +52,7 @@
             </div>
             <div class="col-12 d-flex gap-2">
                 <button class="btn btn-primary" type="submit">Applica filtri</button>
-                <a class="btn btn-outline-secondary" href="{{ path('app_audit_index') }}">Azzera</a>
+                <a class="btn btn-secondary" href="{{ path('app_audit_index') }}">Azzera</a>
             </div>
         </form>
     </div>

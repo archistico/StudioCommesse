@@ -3,7 +3,7 @@
 {% block title %}Controllo · {{ app_name }}{% endblock %}
 {% block page_title %}Controllo{% endblock %}
 {% block page_actions %}
-    <a href="{{ path('app_economics_index') }}" class="btn btn-outline-secondary">Apri economia</a>
+    <a href="{{ path('app_economics_index') }}" class="btn btn-secondary">Apri economia</a>
 {% endblock %}
 
 {% block page_summary %}
@@ -80,8 +80,8 @@
                     <option value="asc" {{ criteria.direction == 'asc' ? 'selected' : '' }}>Crescente</option>
                 </select>
             </div>
-            <div class="col-12 col-lg-auto"><button class="btn btn-outline-primary" type="submit">Applica</button></div>
-            <div class="col-12 col-lg-auto"><a href="{{ path('app_control_index', {reset: 1}) }}" class="btn btn-outline-secondary w-100">Azzera</a></div>
+            <div class="col-12 col-lg-auto"><button class="btn btn-primary" type="submit">Applica</button></div>
+            <div class="col-12 col-lg-auto"><a href="{{ path('app_control_index', {reset: 1}) }}" class="btn btn-secondary w-100">Azzera</a></div>
             <div class="col-12"><div class="form-hint">Il periodo influenza i riepiloghi per persona, cliente e mese. Gli stati di chiusura e gli scostamenti della commessa sono sempre calcolati sull’intera vita della commessa.</div></div>
         </form>
     </div>

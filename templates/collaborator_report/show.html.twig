@@ -1,6 +1,7 @@
 {% extends 'layout/app.html.twig' %}
 {% block title %}Report di {{ person.name }} · {{ app_name }}{% endblock %}
 {% block page_title %}Report collaboratore · {{ person.name }}{% endblock %}
+{% block page_back %}{% include 'components/back_link.html.twig' with {url: path('app_collaborator_report_index', current_query|merge({user: null})), label: 'Tutti i collaboratori'} only %}{% endblock %}
 
 {% block page_summary %}
 <h2 class="d-none d-print-block">Report collaboratore · {{ person.name }}</h2>
@@ -15,10 +16,10 @@
 {% endblock %}
 
 {% block page_actions %}
-<a class="btn btn-outline-secondary" href="{{ path('app_collaborator_report_index', current_query|merge({user: null})) }}">Tutti i collaboratori</a>
-<a class="btn btn-outline-success" href="{{ path('app_collaborator_report_entries_csv', current_query) }}">CSV registrazioni</a>
-<a class="btn btn-outline-primary" href="{{ path('app_time_entry_index', {user: person.id, project: criteria.projectId, from: criteria.from|date('Y-m-d'), to: criteria.to|date('Y-m-d')}) }}">Apri registrazioni ore</a>
-<button type="button" class="btn btn-outline-primary" data-print>Stampa report</button>
+
+<a class="btn btn-success" href="{{ path('app_collaborator_report_entries_csv', current_query) }}">CSV registrazioni</a>
+<a class="btn btn-primary" href="{{ path('app_time_entry_index', {user: person.id, project: criteria.projectId, from: criteria.from|date('Y-m-d'), to: criteria.to|date('Y-m-d')}) }}">Apri registrazioni ore</a>
+<button type="button" class="btn btn-primary" data-print>Stampa report</button>
 {% endblock %}
 
 {% block page_body %}

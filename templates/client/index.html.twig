@@ -5,7 +5,7 @@
 {% block page_actions %}
     {% if is_granted('ROLE_PARTNER') %}
         <div class="btn-list">
-            <a href="{{ path('app_economics_index') }}#importi-clienti" class="btn btn-outline-primary">Riepilogo dovuti</a>
+            <a href="{{ path('app_economics_index') }}#importi-clienti" class="btn btn-primary">Riepilogo dovuti</a>
             <a href="{{ path('app_client_new') }}" class="btn btn-primary">Nuovo cliente</a>
         </div>
     {% endif %}
@@ -27,7 +27,7 @@
             </div>
             <div class="col-12 col-lg-2 d-flex gap-2">
                 <button class="btn btn-primary flex-fill" type="submit">Filtra</button>
-                <a class="btn btn-outline-secondary" href="{{ path('app_client_index') }}" aria-label="Azzera filtri">×</a>
+                <a class="btn btn-secondary" href="{{ path('app_client_index') }}" aria-label="Azzera filtri">×</a>
             </div>
         </form>
     </div>
