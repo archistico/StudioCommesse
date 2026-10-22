@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased - Compatibilità SQLite dei codici commessa
+
+- La creazione delle commesse non richiede più la clausola `RETURNING`, non disponibile nelle versioni SQLite precedenti alla 3.35 usate da alcuni server.
+- Incremento e lettura del progressivo annuale avvengono nella stessa transazione, mantenendo la protezione dagli accessi concorrenti e il rollback con la creazione della commessa.
+- Verificati progressivi annuali, continuazione delle sequenze esistenti, persistenza tra connessioni e rollback della transazione chiamante.
+
 ## Unreleased - Eliminazione attività e ore riservata ai soci
 
 - I soci possono eliminare singole registrazioni ore di qualunque utente, compresi i timer attivi, dopo una pagina di conferma.
